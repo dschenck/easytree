@@ -1,4 +1,7 @@
 class Tree:
+    """
+    Recursive tree
+    """
     __hash__ = None 
     
     def __init__(self, value=None):
@@ -79,23 +82,28 @@ class Tree:
             return
         return self.__value__.__setitem__(name, value)
         
-    def append(self, value):
+    def append(self, *args, **kwargs):
         """
-        Appends a value to a list node (tree branch). If the node type was previously undefined, the node becomes a list. Otherwise, it delegates the call to the underlying value object. 
+        Appends a value to a list node (tree branch). If the node type was previously undefined, the node becomes a list. 
+        Otherwise, it delegates the call to the underlying value object. 
 
-        Raises
+        Note
         ---------
-        ValueError
-            if the node is not a list node
+        The append method can take either one positional argument or one-to-many named (keyword) arguments. If passed one-to-many keyword arguments, the kwargs dictionary is added to the list.
 
         Example
         ---------
-        >>> tree = easytree.new() #undefined node
-        >>> tree.append("hello world") #casts node to list
+        >>> tree = easytree.new()                                 #undefined node
+        >>> tree.append("hello world")                            #casts node to list
+        >>> tree.append(name="David", age=29)                     #call with kwargs
+        >>> tree.append({"animal":"elephant", "country":"India"}) #call with args
         >>> easytree.serialize(tree)
-        ["Hello world"]
+        ["Hello world",{"name":"David","age":29},{"animal":"elephant", "country":"India"}]
 
         """
+        if len(args) > 1 or (len(args) != 0 and len(kwargs) != 0) or (len(args) == len(kwargs) == 0): 
+            raise ValueError("append must take either one positional argument or one-to-many named arguments")
+        value = args[0] if args else kwargs
         if self.__nodetype__ == "null":
             self.__value__ = []        
         if self.__nodetype__ == "list":
@@ -106,11 +114,60 @@ class Tree:
             else:
                 value = Tree(value)
             return self.__value__.append(value)
-        raise ValueError("Tree is not a list")
+        return self.__value__.append(*args, **kwargs)
     
 def serialize(tree):
     """
-    Converts an :code:`easytree.Tree` to a native python type.
+    Recursively converts an :code:`easytree.Tree` to a native python type.
+
+    Example
+    ---------------------
+    >>> chart = easytree.new()
+    >>> chart.chart.type = "bar"
+    >>> chart.title.text = "France Olympic Medals"
+    >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
+    >>> chart.yAxis.title.text = "Count"
+    >>> chart.series.append(name="2016", data=[10, 18, 14])
+    >>> chart.series.append({"name":"2012", "data":[11,11,13]})
+    >>> easytree.serialize(chart)
+    {
+        "chart": {
+            "type": "bar"
+        },
+        "title": {
+            "text": "France Olympic Medals"
+        },
+        "xAxis": {
+            "categories": [
+                "Gold",
+                "Silver",
+                "Bronze"
+            ]
+        },
+        "yAxis": {
+            "title": {
+                "text": "Count"
+            }
+        },
+        "series": [
+            {
+                "name": "2016",
+                "data": [
+                    10,
+                    18,
+                    14
+                ]
+            },
+            {
+                "name": "2012",
+                "data": [
+                    11,
+                    11,
+                    13
+                ]
+            }
+        ]
+    }
     """
     if tree.__nodetype__ == "null":
         return None
