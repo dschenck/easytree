@@ -19,6 +19,14 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree, easytree.Tree)
         self.assertEqual(tree.__nodetype__, "list")
 
+        tree = easytree.new(1)
+        self.assertEqual(tree, 1)
+        self.assertIsInstance(tree, int)
+
+        tree = easytree.new(True)
+        self.assertEqual(tree, True)
+        self.assertIsInstance(tree, bool)
+
     def test_serialization(self):
         tree = easytree.new()
         self.assertIsNone(easytree.serialize(tree))
@@ -86,7 +94,7 @@ class TestTree(unittest.TestCase):
     def test_iteration(self):
         tree = easytree.new([1,2,3])
         for child in tree: 
-            self.assertIsInstance(child, easytree.Tree)
+            self.assertIsInstance(child, int)
 
         tree = easytree.new({"name":"David","age":29})
         for child in tree: 

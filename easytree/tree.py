@@ -4,6 +4,11 @@ class Tree:
     """
     __hash__ = None 
     
+    def __new__(cls, value=None): 
+        if value is None or isinstance(value, (list, tuple, set, dict)):
+            return super(Tree, cls).__new__(cls)
+        return value
+
     def __init__(self, value=None):
         if isinstance(value, dict):
             value = {k:Tree(v) for k,v in value.items()}
@@ -27,7 +32,7 @@ class Tree:
             return "list"
         if isinstance(self.__value__, dict):
             return "dict"
-        return "object"
+        raise RuntimeError
     
     def __getattr__(self, name):
         if self.__nodetype__ in ["null", "dict"]:
@@ -36,7 +41,7 @@ class Tree:
             if name not in self.__value__: 
                 self.__value__[name] = Tree()
             return self.__value__[name]
-        return self.__value__.__getattr__(name)
+        raise RuntimeError
     
     def __setattr__(self, name, value):
         if name == "__value__":
@@ -48,7 +53,7 @@ class Tree:
                 self.__value__[name] = Tree(value)
             self.__value__[name]
             return
-        return self.__value__.__setattr__(name, value)
+        raise RuntimeError
         
     def __getitem__(self, name):
         if self.__nodetype__ == "null":
@@ -64,7 +69,7 @@ class Tree:
             if not isinstance(name, int): 
                 raise IndexError(f"Cannot index list with {type(name)}")
             return self.__value__[name]
-        return self.__value__.__getitem__(name)
+        raise RuntimeError
         
     def __setitem__(self, name, value):
         if self.__nodetype__ == "null":
@@ -80,13 +85,16 @@ class Tree:
                 raise IndexError(f"Cannot index list with {type(name)}")
             self.__value__[name] = Tree(value)
             return
-        return self.__value__.__setitem__(name, value)
+        raise RuntimeError
 
     def __iter__(self):
         return iter(self.__value__)
 
     def __len__(self):
         return len(self.__value__)
+
+    def __contains__(self, value):
+        return self.__value__.__contains__(value)
         
     def append(self, *args, **kwargs):
         """
@@ -120,7 +128,7 @@ class Tree:
             else:
                 value = Tree(value)
             return self.__value__.append(value)
-        return self.__value__.append(*args, **kwargs)
+        raise RuntimeError
     
 def serialize(tree):
     """
@@ -175,13 +183,15 @@ def serialize(tree):
         ]
     }
     """
+    if not isinstance(tree, Tree):
+        return tree
     if tree.__nodetype__ == "null":
         return None
     if tree.__nodetype__ == "list":
         return [serialize(value) for value in tree.__value__]
     if tree.__nodetype__ == "dict":
         return {key:serialize(value) for key, value in tree.__value__.items()}
-    return tree.__value__
+    raise RuntimeError
 
 
 def new(root=None): 
