@@ -81,6 +81,12 @@ class Tree:
             self.__value__[name] = Tree(value)
             return
         return self.__value__.__setitem__(name, value)
+
+    def __iter__(self):
+        return iter(self.__value__)
+
+    def __len__(self):
+        return len(self.__value__)
         
     def append(self, *args, **kwargs):
         """

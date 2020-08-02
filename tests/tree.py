@@ -72,3 +72,23 @@ class TestTree(unittest.TestCase):
 
         tree = easytree.new({0:"test"}) #convert to dict-node
         self.assertEqual(easytree.serialize(tree)[0], "test")
+
+    def test_length(self):
+        tree = easytree.new([1,2,3])
+        self.assertEqual(len(tree), 3)
+
+        tree = easytree.new({"name":"David","age":29})
+        self.assertEqual(len(tree), 2)
+
+        with self.assertRaises(TypeError):
+            len(easytree.new(1))
+
+    def test_iteration(self):
+        tree = easytree.new([1,2,3])
+        for child in tree: 
+            self.assertIsInstance(child, easytree.Tree)
+
+        tree = easytree.new({"name":"David","age":29})
+        for child in tree: 
+            self.assertIsInstance(child, str)
+
