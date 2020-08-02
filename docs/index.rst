@@ -1,6 +1,6 @@
 easytree
 ======================================
-An easy and permissive python tree builder, useful to create multi-level JSON configurations 
+An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can morph into a list.
 
 Quickstart
 -------------------------------------
@@ -14,7 +14,7 @@ Using :code:`easytree` is also easy
     
     >>> import easytree
 
-    #let's create a highchart chart configuration
+    #let's create a chart configuration
     >>> chart = easytree.new()
     >>> chart.chart.type = "bar"
     >>> chart.title.text = "France Olympic Medals"
@@ -22,7 +22,7 @@ Using :code:`easytree` is also easy
     >>> chart.yAxis.title.text = "Count"
     >>> chart.series.append(name="2016", data=[10, 18, 14])
     >>> chart.series.append({"name":"2012"})
-    >>> chart.series[1].data = [11, 11, 13] #whoops, forgot to set the data
+    >>> chart.series[1].data = [11, 11, 13] #list items recursively become nodes
 
     >>> easytree.serialize(chart)
     {
@@ -66,7 +66,7 @@ Using :code:`easytree` is also easy
 
 The name of the game: key assumptions
 -------------------------------------------------------
-Each newly-created node (including the root node), unless given an explicit value, is undefined, and can morph into a list-node, a dict-node or a value-node. The type of an undefined node is determined by subsequent interactions:
+The type of each newly-created node (including the root node), unless given an explicit value, is undefined, and can morph into a list-node, a dict-node or a value-node. The type of an undefined node is determined by subsequent interactions:
 
 - if the :code:`append` method is called on an undefined node, that node becomes a list-node. 
 - if an attribute is called on an undefined node (e.g. :code:`node.name`), or a key is retrieved (e.g. :code:`node["name"]`), that node becomes a dict-node.
@@ -99,7 +99,7 @@ Example:
     
     **To avoid unintentionally creating dict-nodes, an** :code:`IndexError` **will be raised.**
 
-One the type of a node is determined, it cannot morph into another type. For example:
+Once the type of a node is determined, it cannot morph into another type. For example:
 ::
     
     >>> root = easytree.tree({}) #explicitely set as dict-node
@@ -121,7 +121,6 @@ Compare:
     >>> tree = easytree.new()
     >>> tree.friends = [{"name":"David"},{"name":"Celine"}]
     >>> tree.friends[0].age = 29 #this works
-
     >>> easytree.serialize(tree)
     {'friends': [{'age': 29, 'name': 'David'}, {'name': 'Celine'}]}
 
@@ -133,7 +132,6 @@ with:
     >>> tree = jsontree.jsontree()
     >>> tree.friends = [{"name":"David"},{"name":"Celine"}]
     >>> tree.friends[0].age = 29 #this does not work
-    
     AttributeError: 'dict' object has no attribute 'age'
 
 

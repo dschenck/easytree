@@ -99,7 +99,6 @@ class Tree:
     def append(self, *args, **kwargs):
         """
         Appends a value to a list node (tree branch). If the node type was previously undefined, the node becomes a list. 
-        Otherwise, it delegates the call to the underlying value object. 
 
         Note
         ---------
