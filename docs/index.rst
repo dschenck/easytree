@@ -146,3 +146,17 @@ API Documentation
 
 .. automodule:: easytree
     :members: new, serialize
+
+Changelog 
+-----------------------------------
+
+Version 0.1.0 (2020-08-01)
+************************************
+    - created :code:`easytree`
+
+Version 0.1.1 (2020-08-02)
+************************************
+    - added ability to :code:`append` dictionary using keyword arguments
+    - :code:`append` now delegates to underlying value object if it is not a list-node
+    - added ability to iterate over a tree
+    - added ability to compute the length of a tree (for list-nodes and dict-nodes)
