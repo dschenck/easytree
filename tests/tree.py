@@ -54,6 +54,21 @@ class TestTree(unittest.TestCase):
     def test_appending(self):
         tree = easytree.new()
         tree.append({"make":"Saab","color":"blue"})
+        tree.append(make="Toyota", color="red")
 
         self.assertIsInstance(easytree.serialize(tree), list)
         self.assertIsInstance(tree[0], easytree.Tree)
+        self.assertIsInstance(tree[1], easytree.Tree)
+
+    def test_indexing(self):
+        tree = easytree.new()
+
+        with self.assertRaises(IndexError):
+            tree[0] = "test"
+
+        tree = easytree.new()
+        tree.append("test") #convert to list-node
+        self.assertEqual(easytree.serialize(tree)[0], "test")
+
+        tree = easytree.new({0:"test"}) #convert to dict-node
+        self.assertEqual(easytree.serialize(tree)[0], "test")
