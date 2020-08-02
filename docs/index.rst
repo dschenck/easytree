@@ -1,6 +1,6 @@
 easytree
 ======================================
-An easy and permissive python tree builder. 
+An easy and permissive python tree builder, useful to create multi-level JSON configurations 
 
 Quickstart
 -------------------------------------
@@ -12,7 +12,6 @@ Installing :code:`easytree` is simple with pip:
 Using :code:`easytree` is also easy
 ::
     
-    >>> import json
     >>> import easytree
 
     #let's create a highchart chart configuration
@@ -26,7 +25,6 @@ Using :code:`easytree` is also easy
     >>> chart.series[1].data = [11, 11, 13] #whoops, forgot to set the data
 
     >>> easytree.serialize(chart)
-
     {
         "chart": {
             "type": "bar"
@@ -78,8 +76,8 @@ Example:
 ::
 
     >>> root = easytree.new()            #root is an undefined node
-    >>> root.name   = "David"            #root is now a dict-node, and name is a value-node
-    >>> root.colors = ["blue", "brown"]  #colors is a list-node of value-nodes
+    >>> root.name = "David"              #root is now a dict-node, and name is a string
+    >>> root.colors = ["blue", "brown"]  #colors is a list-node of strings
     >>> root.cities.append(name="Paris") #cities is a list node of dict-nodes
     
     >>> easytree.serialize(root)
@@ -123,8 +121,8 @@ Compare:
     >>> tree = easytree.new()
     >>> tree.friends = [{"name":"David"},{"name":"Celine"}]
     >>> tree.friends[0].age = 29 #this works
-    >>> easytree.serialize(tree)
 
+    >>> easytree.serialize(tree)
     {'friends': [{'age': 29, 'name': 'David'}, {'name': 'Celine'}]}
 
 with: 
@@ -160,3 +158,8 @@ Version 0.1.1 (2020-08-02)
     - :code:`append` now delegates to underlying value object if it is not a list-node
     - added ability to iterate over a tree
     - added ability to compute the length of a tree (for list-nodes and dict-nodes)
+
+Version 0.1.2 (2020-08-03)
+************************************
+    - implemented a :code:`___new__` method to filter out primitive and object types
+    - added ability to check for contains
