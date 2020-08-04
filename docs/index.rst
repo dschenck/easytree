@@ -159,5 +159,5 @@ Version 0.1.1 (2020-08-02)
 
 Version 0.1.2 (2020-08-03)
 ************************************
-    - implemented a :code:`___new__` method to filter out primitive and object types
+    - overrode the :code:`__new__` method to filter out primitive and object types
     - added ability to check for contains
