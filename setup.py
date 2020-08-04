@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="easytree",
-    version="0.1.2",
+    version="0.1.3",
     author="david.schenck@outlook.com",
     author_email="david.schenck@outlook.com",
-    description="A very permissive tree builder",
+    description="An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can also morph into a list.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/dschenck/easytree",
