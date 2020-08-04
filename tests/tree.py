@@ -59,6 +59,13 @@ class TestTree(unittest.TestCase):
         self.assertEqual(len(tree["context"]), 2)
         self.assertEqual(tree["friends"][0]["age"], 29)
 
+        tree = easytree.new()
+        tree.friends = [{"name":"David"}, {"name":"Celine"}]
+        tree.friends[0].age = 29
+        tree.context.city = "London"
+        tree.context.country = "United Kingdom"
+        self.assertEqual(set(easytree.serialize(tree)), set(tree.serialize()))
+
     def test_appending(self):
         tree = easytree.new()
         tree.append({"make":"Saab","color":"blue"})

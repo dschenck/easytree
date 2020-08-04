@@ -128,6 +128,61 @@ class Tree:
                 value = Tree(value)
             return self.__value__.append(value)
         raise RuntimeError
+
+    def serialize(self):
+        """
+        Recursively converts itself to a native python type.
+
+        Example
+        ---------------------
+        >>> chart = easytree.new()
+        >>> chart.chart.type = "bar"
+        >>> chart.title.text = "France Olympic Medals"
+        >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
+        >>> chart.yAxis.title.text = "Count"
+        >>> chart.series.append(name="2016", data=[10, 18, 14])
+        >>> chart.series.append({"name":"2012", "data":[11,11,13]})
+        >>> chart.serialize()
+        {
+            "chart": {
+                "type": "bar"
+            },
+            "title": {
+                "text": "France Olympic Medals"
+            },
+            "xAxis": {
+                "categories": [
+                    "Gold",
+                    "Silver",
+                    "Bronze"
+                ]
+            },
+            "yAxis": {
+                "title": {
+                    "text": "Count"
+                }
+            },
+            "series": [
+                {
+                    "name": "2016",
+                    "data": [
+                        10,
+                        18,
+                        14
+                    ]
+                },
+                {
+                    "name": "2012",
+                    "data": [
+                        11,
+                        11,
+                        13
+                    ]
+                }
+            ]
+        }
+        """
+        return serialize(self)
     
 def serialize(tree):
     """
