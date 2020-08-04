@@ -1,6 +1,6 @@
 easytree
 ======================================
-An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can morph into a list.
+An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can also morph into a list.
 
 Quickstart
 -------------------------------------
@@ -70,7 +70,7 @@ The type of each newly-created node (including the root node), unless given an e
 
 - if the :code:`append` method is called on an undefined node, that node becomes a list-node. 
 - if an attribute is called on an undefined node (e.g. :code:`node.name`), or a key is retrieved (e.g. :code:`node["name"]`), that node becomes a dict-node.
-- any value assigned at a node recursively becomes a node, whose type is determined by the type of the given value (list-node for iterables (list, tuple, set), dict-node for dictionaries, value-nodes for other types).
+- any value appended or assigned at a node recursively becomes a node, whose type is determined by the type of the given value (list-node for iterables (list, tuple, set), dict-node for dictionaries, value-nodes for other types).
 
 Example: 
 ::
@@ -99,6 +99,9 @@ Example:
     
     **To avoid unintentionally creating dict-nodes, an** :code:`IndexError` **will be raised.**
 
+.. note::
+    The :code:`Tree` class has only two methods: :code:`append` and :code:`serialize`. Any other attribute called on an instance will create a new node, attach it to the instance and return it.
+
 Once the type of a node is determined, it cannot morph into another type. For example:
 ::
     
@@ -110,8 +113,8 @@ How does :code:`easytree` compare with :code:`jsontree`
 -------------------------------------------------------
 :code:`easytree` differs from :code:`jsontree` (see `here <https://github.com/dougn/jsontree>`_) in two important ways:
 
-1. list elements, when appended to an :code:`easytree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
-2. :code:`easytree` is designed to make building a tree easier for the user, regardless of the datatype of the tree leaves; in other words, serialization of an :code:`easytree` merely converts the tree to a dictionary, list or underlying value (for leaves)
+1. elements, when attached or appended to an :code:`easytree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
+2. :code:`easytree` is designed to make building a tree easier for the user, regardless of the datatype of the tree leaves; in other words, serialization of an :code:`easytree` merely converts the tree to a dictionary, list or underlying value (for leaves). It does not serialize to JSON.
 
 Compare: 
 ::
@@ -153,7 +156,6 @@ Version 0.1.0 (2020-08-01)
 Version 0.1.1 (2020-08-02)
 ************************************
     - added ability to :code:`append` dictionary using keyword arguments
-    - :code:`append` now delegates to underlying value object if it is not a list-node
     - added ability to iterate over a tree
     - added ability to compute the length of a tree (for list-nodes and dict-nodes)
 
@@ -161,3 +163,7 @@ Version 0.1.2 (2020-08-03)
 ************************************
     - overrode the :code:`__new__` method to filter out primitive and object types
     - added ability to check for contains
+
+Version 0.1.3 (2020-08-04)
+************************************
+    - added the :code:`serialize` method to the tree
