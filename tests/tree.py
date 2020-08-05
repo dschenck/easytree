@@ -75,6 +75,10 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree[0], easytree.Tree)
         self.assertIsInstance(tree[1], easytree.Tree)
 
+        tree = easytree.new()
+        tree.append(None).append(None).append(1)
+        self.assertEqual(str(tree.serialize()), "[[[1]]]")
+
     def test_indexing(self):
         tree = easytree.new()
 
@@ -122,4 +126,15 @@ class TestTree(unittest.TestCase):
         self.assertEqual(set(instance.serialize()), set(("name","address")))
         self.assertEqual(set(instance.serialize()["address"]), set(("number","street","city","country")))
         self.assertEqual(instance.serialize()["address"]["city"], "Paris")
+
+    def test_contextmanager(self):
+        chart = easytree.new()
+
+        with chart.axes.append({}) as axis: 
+            axis.title.text = "primary axis"
+        with chart.axes.append({}) as axis: 
+            axis.title.text = "secondary axis"
+
+        self.assertEqual(chart.axes[0].title.text, "primary axis")
+        self.assertEqual(chart.axes[1].title.text, "secondary axis")
 

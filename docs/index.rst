@@ -64,6 +64,30 @@ Using :code:`easytree` is also easy
         ]
     }
 
+The purpose of the :code:`easytree` library is to write fluent code:
+::
+
+    >>> chart = easytree.new()
+    >>> with chart.axes.append({}) as axis: 
+    ...     axis.title.text = "primary axis"
+    >>> with chart.axes.append({}) as axis: 
+    ...     axis.title.text = "secondary axis"
+    >>> chart.serialize()
+    {
+        "axes": [
+            {
+                "title": {
+                    "text": "primary axis"
+                }
+            },
+            {
+                "title": {
+                    "text": "secondary axis"
+                }
+            }
+        ]
+    }
+
 The name of the game: key assumptions
 -------------------------------------------------------
 The type of each newly-created node (including the root node), unless given an explicit value, is undefined, and can morph into a list-node, a dict-node or a value-node. The type of an undefined node is determined by subsequent interactions:
@@ -167,3 +191,9 @@ Version 0.1.2 (2020-08-03)
 Version 0.1.3 (2020-08-04)
 ************************************
     - added the :code:`serialize` method to the tree
+
+Version 0.1.4 (2020-08-05)
+************************************
+    - added context manager to return a reference to itself
+    - addressed infinite recursion in :code:`__getattr__`
+    - :code:`append` now returns a reference to last added node, if it is a node

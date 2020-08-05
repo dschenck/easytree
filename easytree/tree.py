@@ -95,6 +95,12 @@ class Tree:
     def __len__(self):
         return len(self.__value__)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        pass
+
     def __contains__(self, value):
         return self.__value__.__contains__(value)
         
@@ -115,6 +121,32 @@ class Tree:
         >>> easytree.serialize(tree)
         ["Hello world",{"name":"David","age":29},{"animal":"elephant", "country":"India"}]
 
+        Note
+        ---------
+        The append method intentionally returns a reference to the last-added item, if that item is a new node. This allows for more fluent code using the context manager. 
+
+        Example
+        -----------
+        >>> chart = easytree.new()
+        >>> with chart.axes.append({}) as axis: 
+        ...     axis.title.text = "primary axis"
+        >>> with chart.axes.append({}) as axis: 
+        ...     axis.title.text = "secondary axis"
+        >>> chart.serialize()
+        {
+            "axes": [
+                {
+                    "title": {
+                        "text": "primary axis"
+                    }
+                },
+                {
+                    "title": {
+                        "text": "secondary axis"
+                    }
+                }
+            ]
+        }
         """
         if len(args) > 1 or (len(args) != 0 and len(kwargs) != 0) or (len(args) == len(kwargs) == 0): 
             raise ValueError("append must take either one positional argument or one-to-many named arguments")
@@ -128,7 +160,8 @@ class Tree:
                 value = Tree({k:Tree(v) for k,v in value.items()})
             else:
                 value = Tree(value)
-            return self.__value__.append(value)
+            self.__value__.append(value)
+            return value if isinstance(value, Tree) else None 
         raise RuntimeError
 
     def serialize(self):
