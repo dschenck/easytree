@@ -107,3 +107,19 @@ class TestTree(unittest.TestCase):
         for child in tree: 
             self.assertIsInstance(child, str)
 
+    def test_inheritence(self):
+        
+        class Child(easytree.Tree):
+            def __init__(self, name):
+                self.name = name
+
+        instance = Child("Bob")
+        instance.address.number = 1
+        instance.address.street = "avenue Montaigne"
+        instance.address.city = "Paris"
+        instance.address.country = "France"
+        
+        self.assertEqual(set(instance.serialize()), set(("name","address")))
+        self.assertEqual(set(instance.serialize()["address"]), set(("number","street","city","country")))
+        self.assertEqual(instance.serialize()["address"]["city"], "Paris")
+

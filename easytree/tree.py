@@ -4,7 +4,9 @@ class Tree:
     """
     __hash__ = None 
     
-    def __new__(cls, value=None): 
+    def __new__(cls, value=None):
+        if cls is not Tree: 
+            return super(type(cls), cls).__new__(cls)
         if value is None or isinstance(value, (list, tuple, set, dict)):
             return super(Tree, cls).__new__(cls)
         return value
@@ -26,7 +28,7 @@ class Tree:
         
     @property
     def __nodetype__(self): 
-        if self.__value__ is None: 
+        if "__value__" not in self.__dict__ or self.__value__ is None: 
             return "null"
         if isinstance(self.__value__, list):
             return "list"
