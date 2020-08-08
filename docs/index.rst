@@ -1,13 +1,13 @@
 easytree
 ======================================
-An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can also morph into a list.
+A fluent tree builder, useful to create multi-level, nested JSON configurations.
 
 Quickstart
 -------------------------------------
 Installing :code:`easytree` is simple with pip: 
 ::
 
-    $ pip install easytree
+    pip install easytree
 
 Using :code:`easytree` is also easy
 ::
@@ -64,7 +64,7 @@ Using :code:`easytree` is also easy
         ]
     }
 
-The purpose of the :code:`easytree` library is to write fluent code:
+Writing deeply-nested trees with list nodes is easy with a context-manager:
 ::
 
     >>> chart = easytree.new()
@@ -88,9 +88,17 @@ The purpose of the :code:`easytree` library is to write fluent code:
         ]
     }
 
-The name of the game: key assumptions
+Mechanics 
 -------------------------------------------------------
-The type of each newly-created node (including the root node), unless given an explicit value, is undefined, and can morph into a list-node, a dict-node or a value-node. The type of an undefined node is determined by subsequent interactions:
+There are three types of nodes in a tree: 
+
+- value nodes
+- dict nodes
+- list nodes
+
+Instead of raising an :code:`AttributeError`, calling a new attribute on a dict-node creates and returns a new child node.
+
+The type of each newly-created node, unless given an explicit value, is initially undefined, and can morph into a list-node, a dict-node or a value-node. The type of an undefined node is determined by subsequent interactions:
 
 - if the :code:`append` method is called on an undefined node, that node becomes a list-node. 
 - if an attribute is called on an undefined node (e.g. :code:`node.name`), or a key is retrieved (e.g. :code:`node["name"]`), that node becomes a dict-node.
@@ -118,11 +126,6 @@ Example:
         ]
     }
 
-.. warning::
-    For an undefined node, retrieving an integer key (e.g. :code:`node[0]`) is intrinsically ambiguous: did the user expect the first value of a list-node (which should raise an :code:`IndexError` given that the list is then empty), or the value at the key :code:`0` of a dict-node? 
-    
-    **To avoid unintentionally creating dict-nodes, an** :code:`IndexError` **will be raised.**
-
 .. note::
     The :code:`Tree` class has only two methods: :code:`append` and :code:`serialize`. Any other attribute called on an instance will create a new node, attach it to the instance and return it.
 
@@ -133,12 +136,15 @@ Once the type of a node is determined, it cannot morph into another type. For ex
     >>> root.append(1)
     AttributeError: 'dict' object has no attribute 'append'
 
+.. warning::
+    For an undefined node, retrieving an integer key (e.g. :code:`node[0]`) is intrinsically ambiguous: did the user expect the first value of a list-node (which should raise an :code:`IndexError` given that the list is then empty), or the value at the key :code:`0` of a dict-node? **To avoid unintentionally creating dict-nodes, an** :code:`IndexError` **will be raised.**
+
 How does :code:`easytree` compare with :code:`jsontree`
 -------------------------------------------------------
 :code:`easytree` differs from :code:`jsontree` (see `here <https://github.com/dougn/jsontree>`_) in two important ways:
 
 1. elements, when attached or appended to an :code:`easytree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
-2. :code:`easytree` is designed to make building a tree easier for the user, regardless of the datatype of the tree leaves; in other words, serialization of an :code:`easytree` merely converts the tree to a dictionary, list or underlying value (for leaves). It does not serialize to JSON.
+2. serialization of an :code:`easytree` merely converts the tree to a dictionary, list or underlying value (for leaves. It does not serialize to JSON.
 
 Compare: 
 ::
@@ -197,3 +203,8 @@ Version 0.1.4 (2020-08-05)
     - added context manager to return a reference to itself
     - addressed infinite recursion in :code:`__getattr__`
     - :code:`append` now returns a reference to last added node, if it is a node
+
+Version 0.1.5 (2020-08-08)
+************************************
+    - refactored the :code:`Tree` object into a :code:`Tree` and :code:`Node` object
+    - removed the :code:`__new__` from the :code:`Tree` root object to allow for inheritence

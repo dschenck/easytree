@@ -2,13 +2,15 @@
 
 [![PyPI version](https://badge.fury.io/py/easytree.svg)](https://badge.fury.io/py/easytree) [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
 
-An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can also morph into a list.
+A fluent tree builder, useful to create multi-level, nested JSON configurations.
 
 ## Documentation
 Documentation is hosted on [read the docs](https://easytree.readthedocs.io/en/latest/)
 
 ## Installation
-> pip install easytree
+```
+pip install easytree
+```
 
 ## Quickstart 
 ```python
