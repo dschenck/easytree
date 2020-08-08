@@ -1,25 +1,15 @@
 class Tree:
-    """
-    Recursive tree
-    """
-    __hash__ = None 
-    
-    def __new__(cls, value=None):
-        if cls is not Tree: 
-            return super(type(cls), cls).__new__(cls)
-        if value is None or isinstance(value, (list, tuple, set, dict)):
-            return super(Tree, cls).__new__(cls)
-        return value
-
     def __init__(self, value=None):
         if isinstance(value, dict):
-            value = {k:Tree(v) for k,v in value.items()}
-        elif isinstance(value, (list, tuple, set)):
-            value = [Tree(v) for v in value]
-        elif isinstance(value, Tree):
+            value = {k:Node(v) for k,v in value.items()}
+        elif isinstance(value, (list, tuple, set, range, zip)):
+            value = [Node(v) for v in value]
+        elif isinstance(value, Node):
             value = value.__value__
+        elif value is not None: 
+            raise TypeError("tree must be initialized with either None, dict, or list")
         self.__value__ = value
-        
+
     def __repr__(self):
         return f"<Tree type={self.__nodetype__}>"
     
@@ -41,7 +31,7 @@ class Tree:
             if self.__nodetype__ == "null":
                 self.__value__ = {}
             if name not in self.__value__: 
-                self.__value__[name] = Tree()
+                self.__value__[name] = Node()
             return self.__value__[name]
         raise RuntimeError
     
@@ -52,7 +42,7 @@ class Tree:
             self.__value__ = {}
         if self.__nodetype__ == "dict": 
             if name not in self.__value__: 
-                self.__value__[name] = Tree(value)
+                self.__value__[name] = Node(value)
             self.__value__[name]
             return
         raise RuntimeError
@@ -65,7 +55,7 @@ class Tree:
                 self.__value__ = {}
         if self.__nodetype__ == "dict": 
             if name not in self.__value__: 
-                self.__value__[name] = Tree()
+                self.__value__[name] = Node()
             return self.__value__[name]
         if self.__nodetype__ == "list": 
             if not isinstance(name, int): 
@@ -80,12 +70,12 @@ class Tree:
             self.__value__ = {}
         if self.__nodetype__ == "dict": 
             if name not in self.__value__: 
-                self.__value__[name] = Tree(value)
+                self.__value__[name] = Node(value)
             return
         if self.__nodetype__ == "list": 
             if not isinstance(name, int): 
                 raise IndexError(f"Cannot index list with {type(name)}")
-            self.__value__[name] = Tree(value)
+            self.__value__[name] = Node(value)
             return
         raise RuntimeError
 
@@ -154,14 +144,14 @@ class Tree:
         if self.__nodetype__ == "null":
             self.__value__ = []        
         if self.__nodetype__ == "list":
-            if isinstance(value, (list, tuple, set)):
-                value = [Tree(v) for v in value]
+            if isinstance(value, (list, tuple, set, range, zip)):
+                value = [Node(v) for v in value]
             elif isinstance(value, dict):
-                value = Tree({k:Tree(v) for k,v in value.items()})
+                value = Node({k:Node(v) for k,v in value.items()})
             else:
-                value = Tree(value)
+                value = Node(value)
             self.__value__.append(value)
-            return value if isinstance(value, Tree) else None 
+            return value if isinstance(value, Node) else None 
         raise RuntimeError
 
     def serialize(self):
@@ -218,6 +208,22 @@ class Tree:
         }
         """
         return serialize(self)
+
+class Node(Tree):
+    """
+    Tree node
+    """
+    __hash__ = None 
+    
+    def __new__(cls, value=None):
+        if cls is not Node: 
+            return super(type(cls), cls).__new__(cls)
+        if value is None or isinstance(value, (list, tuple, set, range, zip, dict)):
+            return super(Node, cls).__new__(cls)
+        return value
+
+    def __repr__(self):
+        return f"<Node type={self.__nodetype__}>"
     
 def serialize(tree):
     """
@@ -282,9 +288,8 @@ def serialize(tree):
         return {key:serialize(value) for key, value in tree.__value__.items()}
     raise RuntimeError
 
-
 def new(root=None): 
     """
-    Creates an :code:`easytree.Tree`
+    Creates a new :code:`easytree.Tree`
     """
     return Tree(root)

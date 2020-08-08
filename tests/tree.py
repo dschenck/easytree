@@ -1,5 +1,6 @@
 import unittest
 import easytree
+import easytree.tree
 
 class TestTree(unittest.TestCase):
     def test_initialization(self):
@@ -19,11 +20,11 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree, easytree.Tree)
         self.assertEqual(tree.__nodetype__, "list")
 
-        tree = easytree.new(1)
+        tree = easytree.tree.Node(1)
         self.assertEqual(tree, 1)
         self.assertIsInstance(tree, int)
 
-        tree = easytree.new(True)
+        tree = easytree.tree.Node(True)
         self.assertEqual(tree, True)
         self.assertIsInstance(tree, bool)
 
@@ -37,13 +38,13 @@ class TestTree(unittest.TestCase):
         tree = easytree.new([])
         self.assertIsInstance(easytree.serialize(tree), list)
 
-        tree = easytree.new(True)
+        tree = easytree.tree.Node(True)
         self.assertIsInstance(easytree.serialize(tree), bool)
 
-        tree = easytree.new(10)
+        tree = easytree.tree.Node(10)
         self.assertIsInstance(easytree.serialize(tree), int)
 
-        tree = easytree.new("hello world")
+        tree = easytree.tree.Node("hello world")
         self.assertIsInstance(easytree.serialize(tree), str)
 
         tree = easytree.new()
@@ -114,16 +115,17 @@ class TestTree(unittest.TestCase):
     def test_inheritence(self):
         
         class Child(easytree.Tree):
-            def __init__(self, name):
+            def __init__(self, name, age):
                 self.name = name
+                self.age  = age
 
-        instance = Child("Bob")
+        instance = Child("Bob", 29)
         instance.address.number = 1
         instance.address.street = "avenue Montaigne"
         instance.address.city = "Paris"
         instance.address.country = "France"
         
-        self.assertEqual(set(instance.serialize()), set(("name","address")))
+        self.assertEqual(set(instance.serialize()), set(("name","age","address")))
         self.assertEqual(set(instance.serialize()["address"]), set(("number","street","city","country")))
         self.assertEqual(instance.serialize()["address"]["city"], "Paris")
 
