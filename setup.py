@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="easytree",
-    version="0.1.4",
+    version="0.1.5",
     author="david.schenck@outlook.com",
     author_email="david.schenck@outlook.com",
-    description="An easy and permissive python tree builder, useful to create multi-level JSON configurations. Think of an easytree as a recursive defaultdict which can also morph into a list.",
+    description="A fluent tree builder, useful to create multi-level, nested JSON configurations.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/dschenck/easytree",
+    url="https://easytree.readthedocs.io/en/latest",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
