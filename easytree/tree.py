@@ -41,8 +41,7 @@ class Tree:
         if self.__nodetype__ == "null":
             self.__value__ = {}
         if self.__nodetype__ == "dict": 
-            if name not in self.__value__: 
-                self.__value__[name] = Node(value)
+            self.__value__[name] = Node(value)
             return
         raise RuntimeError
         
@@ -68,8 +67,7 @@ class Tree:
                 raise IndexError("list assignment index out of range")
             self.__value__ = {}
         if self.__nodetype__ == "dict": 
-            if name not in self.__value__: 
-                self.__value__[name] = Node(value)
+            self.__value__[name] = Node(value)
             return
         if self.__nodetype__ == "list": 
             if not isinstance(name, int): 

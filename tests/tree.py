@@ -140,3 +140,12 @@ class TestTree(unittest.TestCase):
         self.assertEqual(chart.axes[0].title.text, "primary axis")
         self.assertEqual(chart.axes[1].title.text, "secondary axis")
 
+    def test_overrides(self):
+        tree = easytree.new()
+        tree.title.text = 1
+
+        self.assertEqual(str(tree.serialize()), str({"title":{"text":1}}))
+
+        tree.title = None
+        self.assertEqual(str(tree.serialize()), str({"title":None}))
+
