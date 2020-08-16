@@ -208,3 +208,7 @@ Version 0.1.5 (2020-08-08)
 ************************************
     - refactored the :code:`Tree` object into a :code:`Tree` and :code:`Node` object
     - removed the :code:`__new__` from the :code:`Tree` root object to allow for inheritence
+
+Version 0.1.6 (2020-08-16)
+************************************
+    - fixed a bug where overriding an attribute would fail if it was already in the node
