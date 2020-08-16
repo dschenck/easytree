@@ -43,7 +43,6 @@ class Tree:
         if self.__nodetype__ == "dict": 
             if name not in self.__value__: 
                 self.__value__[name] = Node(value)
-            self.__value__[name]
             return
         raise RuntimeError
         
