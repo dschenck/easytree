@@ -58,7 +58,7 @@ class Tree:
                 self.__value__[name] = Node()
             return self.__value__[name]
         if self.__nodetype__ == "list": 
-            if not isinstance(name, int): 
+            if not isinstance(name, (int, slice)): 
                 raise IndexError(f"Cannot index list with {type(name)}")
             return self.__value__[name]
         raise RuntimeError
