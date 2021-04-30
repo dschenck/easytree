@@ -216,7 +216,7 @@ class Node(Tree):
     
     def __new__(cls, value=None):
         if cls is not Node: 
-            return super(type(cls), cls).__new__(cls)
+            return super(cls, cls).__new__(cls)
         if value is None or isinstance(value, (list, tuple, set, range, zip, dict)):
             return super(Node, cls).__new__(cls)
         return value

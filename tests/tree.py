@@ -112,6 +112,10 @@ class TestTree(unittest.TestCase):
         tree = easytree.new({0:"test"}) #convert to dict-node
         self.assertEqual(easytree.serialize(tree)[0], "test")
 
+    def test_slicing(self):
+        tree = easytree.new([1,3,5,7])
+        self.assertEqual(tree[0:2], [1,3])
+
     def test_length(self):
         tree = easytree.new([1,2,3])
         self.assertEqual(len(tree), 3)
