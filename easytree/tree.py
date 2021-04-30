@@ -1,5 +1,7 @@
 class Tree:
     def __init__(self, value=None):
+        if isinstance(value, Tree):
+            value = value.serialize()
         if isinstance(value, dict):
             value = {k:Node(v) for k,v in value.items()}
         elif isinstance(value, (list, tuple, set, range, zip)):

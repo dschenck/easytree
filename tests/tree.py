@@ -28,6 +28,25 @@ class TestTree(unittest.TestCase):
         self.assertEqual(tree, True)
         self.assertIsInstance(tree, bool)
 
+    def test_copy(self):
+        this = easytree.Tree({"name":"foo", "numbers":[1,3,5], "address":{"country":"US"}})
+        that = easytree.Tree(this)
+
+        self.assertIsInstance(that, easytree.Tree)
+        self.assertEqual(that.__nodetype__, "dict")
+
+        that.name = "bar"
+        self.assertEqual(this.name, "foo")
+        self.assertEqual(that.name, "bar")
+
+        this.numbers.append(7)
+        self.assertEqual(that.numbers.__value__, [1,3,5])
+        self.assertEqual(this.numbers.__value__, [1,3,5,7])
+
+        this.address.country = "France"
+        self.assertEqual(this.address.country, "France")
+        self.assertEqual(that.address.country, "US")
+
     def test_serialization(self):
         tree = easytree.new()
         self.assertIsNone(easytree.serialize(tree))
