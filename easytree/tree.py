@@ -79,7 +79,7 @@ class Tree:
         """
         if self.__nodetype__ == "undefined":
             if isinstance(name, (int, slice)): 
-                raise AmbiguityError("Node is undefined")
+                raise AmbiguityError("Node type is undefined: cast to dict node or list node to disambiguate")
             else:
                 self.__value__ = {}
         if self.__nodetype__ == "dict": 
