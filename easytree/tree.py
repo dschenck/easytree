@@ -1,3 +1,6 @@
+class AmbiguityError(Exception):
+    pass
+
 class Tree:
     def __init__(self, value=None):
         if isinstance(value, Tree):
@@ -19,9 +22,12 @@ class Tree:
         return str(serialize(self))
         
     @property
-    def __nodetype__(self): 
+    def __nodetype__(self):
+        """
+        Returns the type of the node
+        """
         if "__value__" not in self.__dict__ or self.__value__ is None: 
-            return "null"
+            return "undefined"
         if isinstance(self.__value__, list):
             return "list"
         if isinstance(self.__value__, dict):
@@ -29,8 +35,16 @@ class Tree:
         raise RuntimeError
     
     def __getattr__(self, name):
-        if self.__nodetype__ in ["null", "dict"]:
-            if self.__nodetype__ == "null":
+        """
+        Retrieves an attribute by name for dict nodes.
+
+        If the node is undefined, this operations casts the node to
+        a dict node.
+
+        Raises an AttributeError for list nodes. 
+        """
+        if self.__nodetype__ in ["undefined", "dict"]:
+            if self.__nodetype__ == "undefined":
                 self.__value__ = {}
             if name not in self.__value__: 
                 self.__value__[name] = Node()
@@ -38,9 +52,17 @@ class Tree:
         raise AttributeError(f"list node has not attribute '{name}'")
     
     def __setattr__(self, name, value):
+        """
+        Sets the value at an attribute for dict nodes. 
+
+        If the node is undefined, this operation casts the node to 
+        a dict node.
+
+        Raises an AttributeError for list nodes. 
+        """
         if name == "__value__":
             return super().__setattr__(name, value)
-        if self.__nodetype__ == "null":
+        if self.__nodetype__ == "undefined":
             self.__value__ = {}
         if self.__nodetype__ == "dict": 
             self.__value__[name] = Node(value)
@@ -48,9 +70,16 @@ class Tree:
         raise AttributeError(f"list node has not attribute '{name}'")
         
     def __getitem__(self, name):
-        if self.__nodetype__ == "null":
-            if isinstance(name, int): 
-                raise IndexError("list index out of range")
+        """
+        Retrieves an item at an index (for list nodes) or at a key (for dict nodes). 
+
+        If the node is undefined, this operation casts the node to a dict node, 
+        unless the given key/index is an integer; instead, an AmbiguityError error is 
+        raised.
+        """
+        if self.__nodetype__ == "undefined":
+            if isinstance(name, (int, slice)): 
+                raise AmbiguityError("Node is undefined")
             else:
                 self.__value__ = {}
         if self.__nodetype__ == "dict": 
@@ -64,7 +93,7 @@ class Tree:
         raise RuntimeError
         
     def __setitem__(self, name, value):
-        if self.__nodetype__ == "null":
+        if self.__nodetype__ == "undefined":
             if isinstance(name, int):
                 raise IndexError("list assignment index out of range")
             self.__value__ = {}
@@ -140,7 +169,7 @@ class Tree:
         if len(args) > 1 or (len(args) != 0 and len(kwargs) != 0) or (len(args) == len(kwargs) == 0): 
             raise ValueError("append must take either one positional argument or one-to-many named arguments")
         value = args[0] if args else kwargs
-        if self.__nodetype__ == "null":
+        if self.__nodetype__ == "undefined":
             self.__value__ = []        
         if self.__nodetype__ == "list":
             value = Node(value)
@@ -274,7 +303,7 @@ def serialize(tree):
     """
     if not isinstance(tree, Tree):
         return tree
-    if tree.__nodetype__ == "null":
+    if tree.__nodetype__ == "undefined":
         return None
     if tree.__nodetype__ == "list":
         return [serialize(value) for value in tree.__value__]

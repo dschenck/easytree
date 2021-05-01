@@ -6,11 +6,11 @@ class TestTree(unittest.TestCase):
     def test_initialization(self):
         tree = easytree.new()
         self.assertIsInstance(tree, easytree.Tree)
-        self.assertEqual(tree.__nodetype__, "null")
+        self.assertEqual(tree.__nodetype__, "undefined")
 
         tree = easytree.Tree()
         self.assertIsInstance(tree, easytree.Tree)
-        self.assertEqual(tree.__nodetype__, "null")
+        self.assertEqual(tree.__nodetype__, "undefined")
 
         tree = easytree.new({})
         self.assertIsInstance(tree, easytree.Tree)
