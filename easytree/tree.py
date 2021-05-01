@@ -43,6 +43,8 @@ class Tree:
 
         Raises an AttributeError for list nodes. 
         """
+        if name == "_ipython_canary_method_should_not_exist_":
+            return True #ipython workaround
         if self.__nodetype__ in ["undefined", "dict"]:
             if self.__nodetype__ == "undefined":
                 self.__value__ = {}
