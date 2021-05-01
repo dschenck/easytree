@@ -16,7 +16,7 @@ class Tree:
         self.__value__ = value
 
     def __repr__(self):
-        return f"<Tree type={self.__nodetype__}>"
+        return repr(serialize(self))
     
     def __str__(self):
         return str(serialize(self))
