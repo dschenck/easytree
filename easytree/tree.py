@@ -143,12 +143,7 @@ class Tree:
         if self.__nodetype__ == "null":
             self.__value__ = []        
         if self.__nodetype__ == "list":
-            if isinstance(value, (list, tuple, set, range, zip)):
-                value = [Node(v) for v in value]
-            elif isinstance(value, dict):
-                value = Node({k:Node(v) for k,v in value.items()})
-            else:
-                value = Node(value)
+            value = Node(value)
             self.__value__.append(value)
             return value if isinstance(value, Node) else None 
         raise AttributeError("dict node has no attribute 'append'")
