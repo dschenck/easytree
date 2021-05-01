@@ -99,18 +99,28 @@ class TestTree(unittest.TestCase):
         tree.append(None).append(None).append(1)
         self.assertEqual(str(tree.serialize()), "[[[1]]]")
 
+        tree = easytree.new({"foo":"bar"})
+        self.assertEqual(tree.__nodetype__, "dict")
+
+        with self.assertRaises(AttributeError):
+            tree.append("XXX")
+
     def test_indexing(self):
         tree = easytree.new()
 
         with self.assertRaises(IndexError):
             tree[0] = "test"
 
+        tree = easytree.new([1,2,3,4,5])
+        with self.assertRaises(TypeError):
+            tree["A"]
+        
         tree = easytree.new()
         tree.append("test") #convert to list-node
-        self.assertEqual(easytree.serialize(tree)[0], "test")
+        self.assertEqual(tree[0], "test")
 
         tree = easytree.new({0:"test"}) #convert to dict-node
-        self.assertEqual(easytree.serialize(tree)[0], "test")
+        self.assertEqual(tree[0], "test")
 
     def test_slicing(self):
         tree = easytree.new([1,3,5,7])

@@ -35,7 +35,7 @@ class Tree:
             if name not in self.__value__: 
                 self.__value__[name] = Node()
             return self.__value__[name]
-        raise RuntimeError
+        raise AttributeError(f"list node has not attribute '{name}'")
     
     def __setattr__(self, name, value):
         if name == "__value__":
@@ -45,7 +45,7 @@ class Tree:
         if self.__nodetype__ == "dict": 
             self.__value__[name] = Node(value)
             return
-        raise RuntimeError
+        raise AttributeError(f"list node has not attribute '{name}'")
         
     def __getitem__(self, name):
         if self.__nodetype__ == "null":
@@ -59,7 +59,7 @@ class Tree:
             return self.__value__[name]
         if self.__nodetype__ == "list": 
             if not isinstance(name, (int, slice)): 
-                raise IndexError(f"Cannot index list with {type(name)}")
+                raise TypeError(f"list indices must be integers or slices, not {type(name).__name__}")
             return self.__value__[name]
         raise RuntimeError
         
@@ -151,7 +151,7 @@ class Tree:
                 value = Node(value)
             self.__value__.append(value)
             return value if isinstance(value, Node) else None 
-        raise RuntimeError
+        raise AttributeError("dict node has no attribute 'append'")
 
     def serialize(self):
         """
