@@ -182,3 +182,21 @@ class TestTree(unittest.TestCase):
         tree.title = None
         self.assertEqual(str(tree.serialize()), str({"title":None}))
 
+    def test_get(self): 
+        tree = easytree.Tree()
+        self.assertEqual(tree.get("foo"), None)
+        self.assertEqual(tree.get("foo", "bar"), "bar")
+
+        tree = easytree.Tree({"foo":"bar"})
+        self.assertEqual(tree.get("foo"), "bar")
+        self.assertEqual(tree.get("baz"), None)
+        self.assertEqual(tree.get("baz", 29), 29)
+        
+        tree = easytree.Tree([1,3,5,6,7])
+        with self.assertRaises(AttributeError):
+            tree.get("foo")
+
+    def test_mutability(self):
+        tree = easytree.Tree({"foo":"bar", "baz":[1,3,5,7,9]})
+        del tree["foo"]
+        self.assertFalse("foo" in tree)

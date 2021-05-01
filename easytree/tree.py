@@ -109,6 +109,11 @@ class Tree:
             return
         raise RuntimeError
 
+    def __delitem__(self, name):
+        if self.__nodetype__ == "undefined":
+            raise AttributeError("undefined node has no attribute '{name}'")
+        del self.__value__[name]
+
     def __iter__(self):
         return iter(self.__value__)
 
@@ -178,6 +183,19 @@ class Tree:
             self.__value__.append(value)
             return value if isinstance(value, Node) else None 
         raise AttributeError("dict node has no attribute 'append'")
+
+    def get(self, key, default=None):
+        """
+        Returns the value at a given key, or default if the key does 
+        not exists.
+        """
+        if self.__nodetype__ == "list":
+            raise AttributeError("list node has no attribute 'get'")
+        if self.__nodetype__ == "undefined":
+            return default
+        if key in self.__value__: 
+            return self.__value__[key]
+        return default
 
     def serialize(self):
         """
