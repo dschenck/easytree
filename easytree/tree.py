@@ -108,7 +108,10 @@ class Tree:
         if self.__nodetype__ == "undefined":
             if isinstance(name, int):
                 raise IndexError("list assignment index out of range")
-            self.__value__ = {}
+            elif isinstance(name, slice):
+                self.__value__ = []
+            else:
+                self.__value__ = {}
         if self.__nodetype__ == "dict": 
             self.__value__[name] = Node(value)
             return
