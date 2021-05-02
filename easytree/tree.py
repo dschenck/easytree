@@ -152,7 +152,7 @@ class Tree:
 
         Example
         ---------
-        >>> tree = easytree.new()                                 #undefined node
+        >>> tree = easytree.Tree()                                 #undefined node
         >>> tree.append("hello world")                            #casts node to list
         >>> tree.append(name="David", age=29)                     #call with kwargs
         >>> tree.append({"animal":"elephant", "country":"India"}) #call with args
@@ -165,7 +165,7 @@ class Tree:
 
         Example
         -----------
-        >>> chart = easytree.new()
+        >>> chart = easytree.Tree()
         >>> with chart.axes.append({}) as axis: 
         ...     axis.title.text = "primary axis"
         >>> with chart.axes.append({}) as axis: 
@@ -201,6 +201,16 @@ class Tree:
         """
         Returns the value at a given key, or default if the key does 
         not exists.
+
+        Example
+        ---------------------
+        >>> config = easytree.Tree({"context":{"starting":"2016-03-31"}})
+        >>> config.context.get("starting", "2014-01-01")
+        2014-01-01
+        >>> config.context.get("ending", "2021-12-31")
+        2021-12-31
+        >>> config.context.get("calendar")
+        None
         """
         if self.__nodetype__ == "list":
             raise AttributeError("list node has no attribute 'get'")
@@ -212,11 +222,11 @@ class Tree:
 
     def serialize(self):
         """
-        Recursively converts itself to a native python type.
+        Recursively converts itself to a native python type (dict, list or None).
 
         Example
         ---------------------
-        >>> chart = easytree.new()
+        >>> chart = easytree.Tree()
         >>> chart.chart.type = "bar"
         >>> chart.title.text = "France Olympic Medals"
         >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
@@ -287,7 +297,7 @@ def serialize(tree):
 
     Example
     ---------------------
-    >>> chart = easytree.new()
+    >>> chart = easytree.Tree()
     >>> chart.chart.type = "bar"
     >>> chart.title.text = "France Olympic Medals"
     >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
