@@ -1,6 +1,11 @@
 class AmbiguityError(Exception):
     pass
 
+class NODETYPES: 
+    DICT = "dict"
+    LIST = "list"
+    UNDEFINED = "undefined"
+
 class Tree:
     def __init__(self, value=None):
         if isinstance(value, Tree):
@@ -27,11 +32,11 @@ class Tree:
         Returns the type of the node
         """
         if "__value__" not in self.__dict__ or self.__value__ is None: 
-            return "undefined"
+            return NODETYPES.UNDEFINED
         if isinstance(self.__value__, list):
-            return "list"
+            return NODETYPES.LIST
         if isinstance(self.__value__, dict):
-            return "dict"
+            return NODETYPES.DICT
         raise RuntimeError
     
     def __getattr__(self, name):
@@ -45,9 +50,9 @@ class Tree:
         """
         if name == "_ipython_canary_method_should_not_exist_":
             return True #ipython workaround
-        if self.__nodetype__ == "list":
+        if self.__nodetype__ == NODETYPES.LIST:
             raise AttributeError(f"list node has not attribute '{name}'")
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             self.__value__ = {}
         if name not in self.__value__:
             self.__value__[name] = Node()
@@ -64,9 +69,9 @@ class Tree:
         """
         if name == "__value__":
             return super().__setattr__(name, value)
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             self.__value__ = {}
-        if self.__nodetype__ == "dict": 
+        if self.__nodetype__ == NODETYPES.DICT: 
             self.__value__[name] = Node(value)
             return
         raise AttributeError(f"list node has not attribute '{name}'")
@@ -77,7 +82,7 @@ class Tree:
         """
         if name in {"__nodetype__", "__value__", "serialize"}: 
             raise AttributeError(f"Attribute '{name}' is read-only")
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             raise AttributeError("undefined node has no attribute '{name}'")
         del self.__value__[name]
         
@@ -89,33 +94,33 @@ class Tree:
         unless the given key/index is an integer; instead, an AmbiguityError error is 
         raised.
         """
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             if isinstance(name, (int, slice)): 
                 raise AmbiguityError("Node type is undefined: cast to dict node or list node to disambiguate")
             else:
                 self.__value__ = {}
-        if self.__nodetype__ == "dict": 
+        if self.__nodetype__ == NODETYPES.DICT: 
             if name not in self.__value__: 
                 self.__value__[name] = Node()
             return self.__value__[name]
-        if self.__nodetype__ == "list": 
+        if self.__nodetype__ == NODETYPES.LIST: 
             if not isinstance(name, (int, slice)): 
                 raise TypeError(f"list indices must be integers or slices, not {type(name).__name__}")
             return self.__value__[name]
         raise RuntimeError
         
     def __setitem__(self, name, value):
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             if isinstance(name, int):
                 raise IndexError("list assignment index out of range")
             elif isinstance(name, slice):
                 self.__value__ = []
             else:
                 self.__value__ = {}
-        if self.__nodetype__ == "dict": 
+        if self.__nodetype__ == NODETYPES.DICT: 
             self.__value__[name] = Node(value)
             return
-        if self.__nodetype__ == "list": 
+        if self.__nodetype__ == NODETYPES.LIST: 
             if not isinstance(name, int): 
                 raise IndexError(f"Cannot index list with {type(name)}")
             self.__value__[name] = Node(value)
@@ -123,7 +128,7 @@ class Tree:
         raise RuntimeError
 
     def __delitem__(self, name):
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             raise AttributeError("undefined node has no attribute '{name}'")
         del self.__value__[name]
 
@@ -192,9 +197,9 @@ class Tree:
         if len(args) > 1 or (len(args) != 0 and len(kwargs) != 0) or (len(args) == len(kwargs) == 0): 
             raise ValueError("append must take either one positional argument or one-to-many named arguments")
         value = args[0] if args else kwargs
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             self.__value__ = []        
-        if self.__nodetype__ == "list":
+        if self.__nodetype__ == NODETYPES.LIST:
             value = Node(value)
             self.__value__.append(value)
             return value if isinstance(value, Node) else None 
@@ -215,9 +220,9 @@ class Tree:
         >>> config.context.get("calendar")
         None
         """
-        if self.__nodetype__ == "list":
+        if self.__nodetype__ == NODETYPES.LIST:
             raise AttributeError("list node has no attribute 'get'")
-        if self.__nodetype__ == "undefined":
+        if self.__nodetype__ == NODETYPES.UNDEFINED:
             return default
         if key in self.__value__: 
             return self.__value__[key]
@@ -349,11 +354,11 @@ def serialize(tree):
     """
     if not isinstance(tree, Tree):
         return tree
-    if tree.__nodetype__ == "undefined":
+    if tree.__nodetype__ == NODETYPES.UNDEFINED:
         return None
-    if tree.__nodetype__ == "list":
+    if tree.__nodetype__ == NODETYPES.LIST:
         return [serialize(value) for value in tree.__value__]
-    if tree.__nodetype__ == "dict":
+    if tree.__nodetype__ == NODETYPES.DICT:
         return {key:serialize(value) for key, value in tree.__value__.items()}
     raise RuntimeError
 
