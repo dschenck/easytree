@@ -214,7 +214,7 @@ class Tree:
         ---------------------
         >>> config = easytree.Tree({"context":{"starting":"2016-03-31"}})
         >>> config.context.get("starting", "2014-01-01")
-        2014-01-01
+        2016-03-31
         >>> config.context.get("ending", "2021-12-31")
         2021-12-31
         >>> config.context.get("calendar")
