@@ -128,6 +128,9 @@ class Tree:
 
     def __contains__(self, value):
         return self.__value__.__contains__(value)
+
+    def __bool__(self):
+        return bool(self.__value__)
         
     def append(self, *args, **kwargs):
         """

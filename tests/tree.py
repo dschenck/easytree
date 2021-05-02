@@ -200,3 +200,11 @@ class TestTree(unittest.TestCase):
         tree = easytree.Tree({"foo":"bar", "baz":[1,3,5,7,9]})
         del tree["foo"]
         self.assertFalse("foo" in tree)
+
+    def test_truthfulness(self):
+        tree = easytree.Tree()
+
+        if tree: 
+            raise Exception("An undefined node should be falsy")
+        if tree.abc: 
+            raise Exception("An undefined node should be falsy")
