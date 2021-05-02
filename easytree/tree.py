@@ -70,6 +70,16 @@ class Tree:
             self.__value__[name] = Node(value)
             return
         raise AttributeError(f"list node has not attribute '{name}'")
+    
+    def __delattr__(self, name):
+        """
+        Remove an attribute by name
+        """
+        if name in {"__nodetype__", "__value__", "serialize"}: 
+            raise AttributeError(f"Attribute '{name}' is read-only")
+        if self.__nodetype__ == "undefined":
+            raise AttributeError("undefined node has no attribute '{name}'")
+        del self.__value__[name]
         
     def __getitem__(self, name):
         """

@@ -201,6 +201,11 @@ class TestTree(unittest.TestCase):
         del tree["foo"]
         self.assertFalse("foo" in tree)
 
+        tree = easytree.Tree({"foo":{"bar":"baz"}})
+        del tree.foo.bar
+        self.assertTrue("foo" in tree)
+        self.assertFalse("baz" in tree.foo)
+
     def test_truthfulness(self):
         tree = easytree.Tree()
 
