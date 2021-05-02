@@ -45,13 +45,13 @@ class Tree:
         """
         if name == "_ipython_canary_method_should_not_exist_":
             return True #ipython workaround
-        if self.__nodetype__ in ["undefined", "dict"]:
-            if self.__nodetype__ == "undefined":
-                self.__value__ = {}
-            if name not in self.__value__: 
-                self.__value__[name] = Node()
-            return self.__value__[name]
-        raise AttributeError(f"list node has not attribute '{name}'")
+        if self.__nodetype__ == "list":
+            raise AttributeError(f"list node has not attribute '{name}'")
+        if self.__nodetype__ == "undefined":
+            self.__value__ = {}
+        if name not in self.__value__:
+            self.__value__[name] = Node()
+        return self.__value__[name]
     
     def __setattr__(self, name, value):
         """
