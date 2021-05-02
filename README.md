@@ -17,7 +17,7 @@ pip install easytree
 >>> import easytree
 
 #let's create a chart configuration
->>> chart = easytree.new()
+>>> chart = easytree.Tree()
 >>> chart.chart.type = "bar"
 >>> chart.title.text = "France Olympic Medals"
 >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
