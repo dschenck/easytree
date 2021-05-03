@@ -93,7 +93,7 @@ Tutorial
 Consider the following tree, as an example:
 ::
 
-    config = {
+    config = easytree.Tree({
         "date":"2020-02-20",
         "size":{
             "height":"1.56 cm",
@@ -103,7 +103,7 @@ Consider the following tree, as an example:
             "Alice",
             "Bob"
         ]
-    }
+    })
 
 There are three types of nodes in this tree: 
 
@@ -114,13 +114,53 @@ There are three types of nodes in this tree:
 Instead of raising an :code:`AttributeError`, reading or setting a new attribute on a dict node creates and returns a new child node.
 ::
 
-    config.memory.size = "512GB SSD"
+    >>> config.memory.size = "512GB SSD" #memory node is created on the fly
+    >>> config
+    {
+        "date":"2020-02-20",
+        "size":{
+            "height":"1.56 cm",
+            "width":"30.41 cm"
+        },
+        "users":[
+            "Alice",
+            "Bob"
+        ]
+        "memory":{
+            "size": "512GB SSD"
+        }
+    }
 
 You can recursively create list and dict nodes on the fly: 
 :: 
 
-    config.events.append(name="create", user="Alice")
-    config.events.append({"name:"edit", "user":"Bob"})
+    >>> config.events.append(name="create", user="Alice") #events node is created on the fly
+    >>> config.events.append({"name:"edit", "user":"Bob"})
+    >>> config
+    {
+        "date":"2020-02-20",
+        "size":{
+            "height":"1.56 cm",
+            "width":"30.41 cm"
+        },
+        "users":[
+            "Alice",
+            "Bob"
+        ]
+        "memory":{
+            "size": "512GB SSD"
+        },
+        "events":[
+            {
+                "name": "create", 
+                "user": "Alice"
+            },
+            {
+                "name": "edit", 
+                "user": "Bob"
+            }
+        ]
+    }
 
 The type of each newly-created node, unless given an explicit value, is initially undefined, and can change into a list node, a dict node (e.g. :code:`memory`) or a value-node (e.g. :code:`512GB SSD`). The type of an undefined node is dynamically determined by subsequent interactions.
 
@@ -168,8 +208,8 @@ How does :code:`easytree` compare with :code:`jsontree`
 -------------------------------------------------------
 :code:`easytree` differs from :code:`jsontree` (see `here <https://github.com/dougn/jsontree>`_) in two important ways:
 
-1. elements, when attached or appended to an :code:`easytree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
-2. serialization of an :code:`easytree` merely converts the tree to a dictionary, list or underlying value (for leaves. It does not serialize to JSON.
+1. elements, when attached or appended to an :code:`easytree.Tree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
+2. serialization of an :code:`easytree.Tree` merely converts the tree to a dictionary, list or underlying value (for leaves). It does not serialize to JSON.
 
 Compare: 
 ::
