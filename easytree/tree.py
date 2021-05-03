@@ -1,3 +1,5 @@
+import json
+
 class AmbiguityError(Exception):
     pass
 
@@ -367,3 +369,41 @@ def new(root=None):
     Creates a new :code:`easytree.Tree`
     """
     return Tree(root)
+
+def load(stream, *args, **kwargs):
+    """
+    Deserialize a text file or binary file containing a JSON 
+    document to an easytree.Tree object 
+
+    Example
+    -------------
+    >>> with open("data.json", "r") as file: 
+    ...     tree = easytree.load(file)
+    """
+    return Tree(json.load(stream, *args, **kwargs))
+
+def loads(s, *args, **kwargs):
+    """
+    Deserialize s (a str, bytes or bytearray instance containing a JSON document) 
+    to an easytree.Tree object 
+    """
+    return Tree(json.loads(s, *args, **kwargs))
+
+def dump(obj, stream, *args, **kwargs):
+    """
+    Serialize easytree.Tree object as a JSON formatted stream 
+    to output (a .write()-supporting file-like object)
+
+    Example
+    -------------
+    >>> tree = easytree.Tree({"foo": "bar"})
+    >>> with open("data.json", "w") as file: 
+    ...     easytree.dump(tree, file, indent=4)
+    """
+    return json.dump(serialize(obj), stream, *args, **kwargs)
+
+def dumps(obj, *args, **kwargs):
+    """
+    Serialize easytree.Tree to a JSON formatted string
+    """
+    return json.dumps(serialize(obj), *args, **kwargs)
