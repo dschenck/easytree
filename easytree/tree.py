@@ -16,8 +16,6 @@ class Tree:
             value = {k:Node(v) for k,v in value.items()}
         elif isinstance(value, (list, tuple, set, range, zip)):
             value = [Node(v) for v in value]
-        elif isinstance(value, Node):
-            value = value.__value__
         elif value is not None: 
             raise TypeError("tree must be initialized with either None, dict, or list")
         self.__value__ = value
