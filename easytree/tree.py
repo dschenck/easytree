@@ -69,6 +69,8 @@ class Tree:
         """
         if name == "__value__":
             return super().__setattr__(name, value)
+        if name in {"serialize", "get", "append"}: 
+            raise AttributeError(f"Attribute '{name}' is read-only")
         if self.__nodetype == NODETYPES.UNDEFINED:
             self.__value__ = {}
         if self.__nodetype == NODETYPES.DICT: 
