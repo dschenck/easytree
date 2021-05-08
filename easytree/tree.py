@@ -80,7 +80,7 @@ class Tree:
         """
         Remove an attribute by name
         """
-        if name in {"__nodetype", "__value__", "serialize"}: 
+        if name in {"__nodetype", "__value__", "serialize", "get", "append"}: 
             raise AttributeError(f"Attribute '{name}' is read-only")
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise AttributeError("undefined node has no attribute '{name}'")
