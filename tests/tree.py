@@ -160,6 +160,8 @@ class TestTree(unittest.TestCase):
         instance.address.city = "Paris"
         instance.address.country = "France"
 
+        self.assertIsInstance(instance.address, easytree.Tree)
+        self.assertIsInstance(instance.address, easytree.tree.Node)
         self.assertEqual(set(instance.serialize()), set(("name", "age", "address")))
         self.assertEqual(
             set(instance.serialize()["address"]),
