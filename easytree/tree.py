@@ -35,7 +35,9 @@ class Node:
         ):
             value = [Node(v) for v in value]
         elif value is not None:
-            raise TypeError("tree must be initialized with either None, dict, or list")
+            raise TypeError(
+                "tree node must be initialized with either None, dict, or list"
+            )
         self.__value__ = value
 
     def __repr__(self):
@@ -134,6 +136,12 @@ class Node:
         raise RuntimeError
 
     def __setitem__(self, name, value):
+        """
+        Sets the value at an index (for list nodes) or at a key (for dict node). 
+
+        If the node is undefined, this operation casts the node to a dict node, 
+        unlesss the given key/index is a slice object. 
+        """
         if self.__nodetype == NODETYPES.UNDEFINED:
             if isinstance(name, int):
                 raise IndexError("list assignment index out of range")
@@ -152,16 +160,25 @@ class Node:
         raise RuntimeError
 
     def __delitem__(self, name):
+        """
+        Deletes the value at an index (for list nodes) or at a key (for dict node). 
+        """
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise AttributeError("undefined node has no attribute '{name}'")
         del self.__value__[name]
 
     def __iter__(self):
+        """
+        Iterates over the underlying value.
+        """
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise TypeError("undefined node is not iterable")
         return iter(self.__value__)
 
     def __len__(self):
+        """
+        Returns the length of the underlying value.
+        """
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise TypeError("undefined node has no length")
         return len(self.__value__)
@@ -182,7 +199,7 @@ class Node:
 
     def append(self, *args, **kwargs):
         """
-        Appends a value to a list node (tree branch). If the node type was previously undefined, the node becomes a list. 
+        Appends a value to a list node. If the node type was previously undefined, the node becomes a list. 
 
         Note
         ---------

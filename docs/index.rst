@@ -67,7 +67,7 @@ Using :code:`easytree` is also easy
 Writing deeply-nested trees with list nodes is easy with a context-manager:
 ::
 
-    >>> chart = easytree.new()
+    >>> chart = easytree.Tree()
     >>> with chart.axes.append({}) as axis: 
     ...     axis.title.text = "primary axis"
     >>> with chart.axes.append({}) as axis: 
@@ -235,7 +235,7 @@ with:
 
 API Documentation 
 -----------------------------------
-.. autoclass:: easytree.Tree
+.. autoclass:: easytree.Node
     :members:
 
 .. automodule:: easytree
