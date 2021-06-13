@@ -2,6 +2,15 @@ easytree
 ======================================
 A fluent tree builder, useful to create multi-level, nested JSON configurations.
 
+.. image:: https://badge.fury.io/py/easytree.svg
+   :target: https://badge.fury.io/py/easytree
+
+.. image:: https://readthedocs.org/projects/easytree/badge/?version=latest
+   :target: https://easytree.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://img.shields.io/pypi/dd/easytree
+   :target: https://img.shields.io/pypi/dd/easytree
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 
@@ -285,6 +294,9 @@ You can :code:`freeze` and :code:`unfreeze` a tree with the dedicated root-level
 API Documentation 
 -----------------------------------
 .. autoclass:: easytree.Tree
+    :members:
+
+.. autoclass:: easytree.Node
     :members:
 
 .. automodule:: easytree

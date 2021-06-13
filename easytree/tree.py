@@ -467,7 +467,10 @@ def new(root=None, *, sealed=False, frozen=False):
 def load(stream, *args, frozen=False, sealed=False, **kwargs):
     """
     Deserialize a text file or binary file containing a JSON 
-    document to an easytree.Tree object 
+    document to an :code:`Tree` object 
+
+
+    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.load` function
 
     Example
     -------------
@@ -480,15 +483,19 @@ def load(stream, *args, frozen=False, sealed=False, **kwargs):
 def loads(s, *args, frozen=False, sealed=False, **kwargs):
     """
     Deserialize s (a str, bytes or bytearray instance containing a JSON document) 
-    to an easytree.Node object 
+    to an :code:`Tree` object 
+
+    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.loads` function
     """
     return Node(json.loads(s, *args, **kwargs), sealed=sealed, frozen=frozen)
 
 
 def dump(obj, stream, *args, **kwargs):
     """
-    Serialize easytree.Tree object as a JSON formatted string 
-    to stream (a .write()-supporting file-like object)
+    Serialize :code:`Tree` object as a JSON formatted string 
+    to stream (a .write()-supporting file-like object). 
+
+    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.dump` function
 
     Example
     -------------
@@ -501,14 +508,16 @@ def dump(obj, stream, *args, **kwargs):
 
 def dumps(obj, *args, **kwargs):
     """
-    Serialize easytree.Tree to a JSON formatted string
+    Serialize :code:`Tree` to a JSON formatted string. 
+
+    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.dumps` function
     """
     return json.dumps(serialize(obj), *args, **kwargs)
 
 
 def frozen(tree):
     """
-    Returns True if the tree is frozen
+    Returns :code:`True` if the tree is frozen
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -541,7 +550,7 @@ def unfreeze(tree):
 
 def sealed(tree):
     """
-    Returns True if the tree is sealed
+    Returns :code:`True` if the tree is sealed
     """
     if not isinstance(tree, Node):
         raise TypeError(
