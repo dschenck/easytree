@@ -1,4 +1,5 @@
 import json
+import collections.abc as abc
 
 
 class AmbiguityError(Exception):
@@ -18,7 +19,8 @@ class Node:
         if cls is not Node:
             return super().__new__(cls)
         if value is None or isinstance(
-            value, (list, tuple, set, range, zip, dict, Node)
+            value,
+            (list, tuple, set, range, zip, dict, Node, abc.KeysView, abc.ValuesView),
         ):
             return super().__new__(cls)
         return value
@@ -28,7 +30,9 @@ class Node:
             value = value.serialize()
         if isinstance(value, dict):
             value = {k: Node(v) for k, v in value.items()}
-        elif isinstance(value, (list, tuple, set, range, zip)):
+        elif isinstance(
+            value, (list, tuple, set, range, zip, abc.KeysView, abc.ValuesView)
+        ):
             value = [Node(v) for v in value]
         elif value is not None:
             raise TypeError("tree must be initialized with either None, dict, or list")
