@@ -284,11 +284,11 @@ You can :code:`freeze` and :code:`unfreeze` a tree with the dedicated root-level
 
 API Documentation 
 -----------------------------------
-.. autoclass:: easytree.Node
+.. autoclass:: easytree.Tree
     :members:
 
 .. automodule:: easytree
-    :members: new, serialize, frozen, freeze, unfreeze, sealed, seal, unseal
+    :members: new, serialize, frozen, freeze, unfreeze, sealed, seal, unseal, load, loads, dump, dumps
 
 Source code
 -----------------------------------

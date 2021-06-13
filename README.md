@@ -1,6 +1,7 @@
 # easytree
 
-[![PyPI version](https://badge.fury.io/py/easytree.svg)](https://badge.fury.io/py/easytree) [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
+[![PyPI version](https://badge.fury.io/py/easytree.svg)](https://badge.fury.io/py/easytree) 
+[![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
 [![Downloads count](https://img.shields.io/pypi/dd/easytree)](https://img.shields.io/pypi/dd/easytree)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
