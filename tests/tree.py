@@ -43,8 +43,8 @@ class TestTree(unittest.TestCase):
         self.assertEqual(that.name, "bar")
 
         this.numbers.append(7)
-        self.assertEqual(that.numbers.__value__, [1, 3, 5])
-        self.assertEqual(this.numbers.__value__, [1, 3, 5, 7])
+        self.assertEqual(that.numbers._value, [1, 3, 5])
+        self.assertEqual(this.numbers._value, [1, 3, 5, 7])
 
         this.address.country = "France"
         self.assertEqual(this.address.country, "France")
@@ -220,3 +220,100 @@ class TestTree(unittest.TestCase):
             raise Exception("An undefined node should be falsy")
         if tree.abc:
             raise Exception("An undefined node should be falsy")
+
+    def test_sealed(self):
+        tree = easytree.Tree(
+            {"name": "David", "address": {"city": "New York"}, "friends": ["Alice"]},
+            sealed=True,
+        )
+
+        self.assertEqual(tree.name, "David")
+        self.assertEqual(tree.address.city, "New York")
+
+        tree.name = "Celine"
+        tree.address.city = "Los Angeles"
+
+        self.assertEqual(tree.name, "Celine")
+        self.assertEqual(tree.address.city, "Los Angeles")
+
+        with self.assertRaises(AttributeError):
+            tree.age
+
+        with self.assertRaises(AttributeError):
+            tree.address.country
+
+        with self.assertRaises(AttributeError):
+            tree.age = 29
+
+        with self.assertRaises(AttributeError):
+            tree.address.country = "US"
+
+        self.assertEqual(tree["name"], "Celine")
+
+        with self.assertRaises(KeyError):
+            tree["age"]
+
+        with self.assertRaises(TypeError):
+            tree["age"] = 29
+
+        with self.assertRaises(TypeError):
+            del tree["name"]
+
+        # you can still edit values
+        tree.friends[0] = "Thomas"
+
+        # you can't add new items
+        with self.assertRaises(TypeError):
+            tree.friends.append(name="Charlie")
+
+        tree = easytree.Tree(tree)
+
+        self.assertFalse(tree.city._sealed, False)
+
+    def test_frozen(self):
+        tree = easytree.Tree(
+            {"name": "David", "address": {"city": "New York"}, "friends": ["Alice"]},
+            frozen=True,
+        )
+
+        self.assertEqual(tree.name, "David")
+        self.assertEqual(tree.address.city, "New York")
+
+        with self.assertRaises(AttributeError):
+            tree.name = "Celine"
+
+        with self.assertRaises(AttributeError):
+            tree.address.city = "Los Angeles"
+
+        with self.assertRaises(AttributeError):
+            tree.age
+
+        with self.assertRaises(AttributeError):
+            tree.address.country
+
+        with self.assertRaises(AttributeError):
+            tree.age = 29
+
+        with self.assertRaises(AttributeError):
+            tree.address.country = "US"
+
+        self.assertEqual(tree["name"], "David")
+
+        with self.assertRaises(KeyError):
+            tree["age"]
+
+        with self.assertRaises(TypeError):
+            tree["age"] = 29
+
+        with self.assertRaises(TypeError):
+            del tree["name"]
+
+        with self.assertRaises(TypeError):
+            tree.friends[0] = "Thomas"
+
+        with self.assertRaises(TypeError):
+            tree.friends.append("Charlie")
+
+        tree = easytree.Tree(tree)
+
+        self.assertFalse(tree.city._frozen, False)

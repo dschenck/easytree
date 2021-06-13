@@ -25,20 +25,22 @@ class Node:
             return super().__new__(cls)
         return value
 
-    def __init__(self, value=None):
+    def __init__(self, value=None, *, sealed=False, frozen=False):
         if isinstance(value, Node):
             value = value.serialize()
         if isinstance(value, dict):
-            value = {k: Node(v) for k, v in value.items()}
+            value = {k: Node(v, sealed=sealed, frozen=frozen) for k, v in value.items()}
         elif isinstance(
             value, (list, tuple, set, range, zip, abc.KeysView, abc.ValuesView)
         ):
-            value = [Node(v) for v in value]
+            value = [Node(v, sealed=sealed, frozen=frozen) for v in value]
         elif value is not None:
             raise TypeError(
                 "tree node must be initialized with either None, dict, or list"
             )
-        self.__value__ = value
+        self._value = value
+        self._frozen = frozen
+        self._sealed = sealed
 
     def __repr__(self):
         return repr(serialize(self))
@@ -51,11 +53,11 @@ class Node:
         """
         Returns the type of the node
         """
-        if "__value__" not in self.__dict__ or self.__value__ is None:
+        if "_value" not in self.__dict__ or self._value is None:
             return NODETYPES.UNDEFINED
-        if isinstance(self.__value__, list):
+        if isinstance(self._value, list):
             return NODETYPES.LIST
-        if isinstance(self.__value__, dict):
+        if isinstance(self._value, dict):
             return NODETYPES.DICT
         raise RuntimeError
 
@@ -70,13 +72,23 @@ class Node:
         """
         if name == "_ipython_canary_method_should_not_exist_":
             return True  # ipython workaround
+        if name in ("_frozen", "_sealed"):
+            return False  # defaults for inheritence
         if self.__nodetype == NODETYPES.LIST:
             raise AttributeError(f"list node has not attribute '{name}'")
         if self.__nodetype == NODETYPES.UNDEFINED:
-            self.__value__ = {}
-        if name not in self.__value__:
-            self.__value__[name] = Node()
-        return self.__value__[name]
+            if self._frozen:
+                raise AttributeError(f"frozen node does not have '{name}' attribute")
+            if self._sealed:
+                raise AttributeError(f"sealed node does not have '{name}' attribute")
+            self._value = {}
+        if name not in self._value:
+            if self._frozen:
+                raise AttributeError(f"frozen node does not have '{name}' attribute")
+            if self._sealed:
+                raise AttributeError(f"sealed node does not have '{name}' attribute")
+            self._value[name] = Node(sealed=self._sealed, frozen=self._frozen)
+        return self._value[name]
 
     def __setattr__(self, name, value):
         """
@@ -87,14 +99,28 @@ class Node:
 
         Raises an AttributeError for list nodes. 
         """
-        if name == "__value__":
+        if name in ("_value", "_frozen", "_sealed"):
             return super().__setattr__(name, value)
         if name in {"serialize", "get", "append"}:
             raise AttributeError(f"Attribute '{name}' is read-only")
         if self.__nodetype == NODETYPES.UNDEFINED:
-            self.__value__ = {}
+            if self._frozen:
+                raise AttributeError(
+                    f"cannot set new attribute '{name}' on frozen node"
+                )
+            if self._sealed:
+                raise AttributeError(
+                    f"cannot set new attribute '{name}' on sealed node"
+                )
+            self._value = {}
         if self.__nodetype == NODETYPES.DICT:
-            self.__value__[name] = Node(value)
+            if self._frozen:
+                raise AttributeError(f"cannot set attribute '{name}' on frozen node")
+            if name not in self._value and self._sealed:
+                raise AttributeError(
+                    f"cannot set new attribute '{name}' on sealed node"
+                )
+            self._value[name] = Node(value, sealed=self._sealed, frozen=self._frozen)
             return
         raise AttributeError(f"list node has not attribute '{name}'")
 
@@ -102,11 +128,23 @@ class Node:
         """
         Remove an attribute by name
         """
-        if name in {"__nodetype", "__value__", "serialize", "get", "append"}:
+        if name in {
+            "__nodetype",
+            "_value",
+            "_frozen",
+            "_sealed",
+            "serialize",
+            "get",
+            "append",
+        }:
             raise AttributeError(f"Attribute '{name}' is read-only")
         if self.__nodetype == NODETYPES.UNDEFINED:
-            raise AttributeError("undefined node has no attribute '{name}'")
-        del self.__value__[name]
+            raise AttributeError(f"undefined node has no attribute '{name}'")
+        if self._frozen:
+            raise AttributeError(f"cannot delete attribute '{name}' on frozen node")
+        if self._sealed:
+            raise AttributeError(f"cannot delete attribute '{name}' on sealed node")
+        del self._value[name]
 
     def __getitem__(self, name):
         """
@@ -117,22 +155,30 @@ class Node:
         raised.
         """
         if self.__nodetype == NODETYPES.UNDEFINED:
+            if self._frozen:
+                raise KeyError(f"frozen node has no value for '{name}'")
+            if self._sealed:
+                raise KeyError(f"sealed node has no value for '{name}'")
             if isinstance(name, (int, slice)):
                 raise AmbiguityError(
                     "Node type is undefined: cast to dict node or list node to disambiguate"
                 )
             else:
-                self.__value__ = {}
+                self._value = {}
         if self.__nodetype == NODETYPES.DICT:
-            if name not in self.__value__:
-                self.__value__[name] = Node()
-            return self.__value__[name]
+            if name not in self._value:
+                if self._frozen:
+                    raise KeyError(f"frozen node has no value for '{name}'")
+                if self._sealed:
+                    raise KeyError(f"sealed node has no value for '{name}'")
+                self._value[name] = Node(sealed=self._sealed, frozen=self._frozen)
+            return self._value[name]
         if self.__nodetype == NODETYPES.LIST:
             if not isinstance(name, (int, slice)):
                 raise TypeError(
                     f"list indices must be integers or slices, not {type(name).__name__}"
                 )
-            return self.__value__[name]
+            return self._value[name]
         raise RuntimeError
 
     def __setitem__(self, name, value):
@@ -142,20 +188,24 @@ class Node:
         If the node is undefined, this operation casts the node to a dict node, 
         unlesss the given key/index is a slice object. 
         """
+        if self._frozen:
+            raise TypeError(f"cannot set item '{name}' on frozen node")
         if self.__nodetype == NODETYPES.UNDEFINED:
             if isinstance(name, int):
                 raise IndexError("list assignment index out of range")
             elif isinstance(name, slice):
-                self.__value__ = []
+                self._value = []
             else:
-                self.__value__ = {}
+                self._value = {}
         if self.__nodetype == NODETYPES.DICT:
-            self.__value__[name] = Node(value)
+            if name not in self._value and self._sealed:
+                raise TypeError(f"cannot set new item '{name}' on sealed node")
+            self._value[name] = Node(value, sealed=self._sealed, frozen=self._frozen)
             return
         if self.__nodetype == NODETYPES.LIST:
-            if not isinstance(name, int):
-                raise IndexError(f"Cannot index list with {type(name)}")
-            self.__value__[name] = Node(value)
+            if not isinstance(name, (int, slice)):
+                raise TypeError(f"cannot index list with {type(name)}")
+            self._value[name] = Node(value, sealed=self._sealed, frozen=self._frozen)
             return
         raise RuntimeError
 
@@ -163,9 +213,13 @@ class Node:
         """
         Deletes the value at an index (for list nodes) or at a key (for dict node). 
         """
+        if self._frozen:
+            raise TypeError(f"cannot delete item '{name}' on frozen node")
+        if self._sealed:
+            raise TypeError(f"cannot delete item '{name}' on sealed node")
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise AttributeError("undefined node has no attribute '{name}'")
-        del self.__value__[name]
+        del self._value[name]
 
     def __iter__(self):
         """
@@ -173,7 +227,7 @@ class Node:
         """
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise TypeError("undefined node is not iterable")
-        return iter(self.__value__)
+        return iter(self._value)
 
     def __len__(self):
         """
@@ -181,7 +235,7 @@ class Node:
         """
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise TypeError("undefined node has no length")
-        return len(self.__value__)
+        return len(self._value)
 
     def __enter__(self):
         return self
@@ -192,10 +246,10 @@ class Node:
     def __contains__(self, value):
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise TypeError("undefined node is not iterable")
-        return self.__value__.__contains__(value)
+        return self._value.__contains__(value)
 
     def __bool__(self):
-        return bool(self.__value__)
+        return bool(self._value)
 
     def append(self, *args, **kwargs):
         """
@@ -241,6 +295,8 @@ class Node:
             ]
         }
         """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot append value to frozen or sealed node")
         if (
             len(args) > 1
             or (len(args) != 0 and len(kwargs) != 0)
@@ -251,10 +307,10 @@ class Node:
             )
         value = args[0] if args else kwargs
         if self.__nodetype == NODETYPES.UNDEFINED:
-            self.__value__ = []
+            self._value = []
         if self.__nodetype == NODETYPES.LIST:
-            value = Node(value)
-            self.__value__.append(value)
+            value = Node(value, sealed=self._sealed, frozen=self._frozen)
+            self._value.append(value)
             return value if isinstance(value, Node) else None
         raise AttributeError("dict node has no attribute 'append'")
 
@@ -277,8 +333,8 @@ class Node:
             raise AttributeError("list node has no attribute 'get'")
         if self.__nodetype == NODETYPES.UNDEFINED:
             return default
-        if key in self.__value__:
-            return self.__value__[key]
+        if key in self._value:
+            return self._value[key]
         return default
 
     def serialize(self):
@@ -395,20 +451,20 @@ def serialize(tree):
     if tree._Node__nodetype == NODETYPES.UNDEFINED:
         return None
     if tree._Node__nodetype == NODETYPES.LIST:
-        return [serialize(value) for value in tree.__value__]
+        return [serialize(value) for value in tree._value]
     if tree._Node__nodetype == NODETYPES.DICT:
-        return {key: serialize(value) for key, value in tree.__value__.items()}
+        return {key: serialize(value) for key, value in tree._value.items()}
     raise RuntimeError
 
 
-def new(root=None):
+def new(root=None, *, sealed=False, frozen=False):
     """
     Creates a new :code:`easytree.Tree`
     """
-    return Node(root)
+    return Node(root, sealed=sealed, frozen=frozen)
 
 
-def load(stream, *args, **kwargs):
+def load(stream, *args, frozen=False, sealed=False, **kwargs):
     """
     Deserialize a text file or binary file containing a JSON 
     document to an easytree.Tree object 
@@ -418,15 +474,15 @@ def load(stream, *args, **kwargs):
     >>> with open("data.json", "r") as file: 
     ...     tree = easytree.load(file)
     """
-    return Node(json.load(stream, *args, **kwargs))
+    return Node(json.load(stream, *args, **kwargs), sealed=sealed, frozen=frozen)
 
 
-def loads(s, *args, **kwargs):
+def loads(s, *args, frozen=False, sealed=False, **kwargs):
     """
     Deserialize s (a str, bytes or bytearray instance containing a JSON document) 
     to an easytree.Node object 
     """
-    return Node(json.loads(s, *args, **kwargs))
+    return Node(json.loads(s, *args, **kwargs), sealed=sealed, frozen=frozen)
 
 
 def dump(obj, stream, *args, **kwargs):
@@ -448,3 +504,69 @@ def dumps(obj, *args, **kwargs):
     Serialize easytree.Tree to a JSON formatted string
     """
     return json.dumps(serialize(obj), *args, **kwargs)
+
+
+def frozen(tree):
+    """
+    Returns True if the tree is frozen
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
+        )
+    return tree._frozen
+
+
+def freeze(tree):
+    """
+    Returns a new frozen copy of the tree
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
+        )
+    return Node(tree, frozen=True)
+
+
+def unfreeze(tree):
+    """
+    Returns a new unfrozen copy of the tree
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
+        )
+    return Node(tree, frozen=False)
+
+
+def sealed(tree):
+    """
+    Returns True if the tree is sealed
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
+        )
+    return tree._frozen
+
+
+def seal(tree):
+    """
+    Returns a new sealed copy of the tree
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
+        )
+    return Node(tree, sealed=False)
+
+
+def unseal(tree):
+    """
+    Returns a new unsealed copy of the tree
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
+        )
+    return Node(tree, sealed=False)
