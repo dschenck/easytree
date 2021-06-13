@@ -1,1 +1,4 @@
-from easytree.tree import AmbiguityError, new, Tree, serialize, load, loads, dump, dumps
+from easytree.tree import AmbiguityError, new, Node, serialize, load, loads, dump, dumps
+
+# export Node as Tree
+Tree = Node

@@ -11,9 +11,20 @@ class NODETYPES:
     UNDEFINED = "undefined"
 
 
-class Tree:
+class Node:
+    __hash__ = None
+
+    def __new__(cls, value=None, *args, **kwargs):
+        if cls is not Node:
+            return super().__new__(cls)
+        if value is None or isinstance(
+            value, (list, tuple, set, range, zip, dict, Node)
+        ):
+            return super().__new__(cls)
+        return value
+
     def __init__(self, value=None):
-        if isinstance(value, Tree):
+        if isinstance(value, Node):
             value = value.serialize()
         if isinstance(value, dict):
             value = {k: Node(v) for k, v in value.items()}
@@ -142,9 +153,13 @@ class Tree:
         del self.__value__[name]
 
     def __iter__(self):
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            raise TypeError("undefined node is not iterable")
         return iter(self.__value__)
 
     def __len__(self):
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            raise TypeError("undefined node has no length")
         return len(self.__value__)
 
     def __enter__(self):
@@ -299,19 +314,6 @@ class Tree:
         return serialize(self)
 
 
-class Node(Tree):
-    """
-    Tree node
-    """
-
-    __hash__ = None
-
-    def __new__(cls, value=None):
-        if value is None or isinstance(value, (list, tuple, set, range, zip, dict)):
-            return super(cls, cls).__new__(cls)
-        return value
-
-
 def serialize(tree):
     """
     Recursively converts an :code:`easytree.Tree` to a native python type.
@@ -365,13 +367,13 @@ def serialize(tree):
         ]
     }
     """
-    if not isinstance(tree, Tree):
+    if not isinstance(tree, Node):
         return tree
-    if tree._Tree__nodetype == NODETYPES.UNDEFINED:
+    if tree._Node__nodetype == NODETYPES.UNDEFINED:
         return None
-    if tree._Tree__nodetype == NODETYPES.LIST:
+    if tree._Node__nodetype == NODETYPES.LIST:
         return [serialize(value) for value in tree.__value__]
-    if tree._Tree__nodetype == NODETYPES.DICT:
+    if tree._Node__nodetype == NODETYPES.DICT:
         return {key: serialize(value) for key, value in tree.__value__.items()}
     raise RuntimeError
 
@@ -380,7 +382,7 @@ def new(root=None):
     """
     Creates a new :code:`easytree.Tree`
     """
-    return Tree(root)
+    return Node(root)
 
 
 def load(stream, *args, **kwargs):
@@ -393,15 +395,15 @@ def load(stream, *args, **kwargs):
     >>> with open("data.json", "r") as file: 
     ...     tree = easytree.load(file)
     """
-    return Tree(json.load(stream, *args, **kwargs))
+    return Node(json.load(stream, *args, **kwargs))
 
 
 def loads(s, *args, **kwargs):
     """
     Deserialize s (a str, bytes or bytearray instance containing a JSON document) 
-    to an easytree.Tree object 
+    to an easytree.Node object 
     """
-    return Tree(json.loads(s, *args, **kwargs))
+    return Node(json.loads(s, *args, **kwargs))
 
 
 def dump(obj, stream, *args, **kwargs):

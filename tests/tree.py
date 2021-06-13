@@ -7,19 +7,19 @@ class TestTree(unittest.TestCase):
     def test_initialization(self):
         tree = easytree.new()
         self.assertIsInstance(tree, easytree.Tree)
-        self.assertEqual(tree._Tree__nodetype, "undefined")
+        self.assertEqual(tree._Node__nodetype, "undefined")
 
         tree = easytree.Tree()
         self.assertIsInstance(tree, easytree.Tree)
-        self.assertEqual(tree._Tree__nodetype, "undefined")
+        self.assertEqual(tree._Node__nodetype, "undefined")
 
         tree = easytree.new({})
         self.assertIsInstance(tree, easytree.Tree)
-        self.assertEqual(tree._Tree__nodetype, "dict")
+        self.assertEqual(tree._Node__nodetype, "dict")
 
         tree = easytree.new([])
         self.assertIsInstance(tree, easytree.Tree)
-        self.assertEqual(tree._Tree__nodetype, "list")
+        self.assertEqual(tree._Node__nodetype, "list")
 
         tree = easytree.tree.Node(1)
         self.assertEqual(tree, 1)
@@ -36,7 +36,7 @@ class TestTree(unittest.TestCase):
         that = easytree.Tree(this)
 
         self.assertIsInstance(that, easytree.Tree)
-        self.assertEqual(that._Tree__nodetype, "dict")
+        self.assertEqual(that._Node__nodetype, "dict")
 
         that.name = "bar"
         self.assertEqual(this.name, "foo")
@@ -103,7 +103,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(str(tree.serialize()), "[[[1]]]")
 
         tree = easytree.new({"foo": "bar"})
-        self.assertEqual(tree._Tree__nodetype, "dict")
+        self.assertEqual(tree._Node__nodetype, "dict")
 
         with self.assertRaises(AttributeError):
             tree.append("XXX")
