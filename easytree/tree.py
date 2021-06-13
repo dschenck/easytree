@@ -173,6 +173,8 @@ class Node:
         pass
 
     def __contains__(self, value):
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            raise TypeError("undefined node is not iterable")
         return self.__value__.__contains__(value)
 
     def __bool__(self):
