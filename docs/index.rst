@@ -2,6 +2,9 @@ easytree
 ======================================
 A fluent tree builder, useful to create multi-level, nested JSON configurations.
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+
 Quickstart
 -------------------------------------
 Installing :code:`easytree` is simple with pip: 
@@ -210,6 +213,7 @@ How does :code:`easytree` compare with :code:`jsontree`
 
 1. elements, when attached or appended to an :code:`easytree.Tree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
 2. serialization of an :code:`easytree.Tree` merely converts the tree to a dictionary, list or underlying value (for leaves). It does not serialize to JSON.
+3. starting with 0.1.8, :code:`easytree` supports freezing or sealing trees to avoid accidentally create new nodes
 
 Compare: 
 ::
@@ -232,6 +236,51 @@ with:
     >>> tree.friends[0].age = 29 #this does not work
     AttributeError: 'dict' object has no attribute 'age'
 
+Sealing and freezing
+-----------------------------------
+.. note::
+
+    New with version 0.1.8
+
+While :code:`easytree` makes it easy to create deeply-nested trees, it can also make it error prone when reading back properties. 
+Sealing and freezing allow to protect trees by restricting some or all mutations to a tree. 
+
++-----------------------+---------+--------+--------+
+|                       | default | sealed | frozen |
++=======================+=========+========+========+
+| read an existing node | ✅      | ✅     | ✅     |
++-----------------------+---------+--------+--------+
+| create a new node     | ✅      | ❌     | ❌     |
++-----------------------+---------+--------+--------+
+| edit a node           | ✅      | ✅     | ❌     |
++-----------------------+---------+--------+--------+
+| delete a node         | ✅      | ❌     | ❌     |
++-----------------------+---------+--------+--------+
+
+
+Sealing
+************************************
+Sealing a tree prevents the user from accidentally creating new nodes; it does allow to edit leaf values. 
+::
+
+    >>> person = easytree.Tree({"name:"Bob", "address":{"city":"New York"}}, sealed=True)
+    >>> person.name = "Alice" #you can still edit leaf values
+    >>> person.adress.city    #typo spelling address
+    AttributeError: sealed node has no attribute 'adress'
+
+
+You can :code:`seal` and :code:`unseal` a tree with the dedicated root-level functions. These functions return a *new* tree (i.e. these functions are not in-place).
+
+Freezing
+************************************
+Freezing a tree prevents the user from accidentally creating new nodes or changing existing nodes. 
+:: 
+
+    >>> person = easytree.Tree({"name:"Bob", "address":{"city":"New York"}}, frozen=True)
+    >>> person.address.city = "Los Angeles"
+    AttributeError: cannot set attribute 'city' on frozen node
+
+You can :code:`freeze` and :code:`unfreeze` a tree with the dedicated root-level functions. These functions return a *new* tree (i.e. these functions are not in-place).
 
 API Documentation 
 -----------------------------------
@@ -239,7 +288,7 @@ API Documentation
     :members:
 
 .. automodule:: easytree
-    :members: new, serialize
+    :members: new, serialize, frozen, freeze, unfreeze, sealed, seal, unseal
 
 Source code
 -----------------------------------
@@ -293,3 +342,12 @@ Version 0.1.7 (2021-05-01)
     - addressed ipython canary 
     - added :code:`get` method for dict nodes
     - implemented :code:`__delitem__`, :code:`__delattr__` and :code:`__bool__`
+
+Version 0.1.8 (2021-06-13)
+************************************
+    - formatted code using `Black <https://github.com/psf/black>`_ 
+    - added convenience i/o functions (e.g. :code:`load` and :code:`dump`)
+    - added support for :code:`abc.KeysView` and :code:`abc.ValuesView` values
+    - merged root and node classes
+    - refactored :code:`__value__` attribute to :code:`_value`
+    - added support for freezing and sealing trees
