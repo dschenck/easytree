@@ -13,6 +13,62 @@ class NODETYPES:
 
 
 class Node:
+    """
+    A recursive tree structure, supporting both dict and list nodes. New children nodes can be read and written as attributes, and dynamically becomes nodes themselves. 
+
+    Example
+    -------------
+    >>> root = easytree.Tree()
+    >>> root.user.firstname = "foo"
+    >>> root.user.firstname == root["user"]["firstname"] == "foo"
+    True
+    >>> root.user.friends.append(username="@jack")
+    >>> root
+    {
+        "user":{
+            "firstname":"foo"
+        },
+        "friends":[
+            {
+                "username":"@jack"
+            }
+        ]
+    }
+
+    The type of a newly-accessed node is initially *undefined*, but is cast as a dict or a list depending on subsequent interactions.
+
+    Example
+    ------------
+    >>> root = easytree.Tree()
+    >>> root.abc                              #abc is an undefined node
+    >>> root.abc.xyz                          #abc is cast to a dict node; xyz is undefined
+    >>> root.abc.xyz.append(firstname="Bob")  #xyz is cast to a list node with one dict node
+
+    A tree can be *serialized* back to native python objects using the :code:`serialize` method
+    
+    Example
+    -------------
+    >>> tree = easytree.Tree()
+    >>> tree.abc.xyz.append(44)
+    >>> tree.serialize()
+    {
+        "abc":{
+            "xyz:[
+                44
+            ]
+        }
+    }
+
+    A tree can be *sealed* or *frozen* to prevent further changes
+
+    Example
+    --------------
+    >>> tree = easytree.Tree({"abc":{"xyz":True}}, sealed=True)
+    >>> tree.abc.xyz = False
+    >>> tree.foo = "bar"
+    AttributeError: cannot set new attribute 'foo' on sealed node
+    """
+
     __hash__ = None
 
     def __new__(cls, value=None, *args, **kwargs):
@@ -65,8 +121,7 @@ class Node:
         """
         Retrieves an attribute by name for dict nodes.
 
-        If the node is undefined, this operations casts the node to
-        a dict node.
+        If the node is undefined, this operations casts the node to a dict node.
 
         Raises an AttributeError for list nodes. 
         """
@@ -75,18 +130,18 @@ class Node:
         if name in ("_frozen", "_sealed"):
             return False  # defaults for inheritence
         if self.__nodetype == NODETYPES.LIST:
-            raise AttributeError(f"list node has not attribute '{name}'")
+            raise AttributeError(f"list node has no attribute '{name}'")
         if self.__nodetype == NODETYPES.UNDEFINED:
             if self._frozen:
-                raise AttributeError(f"frozen node does not have '{name}' attribute")
+                raise AttributeError(f"frozen node has no attribute '{name}'")
             if self._sealed:
-                raise AttributeError(f"sealed node does not have '{name}' attribute")
+                raise AttributeError(f"sealed node has no attribute '{name}'")
             self._value = {}
         if name not in self._value:
             if self._frozen:
-                raise AttributeError(f"frozen node does not have '{name}' attribute")
+                raise AttributeError(f"frozen node has no attribute '{name}'")
             if self._sealed:
-                raise AttributeError(f"sealed node does not have '{name}' attribute")
+                raise AttributeError(f"sealed node has no attribute '{name}'")
             self._value[name] = Node(sealed=self._sealed, frozen=self._frozen)
         return self._value[name]
 
@@ -94,8 +149,7 @@ class Node:
         """
         Sets the value at an attribute for dict nodes. 
 
-        If the node is undefined, this operation casts the node to 
-        a dict node.
+        If the node is undefined, this operation casts the node to a dict node.
 
         Raises an AttributeError for list nodes. 
         """
@@ -122,7 +176,7 @@ class Node:
                 )
             self._value[name] = Node(value, sealed=self._sealed, frozen=self._frozen)
             return
-        raise AttributeError(f"list node has not attribute '{name}'")
+        raise AttributeError(f"list node has no attribute '{name}'")
 
     def __delattr__(self, name):
         """
@@ -150,9 +204,7 @@ class Node:
         """
         Retrieves an item at an index (for list nodes) or at a key (for dict nodes). 
 
-        If the node is undefined, this operation casts the node to a dict node, 
-        unless the given key/index is an integer; instead, an AmbiguityError error is 
-        raised.
+        If the node is undefined, this operation casts the node to a dict node, unless the given key/index is an integer; instead, an AmbiguityError error is raised.
         """
         if self.__nodetype == NODETYPES.UNDEFINED:
             if self._frozen:
@@ -185,8 +237,7 @@ class Node:
         """
         Sets the value at an index (for list nodes) or at a key (for dict node). 
 
-        If the node is undefined, this operation casts the node to a dict node, 
-        unlesss the given key/index is a slice object. 
+        If the node is undefined, this operation casts the node to a dict node, unlesss the given key/index is a slice object. 
         """
         if self._frozen:
             raise TypeError(f"cannot set item '{name}' on frozen node")
@@ -265,12 +316,12 @@ class Node:
         >>> tree.append("hello world")                            #casts node to list
         >>> tree.append(name="David", age=29)                     #call with kwargs
         >>> tree.append({"animal":"elephant", "country":"India"}) #call with args
-        >>> easytree.serialize(tree)
+        >>> tree.serialize()
         ["Hello world",{"name":"David","age":29},{"animal":"elephant", "country":"India"}]
 
         Note
         ---------
-        The append method intentionally returns a reference to the last-added item, if that item is a new node. This allows for more fluent code using the context manager. 
+        The append method intentionally returns a reference to the last-added item, if that item is a new node. This allows for fluent code using the context manager. 
 
         Example
         -----------
@@ -316,8 +367,7 @@ class Node:
 
     def get(self, key, default=None):
         """
-        Returns the value at a given key, or default if the key does 
-        not exists.
+        Returns the value at a given key, or default if the key does not exists.
 
         Example
         ---------------------
@@ -395,7 +445,7 @@ class Node:
 
 def serialize(tree):
     """
-    Recursively converts an :code:`easytree.Tree` to a native python type.
+    Recursively converts an :code:`easytree.Tree` back to a native python type.
 
     Example
     ---------------------
@@ -466,8 +516,7 @@ def new(root=None, *, sealed=False, frozen=False):
 
 def load(stream, *args, frozen=False, sealed=False, **kwargs):
     """
-    Deserialize a text file or binary file containing a JSON 
-    document to an :code:`Tree` object 
+    Deserialize a text file or binary file containing a JSON document to an :code:`Tree` object 
 
 
     :code:`*args` and :code:`**kwargs` are passed to the :code:`json.load` function
@@ -482,8 +531,7 @@ def load(stream, *args, frozen=False, sealed=False, **kwargs):
 
 def loads(s, *args, frozen=False, sealed=False, **kwargs):
     """
-    Deserialize s (a str, bytes or bytearray instance containing a JSON document) 
-    to an :code:`Tree` object 
+    Deserialize s (a str, bytes or bytearray instance containing a JSON document) to an :code:`Tree` object 
 
     :code:`*args` and :code:`**kwargs` are passed to the :code:`json.loads` function
     """
@@ -492,8 +540,7 @@ def loads(s, *args, frozen=False, sealed=False, **kwargs):
 
 def dump(obj, stream, *args, **kwargs):
     """
-    Serialize :code:`Tree` object as a JSON formatted string 
-    to stream (a .write()-supporting file-like object). 
+    Serialize :code:`Tree` object as a JSON formatted string to stream (a .write()-supporting file-like object). 
 
     :code:`*args` and :code:`**kwargs` are passed to the :code:`json.dump` function
 
