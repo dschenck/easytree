@@ -1,5 +1,6 @@
 # easytree
 
+![build](https://github.com/dschenck/easytree/workflows/easytree/badge.svg)
 [![PyPI version](https://badge.fury.io/py/easytree.svg)](https://badge.fury.io/py/easytree) 
 [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
 [![Downloads count](https://img.shields.io/pypi/dd/easytree)](https://img.shields.io/pypi/dd/easytree)
