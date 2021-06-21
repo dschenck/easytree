@@ -29,6 +29,10 @@ class TestTree(unittest.TestCase):
         self.assertEqual(tree, True)
         self.assertIsInstance(tree, bool)
 
+        foo = easytree.Tree({})
+        bar = easytree.Tree(foo)
+        self.assertIsNot(foo, bar)
+
     def test_copy(self):
         this = easytree.Tree(
             {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
@@ -149,8 +153,13 @@ class TestTree(unittest.TestCase):
             self.assertIsInstance(child, str)
 
     def test_inheritence(self):
+        class Grandchild(easytree.Tree):
+            def walk(self):
+                return "walking"
+
         class Child(easytree.Tree):
             def __init__(self, name, age):
+                self.child = Grandchild()
                 self.name = name
                 self.age = age
 
@@ -162,12 +171,36 @@ class TestTree(unittest.TestCase):
 
         self.assertIsInstance(instance.address, easytree.Tree)
         self.assertIsInstance(instance.address, easytree.tree.Node)
-        self.assertEqual(set(instance.serialize()), set(("name", "age", "address")))
+        self.assertIsInstance(instance.child, Grandchild)
+        self.assertEqual(instance.child.walk(), "walking")
+        self.assertEqual(
+            set(instance.serialize()), set(("child", "name", "age", "address"))
+        )
         self.assertEqual(
             set(instance.serialize()["address"]),
             set(("number", "street", "city", "country")),
         )
         self.assertEqual(instance.serialize()["address"]["city"], "Paris")
+
+        # passing subclasses returns instance
+        grandchild = Grandchild()
+        altinstance = easytree.Tree(grandchild)
+        self.assertIsInstance(altinstance, Grandchild)
+        self.assertIs(altinstance, grandchild)
+
+        class Child(easytree.Tree):
+            def append(self, value, *args, **kwargs):
+                super().append(value=value, **kwargs)
+                return (value, len(args), len(kwargs))
+
+        instance = Child()
+
+        self.assertIsInstance(instance, easytree.Tree)
+        self.assertIsInstance(instance, Child)
+        self.assertEqual(instance.append("test"), ("test", 0, 0))
+        self.assertEqual(instance.append("test", 1), ("test", 1, 0))
+        self.assertEqual(instance.append("test", name="alpha"), ("test", 0, 1))
+        self.assertEqual(instance.append("test", True, name="alpha"), ("test", 1, 1))
 
     def test_contextmanager(self):
         chart = easytree.new()

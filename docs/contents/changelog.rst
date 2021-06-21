@@ -56,3 +56,7 @@ Version 0.1.8 (2021-06-13)
     - merged root and node classes
     - refactored :code:`__value__` attribute to :code:`_value`
     - added support for freezing and sealing trees
+
+Version 0.1.9 (2021-06-21)
+-------------------------------------
+    - fixed bug in complex inheritence

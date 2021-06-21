@@ -75,9 +75,11 @@ class Node:
         if cls is not Node:
             return super().__new__(cls)
         if value is None or isinstance(
-            value,
-            (list, tuple, set, range, zip, dict, Node, abc.KeysView, abc.ValuesView),
+            value, (list, tuple, set, range, zip, dict, abc.KeysView, abc.ValuesView)
         ):
+            return super().__new__(cls)
+        # keep subclass instances intact
+        if isinstance(value, Node) and type(value) is Node:
             return super().__new__(cls)
         return value
 
@@ -99,7 +101,7 @@ class Node:
         self._sealed = sealed
 
     def __repr__(self):
-        return repr(serialize(self))
+        return f"Tree({repr(serialize(self))})"
 
     def __str__(self):
         return str(serialize(self))
