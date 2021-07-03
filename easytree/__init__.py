@@ -1,5 +1,4 @@
 from easytree.tree import (
-    AmbiguityError,
     new,
     Node,
     serialize,

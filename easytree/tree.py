@@ -2,10 +2,6 @@ import json
 import collections.abc as abc
 
 
-class AmbiguityError(Exception):
-    pass
-
-
 class NODETYPES:
     DICT = "dict"
     LIST = "list"
@@ -206,19 +202,14 @@ class Node:
         """
         Retrieves an item at an index (for list nodes) or at a key (for dict nodes). 
 
-        If the node is undefined, this operation casts the node to a dict node, unless the given key/index is an integer; instead, an AmbiguityError error is raised.
+        If the node is undefined, this operation casts the node to a dict node.
         """
         if self.__nodetype == NODETYPES.UNDEFINED:
             if self._frozen:
                 raise KeyError(f"frozen node has no value for '{name}'")
             if self._sealed:
                 raise KeyError(f"sealed node has no value for '{name}'")
-            if isinstance(name, (int, slice)):
-                raise AmbiguityError(
-                    "Node type is undefined: cast to dict node or list node to disambiguate"
-                )
-            else:
-                self._value = {}
+            self._value = {}
         if self.__nodetype == NODETYPES.DICT:
             if name not in self._value:
                 if self._frozen:

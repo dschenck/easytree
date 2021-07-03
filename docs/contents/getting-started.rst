@@ -1,5 +1,11 @@
 Getting started 
 =====================================
+
+Installing :code:`easytree` is simple with pip: 
+::
+
+    pip install easytree
+
 Consider the following tree, as an example:
 ::
 
@@ -110,6 +116,3 @@ Once the type of a node is determined, it cannot morph into another type. For ex
     >>> root = easytree.Tree({}) #explicitely set as dict node
     >>> root.append(1)
     AttributeError: 'dict' object has no attribute 'append'
-
-.. warning::
-    For an undefined node, retrieving an integer key (e.g. :code:`node[0]`) is intrinsically ambiguous: did the user expect the first value of a list node (which should raise an :code:`IndexError` given that the list is then empty), or the value at the key :code:`0` of a dict node? **To avoid unintentionally creating dict nodes, an** :code:`AmbiguityError` **will be raised.**

@@ -60,3 +60,7 @@ Version 0.1.8 (2021-06-13)
 Version 0.1.9 (2021-06-21)
 -------------------------------------
     - fixed bug in complex inheritence
+
+Version 0.1.10 (2021-07-03)
+-------------------------------------
+    - removed AmbiguityError when casting undefined node to dict node with integers
