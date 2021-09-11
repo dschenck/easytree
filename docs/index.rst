@@ -1,6 +1,6 @@
 easytree
 ======================================
-`easytree <https://easytree.readthedocs.io/>`_ is a lightweight Python library, designed to easily create, serialize and read deeply-nested tree configurations.
+`easytree <https://easytree.readthedocs.io/>`_ is a lightweight Python library designed to easily read and write deeply-nested tree configurations.
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg
     :target: https://github.com/dschenck/easytree/actions
@@ -23,10 +23,25 @@ Installing :code:`easytree` is simple with pip:
 
 Using :code:`easytree` is also easy
 ::
+
+    >>> import easytree
+
+    >>> tree = easytree.Tree()
+    >>> tree.foo.bar.baz = "Hello world!"
+    >>> tree 
+    Tree({
+        "foo":{
+            "bar":{
+                "baz":"Hello world!"
+            }
+        }
+    })
+
+Writing configurations that combine both list and dict nodes is easy - here's an example of an Highcharts chart configuration
+::
     
     >>> import easytree
 
-    #let's create a deeply-nested chart configuration
     >>> chart = easytree.Tree()
     >>> chart.chart.type = "bar"
     >>> chart.title.text = "France Olympic Medals"
@@ -82,8 +97,7 @@ Writing deeply-nested trees with list nodes is easy with a context-manager:
     >>> chart = easytree.Tree()
     >>> with chart.axes.append({}) as axis: 
     ...     axis.title.text = "primary axis"
-    >>> with chart.axes.append({}) as axis: 
-    ...     axis.title.text = "secondary axis"
+    ...     axis.min = 0
     >>> chart.serialize()
     {
         "axes": [
@@ -91,11 +105,7 @@ Writing deeply-nested trees with list nodes is easy with a context-manager:
                 "title": {
                     "text": "primary axis"
                 }
-            },
-            {
-                "title": {
-                    "text": "secondary axis"
-                }
+                "min":0
             }
         ]
     }
