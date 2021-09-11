@@ -51,7 +51,7 @@ Writing configurations that combine both list and dict nodes is easy - here's an
     >>> chart.series.append({"name":"2012"})
     >>> chart.series[1].data = [11, 11, 13] #list items recursively become nodes
 
-    >>> easytree.serialize(chart)
+    >>> chart.serialize() #convert back to Python native objects
     {
         "chart": {
             "type": "bar"
