@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="easytree",
-    version="0.1.10",
+    version="0.1.11",
     author="david.schenck@outlook.com",
     author_email="david.schenck@outlook.com",
     description="A fluent tree builder, useful to create multi-level, nested JSON configurations.",
