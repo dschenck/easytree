@@ -295,6 +295,18 @@ class Node:
     def __bool__(self):
         return bool(self._value)
 
+    def __getstate__(self):
+        """
+        Returns the state of the tree for pickling
+        """
+        return self.__dict__
+
+    def __setstate__(self, data):
+        """
+        Unpickles and restores the state of the tree
+        """
+        self.__dict__.update(data)
+
     def append(self, *args, **kwargs):
         """
         Appends a value to a list node. If the node type was previously undefined, the node becomes a list. 
