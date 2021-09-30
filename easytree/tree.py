@@ -608,7 +608,7 @@ def sealed(tree):
         raise TypeError(
             f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
         )
-    return tree._frozen
+    return tree._sealed
 
 
 def seal(tree):
