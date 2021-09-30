@@ -51,7 +51,7 @@ You can recursively create list and dict nodes on the fly:
 :: 
 
     >>> config.events.append(name="create", user="Alice") #events node is created on the fly
-    >>> config.events.append({"name:"edit", "user":"Bob"})
+    >>> config.events.append({"name":"edit", "user":"Bob"})
     >>> config
     {
         "date":"2020-02-20",

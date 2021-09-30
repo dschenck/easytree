@@ -64,3 +64,7 @@ Version 0.1.9 (2021-06-21)
 Version 0.1.10 (2021-07-03)
 -------------------------------------
     - removed AmbiguityError when casting undefined node to dict node with integers
+
+Version 0.1.11 (2021-09-30)
+-------------------------------------
+    - added support for pickling and unpickling
