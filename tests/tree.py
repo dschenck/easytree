@@ -2,6 +2,8 @@ import unittest
 import easytree
 import easytree.tree
 
+import pickle
+import io
 
 class TestTree(unittest.TestCase):
     def test_initialization(self):
@@ -53,6 +55,15 @@ class TestTree(unittest.TestCase):
         this.address.country = "France"
         self.assertEqual(this.address.country, "France")
         self.assertEqual(that.address.country, "US")
+
+    def test_representation(self):
+        tree = easytree.Tree(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+
+        assert str(tree) == str({"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}})
+
+        assert repr(tree) == f"Tree({str(tree)})"
 
     def test_serialization(self):
         tree = easytree.new()
@@ -347,6 +358,47 @@ class TestTree(unittest.TestCase):
         with self.assertRaises(TypeError):
             tree.friends.append("Charlie")
 
+        assert easytree.frozen(tree) is True
+        assert easytree.sealed(tree) is False
+
         tree = easytree.Tree(tree)
 
         self.assertFalse(tree.city._frozen, False)
+
+        assert easytree.frozen(tree) is False
+        assert easytree.sealed(tree) is False
+
+        with self.assertRaises(TypeError):
+            easytree.freeze("Not an easytree")
+
+
+    def test_sealing(self):
+        tree = easytree.Tree(
+            {"name": "David", "address": {"city": "New York"}, "friends": ["Alice"]},
+            sealed=True,
+        )
+
+        tree.address.city = "Paris"
+
+        with self.assertRaises(Exception): 
+            tree.address.country = "France"
+
+        assert easytree.frozen(tree) is False
+        assert easytree.sealed(tree) is True
+
+        with self.assertRaises(TypeError):
+            easytree.seal("Not an easytree")
+
+    def test_pickling(self):
+        this = easytree.Tree(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+
+        stream = io.BytesIO(pickle.dumps(this))
+        
+        that = pickle.load(stream)
+
+        assert isinstance(that, easytree.Tree)
+        assert isinstance(that.address, easytree.Tree)
+        assert isinstance(that.address.country, str) and that.address.country == "US"
+
