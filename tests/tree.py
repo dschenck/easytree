@@ -498,3 +498,17 @@ class TestTree(unittest.TestCase):
 
         assert tree.serialize() == {"numbers": [1, 3], "address": {"country": "US"}}
 
+    def test_deepget(self):
+        tree = easytree.Tree(
+            {
+                "name": "Bob",
+                "children": [{"name": "Alice", "university": {"name": "MIT"}}],
+                "address": {"country": "US"},
+            }
+        )
+
+        assert tree.deepget(("children", 0, "university", "name")) == "MIT"
+        assert tree.deepget(("children", 10, "university", "name")) is None
+        assert tree.deepget(("address", "city")) is None
+        assert tree.deepget(("address", "city"), "New York") == "New York"
+

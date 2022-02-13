@@ -382,6 +382,40 @@ class Node:
             return self._value[key]
         return default
 
+    def deepget(self, keys, default=None):
+        """
+        Returns the value at the end of the keys' path, or 
+        default if such path raises an KeyError or IndexError
+
+        Parameters
+        ----------
+        keys : iterable
+            list of keys
+        default : *
+            default value if keys' path does not exists
+
+        Example
+        -------
+        >>> tree = easytree.Tree({"address":{"city":"New York"}})
+        >>> tree.deepget(("address","city"))
+        "New York"
+        >>> tree.deepget(("address","country"), "US")
+        "US"
+        """
+        node = self
+        for key in keys:
+            if isinstance(node, Node):
+                if node._Node__nodetype == NODETYPES.UNDEFINED:
+                    return default
+                if node._Node__nodetype == NODETYPES.DICT:
+                    if key not in node:
+                        return default
+            try:
+                node = node[key]
+            except (KeyError, IndexError):
+                return default
+        return node
+
     def pop(self, *args, **kwargs):
         """
         Removes (in-place) the item at given key/index and returns the corresponding value.
