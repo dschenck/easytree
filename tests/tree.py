@@ -5,6 +5,7 @@ import easytree.tree
 import pickle
 import io
 
+
 class TestTree(unittest.TestCase):
     def test_initialization(self):
         tree = easytree.new()
@@ -61,7 +62,9 @@ class TestTree(unittest.TestCase):
             {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
         )
 
-        assert str(tree) == str({"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}})
+        assert str(tree) == str(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
 
         assert repr(tree) == f"Tree({str(tree)})"
 
@@ -371,7 +374,6 @@ class TestTree(unittest.TestCase):
         with self.assertRaises(TypeError):
             easytree.freeze("Not an easytree")
 
-
     def test_sealing(self):
         tree = easytree.Tree(
             {"name": "David", "address": {"city": "New York"}, "friends": ["Alice"]},
@@ -380,7 +382,7 @@ class TestTree(unittest.TestCase):
 
         tree.address.city = "Paris"
 
-        with self.assertRaises(Exception): 
+        with self.assertRaises(Exception):
             tree.address.country = "France"
 
         assert easytree.frozen(tree) is False
@@ -395,10 +397,104 @@ class TestTree(unittest.TestCase):
         )
 
         stream = io.BytesIO(pickle.dumps(this))
-        
+
         that = pickle.load(stream)
 
         assert isinstance(that, easytree.Tree)
         assert isinstance(that.address, easytree.Tree)
         assert isinstance(that.address.country, str) and that.address.country == "US"
+
+    def test_keys(self):
+        tree = easytree.Tree(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+
+        assert all([k in tree.keys() for k in ["name", "numbers", "address"]])
+
+        tree = easytree.Tree([1, 2, 3])
+
+        with self.assertRaises(AttributeError):
+            keys = tree.keys()
+
+    def test_values(self):
+        # dict node
+        tree = easytree.Tree(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+
+        assert list(tree.values()) == ["foo", tree.numbers, tree.address]
+
+        # list node
+        tree = easytree.Tree([1, 2, 3])
+
+        with self.assertRaises(AttributeError):
+            keys = tree.values()
+
+        # undefined node
+        tree = easytree.Tree()
+        assert list(tree.values()) == []
+
+    def test_update(self):
+        this = easytree.Tree({"a": 1, "b": 2})
+        that = easytree.Tree({"b": 3, "c": 4})
+
+        this.update(that)
+
+        assert set(this.keys()) == set(["a", "b", "c"])
+        assert this.b == 3
+        assert this.c == 4
+        assert this.a == 1
+
+        # check the updatand is unchanged
+        assert set(that.keys()) == set(["b", "c"])
+        assert that.b == 3
+        assert that.c == 4
+
+        # check undefined node
+        alt = easytree.Tree()
+        alt.update(that)
+
+        assert set(that.keys()) == set(["b", "c"])
+        assert alt.b == 3
+        assert alt.c == 4
+
+        # check deeply nested updates
+        tree = easytree.Tree()
+        tree.foo.bar.baz = {"a": 1, "b": 2}
+        tree.foo.bar.baz.update(that)
+
+        assert tree.serialize() == {"foo": {"bar": {"baz": {"a": 1, "b": 3, "c": 4}}}}
+
+    def test_name_collisions_with_methods(self):
+        tree = easytree.Tree({})
+        tree.values = 1
+
+        assert tree["values"] == 1
+        assert callable(tree.values)  # not to be confused with method...
+
+        setattr(tree, "keys", 2)
+        assert tree["keys"] == 2
+        assert callable(tree.keys)
+
+    def test_reverse_update(self):
+        this = {"age": 29, "country": "US"}
+        that = easytree.Tree({"name": "David", "country": "France"})
+
+        this.update(that)
+
+        assert this == {"name": "David", "age": 29, "country": "France"}
+
+    def test_pop(self):
+        tree = easytree.Tree(
+            {"name": "Bob", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+        value = tree.pop("name")
+        assert value == "Bob"
+
+        assert tree.serialize() == {"numbers": [1, 3, 5], "address": {"country": "US"}}
+
+        value = tree.numbers.pop()
+        assert value == 5
+
+        assert tree.serialize() == {"numbers": [1, 3], "address": {"country": "US"}}
 

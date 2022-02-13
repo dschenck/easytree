@@ -392,6 +392,118 @@ class Node:
             return self._value[key]
         return default
 
+    def pop(self, *args, **kwargs):
+        """
+        Removes (in-place) the item at given key/index and returns the corresponding value.
+
+        Note
+        ----
+        Calling pop on an undefined node 
+
+        Example
+        -------
+        >>> tree = easytree.Tree({"name":"Bob","numbers":[1,3,5], "address":{"country":"US"}})
+        >>> tree.pop("name")
+        "Bob"
+        >>> tree
+        easytree.Tree({"numbers":[1,3,5], "address":{"country":"US"}})
+        >>> tree.numbers.pop()
+        5
+        >>> tree
+        easytree.Tree({"numbers":[1,3], "address":{"country":"US"}})
+        """
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            if len(args) + len(kwargs) == 2:
+                return {}.pop(*args, **kwargs)
+            if len(args) + len(kwargs) == 0:
+                return [].pop()
+            if len(args) == 0 and len(kwargs) == 1 and "index" in kwargs:
+                return [].pop(**kwargs)
+            return {}.pop(*args, **kwargs)
+        return self._value.pop(*args, **kwargs)
+
+    def keys(self):
+        """
+        Returns the keys at the dict node
+
+        Returns
+        -------
+        dict_keys
+
+        Raises
+        ------
+        AttributeError
+            if node is a list node
+        """
+        if self.__nodetype == NODETYPES.LIST:
+            raise AttributeError("list node has no attribute 'keys'")
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            return {}.keys()
+        return self._value.keys()
+
+    def values(self):
+        """
+        Returns the values at the dict node
+
+        Returns
+        -------
+        dict_values
+
+        Raises
+        ------
+        AttributeError
+            if node is a list node
+        """
+        if self.__nodetype == NODETYPES.LIST:
+            raise AttributeError("list node has no attribute 'values'")
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            return {}.values()
+        return self._value.values()
+
+    def items(self):
+        """
+        Returns the items at the dict node
+
+        Returns
+        -------
+        dict_items
+
+        Raises
+        ------
+        AttributeError
+            if node is a list node
+        """
+        if self.__nodetype == NODETYPES.LIST:
+            raise AttributeError("list node has no attribute 'items'")
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            return {}.items()
+        return self._value.items()
+
+    def update(self, other):
+        """
+        Updates (in place) the dict node with other mapping
+
+        Note 
+        ----
+        An undefined node will be cast as a dict node
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AttributeError
+            if node is a list node
+        """
+        if self.__nodetype == NODETYPES.LIST:
+            raise AttributeError("list node has no attribute 'items'")
+        if self.__nodetype == NODETYPES.UNDEFINED:
+            self._value = Node(other)._value
+        else:
+            self._value.update(Node(other)._value)
+        return
+
     def serialize(self):
         """
         Recursively converts itself to a native python type (dict, list or None).
