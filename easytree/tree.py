@@ -153,8 +153,6 @@ class Node:
         """
         if name in ("_value", "_frozen", "_sealed"):
             return super().__setattr__(name, value)
-        if name in {"serialize", "get", "append"}:
-            raise AttributeError(f"Attribute '{name}' is read-only")
         if self.__nodetype == NODETYPES.UNDEFINED:
             if self._frozen:
                 raise AttributeError(
@@ -180,15 +178,7 @@ class Node:
         """
         Remove an attribute by name
         """
-        if name in {
-            "__nodetype",
-            "_value",
-            "_frozen",
-            "_sealed",
-            "serialize",
-            "get",
-            "append",
-        }:
+        if name in {"__nodetype", "_value", "_frozen", "_sealed"}:
             raise AttributeError(f"Attribute '{name}' is read-only")
         if self.__nodetype == NODETYPES.UNDEFINED:
             raise AttributeError(f"undefined node has no attribute '{name}'")
