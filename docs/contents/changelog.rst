@@ -68,3 +68,8 @@ Version 0.1.10 (2021-07-03)
 Version 0.1.11 (2021-09-30)
 -------------------------------------
     - added support for pickling and unpickling
+
+Version 0.1.12 (2022-02-14)
+-------------------------------------
+    - added missing methods to perfectly ducktype dict (:code:`items`, :code:`keys`, :code:`values`, :code:`pop` and :code:`update`)
+    - added :code:`deepget` method to query deeply in a tree
