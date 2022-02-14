@@ -36,6 +36,24 @@ class TestTree(unittest.TestCase):
         bar = easytree.Tree(foo)
         self.assertIsNot(foo, bar)
 
+    def test_attribute_lookup(self):
+        tree = easytree.Tree(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+
+        assert tree.name == "foo"
+
+        with self.assertRaises(AttributeError):
+            x = tree.numbers.should_not_exists
+
+    def test_attribute_assignment(self):
+        tree = easytree.Tree(
+            {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+        )
+
+        with self.assertRaises(AttributeError):
+            tree.numbers.name = "XXX"
+
     def test_copy(self):
         this = easytree.Tree(
             {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
@@ -373,6 +391,23 @@ class TestTree(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             easytree.freeze("Not an easytree")
+
+    def test_frozen_or_sealed_undefined_node(self):
+        tree = easytree.Tree(sealed=True)
+
+        with self.assertRaises(AttributeError):
+            x = tree.x
+
+        with self.assertRaises(AttributeError):
+            tree.x = "should not be assigned"
+
+        tree = easytree.Tree(frozen=True)
+
+        with self.assertRaises(AttributeError):
+            x = tree.x
+
+        with self.assertRaises(AttributeError):
+            tree.x = "should not be assigned"
 
     def test_sealing(self):
         tree = easytree.Tree(
