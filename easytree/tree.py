@@ -10,7 +10,7 @@ class NODETYPES:
 
 class Node:
     """
-    A recursive tree structure, supporting both dict and list nodes. New children nodes can be read and written as attributes, and dynamically becomes nodes themselves. 
+    A recursive tree structure, supporting both dict and list nodes. New children nodes can be read and written as attributes, and dynamically become nodes themselves. 
 
     Example
     -------------
