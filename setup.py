@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="easytree",
-    version="0.1.11",
-    author="david.schenck@outlook.com",
+    version="0.1.12",
+    author="David Schenck",
     author_email="david.schenck@outlook.com",
-    description="A fluent tree builder, useful to create multi-level, nested JSON configurations.",
+    description="Lightweight library designed to easily read and write deeply-nested tree configurations",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://easytree.readthedocs.io/en/latest",

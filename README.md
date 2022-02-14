@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A fluent tree builder, useful to create multi-level, nested JSON configurations.
+A lightweight Python library designed to easily read and write deeply-nested tree configurations.
 
 ## Documentation
 Documentation is hosted on [read the docs](https://easytree.readthedocs.io/en/latest/)
@@ -19,53 +19,14 @@ pip install easytree
 ```python
 >>> import easytree
 
-#let's create a chart configuration
->>> chart = easytree.Tree()
->>> chart.chart.type = "bar"
->>> chart.title.text = "France Olympic Medals"
->>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
->>> chart.yAxis.title.text = "Count"
->>> chart.series.append(name="2016", data=[10, 18, 14])
->>> chart.series.append({"name":"2012"}) #list items recursively become nodes
->>> chart.series[1].data = [11, 11, 13]  #... as such, you can attach attributes
-
->>> chart.serialize()
-{
-    "chart": {
-        "type": "bar"
-    },
-    "title": {
-        "text": "France Olympic Medals"
-    },
-    "xAxis": {
-        "categories": [
-            "Gold",
-            "Silver",
-            "Bronze"
-        ]
-    },
-    "yAxis": {
-        "title": {
-            "text": "Count"
+>>> tree = easytree.Tree()
+>>> tree.foo.bar.baz = "Hello world!"
+>>> tree
+Tree({
+    "foo":{
+        "bar":{
+            "baz":"Hello world!"
         }
-    },
-    "series": [
-        {
-            "name": "2016",
-            "data": [
-                10,
-                18,
-                14
-            ]
-        },
-        {
-            "name": "2012",
-            "data": [
-                11,
-                11,
-                13
-            ]
-        }
-    ]
-}
+    }
+})
 ```
