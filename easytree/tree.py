@@ -305,7 +305,7 @@ class Node:
         ---------
         The append method can take either one positional argument or one-to-many named (keyword) arguments. If passed one-to-many keyword arguments, the kwargs dictionary is added to the list.
 
-        Example
+        Examples
         ---------
         >>> tree = easytree.Tree()                                 #undefined node
         >>> tree.append("hello world")                            #casts node to list
