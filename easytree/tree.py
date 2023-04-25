@@ -584,7 +584,7 @@ class Node:
         return serialize(self)
 
 
-def serialize(tree):
+def serialize(tree:Node):
     """
     Recursively converts an :code:`easytree.Tree` back to a native python type.
 
@@ -648,9 +648,13 @@ def serialize(tree):
     raise RuntimeError
 
 
-def new(root=None, *, sealed=False, frozen=False):
+def new(root=None, *, sealed:bool=False, frozen:bool=False):
     """
     Creates a new :code:`easytree.Tree`
+        
+    Returns
+    -------
+    easytree.Tree
     """
     return Node(root, sealed=sealed, frozen=frozen)
 
@@ -706,6 +710,15 @@ def dumps(obj, *args, **kwargs):
 def frozen(tree):
     """
     Returns :code:`True` if the tree is frozen
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+        
+    Returns
+    -------
+    easytree.Tree
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -717,6 +730,15 @@ def frozen(tree):
 def freeze(tree):
     """
     Returns a new frozen copy of the tree
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+        
+    Returns
+    -------
+    easytree.Tree
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -728,6 +750,15 @@ def freeze(tree):
 def unfreeze(tree):
     """
     Returns a new unfrozen copy of the tree
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+        
+    Returns
+    -------
+    easytree.Tree
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -736,9 +767,18 @@ def unfreeze(tree):
     return Node(tree, frozen=False)
 
 
-def sealed(tree):
+def sealed(tree:Node) -> Node:
     """
     Returns :code:`True` if the tree is sealed
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+
+    Returns
+    -------
+    easytree.Tree
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -747,9 +787,18 @@ def sealed(tree):
     return tree._sealed
 
 
-def seal(tree):
+def seal(tree:Node) -> Node:
     """
     Returns a new sealed copy of the tree
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+    
+    Returns
+    -------
+    easytree.Tree
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -758,12 +807,41 @@ def seal(tree):
     return Node(tree, sealed=False)
 
 
-def unseal(tree):
+def unseal(tree:Node) -> Node:
     """
     Returns a new unsealed copy of the tree
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+
+    Returns
+    -------
+    unsealed : easytree.Tree
     """
     if not isinstance(tree, Node):
         raise TypeError(
             f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
         )
     return Node(tree, sealed=False)
+
+def nodetype(tree:Node) -> str:
+    """
+    Return the node type 
+
+    Parameters
+    ----------
+    tree : easytree.Tree
+        an easytree.Tree or Node
+    
+    Returns
+    -------
+    type : str
+        one of 'dict', 'list' or 'undefined'
+    """
+    if not isinstance(tree, Node):
+        raise TypeError(
+            f"Expected tree to be an instance of easytree.Tree, received {type(tree)}"
+        )
+    return tree._Node__nodetype

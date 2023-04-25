@@ -547,3 +547,18 @@ class TestTree(unittest.TestCase):
         assert tree.deepget(("address", "city")) is None
         assert tree.deepget(("address", "city"), "New York") == "New York"
 
+    def test_type(self):
+        tree = easytree.Tree(
+            {
+                "name": "Bob",
+                "children": [{"name": "Alice", "university": {"name": "MIT"}}],
+                "address": {"country": "US"},
+            }
+        )
+
+        assert easytree.type(tree) == "dict"
+        assert easytree.type(tree.children) == "list"
+        assert easytree.type(tree.missing) == "undefined"
+
+        with self.assertRaises(Exception):
+            assert easytree.type(tree.name)

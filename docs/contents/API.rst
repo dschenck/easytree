@@ -7,4 +7,4 @@ API
     :members:
 
 .. automodule:: easytree
-    :members: new, serialize, load, loads, dump, dumps, frozen, freeze, unfreeze, sealed, seal, unseal
+    :members: new, serialize, load, loads, dump, dumps, frozen, freeze, unfreeze, sealed, seal, unseal, type

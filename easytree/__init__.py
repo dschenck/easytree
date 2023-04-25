@@ -12,6 +12,7 @@ from easytree.tree import (
     sealed,
     seal,
     unseal,
+    nodetype as type
 )
 
 # export Node as Tree

@@ -73,3 +73,8 @@ Version 0.1.12 (2022-02-14)
 -------------------------------------
     - added missing methods to perfectly ducktype dict (:code:`items`, :code:`keys`, :code:`values`, :code:`pop` and :code:`update`)
     - added :code:`deepget` method to query deeply in a tree
+
+Version 0.1.13 (2023-04-25)
+-------------------------------------
+    - added :code:`type` function to help distinguish between node types (in lieu of :code:`isinstance`)
+    
