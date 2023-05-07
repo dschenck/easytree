@@ -1,5 +1,6 @@
 import json
 import collections.abc as abc
+import warnings
 
 
 class NODETYPES:
@@ -584,7 +585,7 @@ class Node:
         return serialize(self)
 
 
-def serialize(tree:Node):
+def serialize(tree: Node):
     """
     Recursively converts an :code:`easytree.Tree` back to a native python type.
 
@@ -648,7 +649,7 @@ def serialize(tree:Node):
     raise RuntimeError
 
 
-def new(root=None, *, sealed:bool=False, frozen:bool=False):
+def new(root=None, *, sealed: bool = False, frozen: bool = False):
     """
     Creates a new :code:`easytree.Tree`
         
@@ -656,6 +657,12 @@ def new(root=None, *, sealed:bool=False, frozen:bool=False):
     -------
     easytree.Tree
     """
+    warnings.warn(
+        "Creating an easytree.Tree with the easytree.new function will be deprecated in future versions. Use easytree.Tree instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+        
     return Node(root, sealed=sealed, frozen=frozen)
 
 
@@ -767,7 +774,7 @@ def unfreeze(tree):
     return Node(tree, frozen=False)
 
 
-def sealed(tree:Node) -> Node:
+def sealed(tree: Node) -> Node:
     """
     Returns :code:`True` if the tree is sealed
 
@@ -787,7 +794,7 @@ def sealed(tree:Node) -> Node:
     return tree._sealed
 
 
-def seal(tree:Node) -> Node:
+def seal(tree: Node) -> Node:
     """
     Returns a new sealed copy of the tree
 
@@ -807,7 +814,7 @@ def seal(tree:Node) -> Node:
     return Node(tree, sealed=False)
 
 
-def unseal(tree:Node) -> Node:
+def unseal(tree: Node) -> Node:
     """
     Returns a new unsealed copy of the tree
 
@@ -826,7 +833,8 @@ def unseal(tree:Node) -> Node:
         )
     return Node(tree, sealed=False)
 
-def nodetype(tree:Node) -> str:
+
+def nodetype(tree: Node) -> str:
     """
     Return the node type 
 
