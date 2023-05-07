@@ -8,7 +8,7 @@ import io
 
 class TestTree(unittest.TestCase):
     def test_initialization(self):
-        tree = easytree.new()
+        tree = easytree.Tree()
         self.assertIsInstance(tree, easytree.Tree)
         self.assertEqual(tree._Node__nodetype, "undefined")
 
@@ -16,11 +16,11 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree, easytree.Tree)
         self.assertEqual(tree._Node__nodetype, "undefined")
 
-        tree = easytree.new({})
+        tree = easytree.Tree({})
         self.assertIsInstance(tree, easytree.Tree)
         self.assertEqual(tree._Node__nodetype, "dict")
 
-        tree = easytree.new([])
+        tree = easytree.Tree([])
         self.assertIsInstance(tree, easytree.Tree)
         self.assertEqual(tree._Node__nodetype, "list")
 
@@ -87,13 +87,13 @@ class TestTree(unittest.TestCase):
         assert repr(tree) == f"Tree({str(tree)})"
 
     def test_serialization(self):
-        tree = easytree.new()
+        tree = easytree.Tree()
         self.assertIsNone(easytree.serialize(tree))
 
-        tree = easytree.new({})
+        tree = easytree.Tree({})
         self.assertIsInstance(easytree.serialize(tree), dict)
 
-        tree = easytree.new([])
+        tree = easytree.Tree([])
         self.assertIsInstance(easytree.serialize(tree), list)
 
         tree = easytree.tree.Node(True)
@@ -105,7 +105,7 @@ class TestTree(unittest.TestCase):
         tree = easytree.tree.Node("hello world")
         self.assertIsInstance(easytree.serialize(tree), str)
 
-        tree = easytree.new()
+        tree = easytree.Tree()
         tree.friends = [{"name": "David"}, {"name": "Celine"}]
         tree.friends[0].age = 29
         tree.context.city = "London"
@@ -118,7 +118,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(len(tree["context"]), 2)
         self.assertEqual(tree["friends"][0]["age"], 29)
 
-        tree = easytree.new()
+        tree = easytree.Tree()
         tree.friends = [{"name": "David"}, {"name": "Celine"}]
         tree.friends[0].age = 29
         tree.context.city = "London"
@@ -126,7 +126,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(set(easytree.serialize(tree)), set(tree.serialize()))
 
     def test_appending(self):
-        tree = easytree.new()
+        tree = easytree.Tree()
         tree.append({"make": "Saab", "color": "blue"})
         tree.append(make="Toyota", color="red")
 
@@ -134,53 +134,53 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree[0], easytree.Tree)
         self.assertIsInstance(tree[1], easytree.Tree)
 
-        tree = easytree.new()
+        tree = easytree.Tree()
         tree.append(None).append(None).append(1)
         self.assertEqual(str(tree.serialize()), "[[[1]]]")
 
-        tree = easytree.new({"foo": "bar"})
+        tree = easytree.Tree({"foo": "bar"})
         self.assertEqual(tree._Node__nodetype, "dict")
 
         with self.assertRaises(AttributeError):
             tree.append("XXX")
 
     def test_indexing(self):
-        tree = easytree.new()
+        tree = easytree.Tree()
 
         with self.assertRaises(IndexError):
             tree[0] = "test"
 
-        tree = easytree.new([1, 2, 3, 4, 5])
+        tree = easytree.Tree([1, 2, 3, 4, 5])
         with self.assertRaises(TypeError):
             tree["A"]
 
-        tree = easytree.new()
+        tree = easytree.Tree()
         tree.append("test")  # convert to list-node
         self.assertEqual(tree[0], "test")
 
-        tree = easytree.new({0: "test"})  # convert to dict-node
+        tree = easytree.Tree({0: "test"})  # convert to dict-node
         self.assertEqual(tree[0], "test")
 
     def test_slicing(self):
-        tree = easytree.new([1, 3, 5, 7])
+        tree = easytree.Tree([1, 3, 5, 7])
         self.assertEqual(tree[0:2], [1, 3])
 
     def test_length(self):
-        tree = easytree.new([1, 2, 3])
+        tree = easytree.Tree([1, 2, 3])
         self.assertEqual(len(tree), 3)
 
-        tree = easytree.new({"name": "David", "age": 29})
+        tree = easytree.Tree({"name": "David", "age": 29})
         self.assertEqual(len(tree), 2)
 
         with self.assertRaises(TypeError):
-            len(easytree.new(1))
+            len(easytree.Tree(1))
 
     def test_iteration(self):
-        tree = easytree.new([1, 2, 3])
+        tree = easytree.Tree([1, 2, 3])
         for child in tree:
             self.assertIsInstance(child, int)
 
-        tree = easytree.new({"name": "David", "age": 29})
+        tree = easytree.Tree({"name": "David", "age": 29})
         for child in tree:
             self.assertIsInstance(child, str)
 
@@ -235,7 +235,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(instance.append("test", True, name="alpha"), ("test", 1, 1))
 
     def test_contextmanager(self):
-        chart = easytree.new()
+        chart = easytree.Tree()
 
         with chart.axes.append({}) as axis:
             axis.title.text = "primary axis"
@@ -246,7 +246,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(chart.axes[1].title.text, "secondary axis")
 
     def test_overrides(self):
-        tree = easytree.new()
+        tree = easytree.Tree()
         tree.title.text = 1
 
         self.assertEqual(str(tree.serialize()), str({"title": {"text": 1}}))
