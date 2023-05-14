@@ -1,6 +1,4 @@
-import json
 import collections.abc as abc
-import warnings
 
 
 class NODETYPES:
@@ -11,7 +9,7 @@ class NODETYPES:
 
 class Node:
     """
-    A recursive tree structure, supporting both dict and list nodes. New children nodes can be read and written as attributes, and dynamically become nodes themselves. 
+    A recursive tree structure, supporting both dict and list nodes. New children nodes can be read and written as attributes, and dynamically become nodes themselves.
 
     Example
     -------------
@@ -42,7 +40,7 @@ class Node:
     >>> root.abc.xyz.append(firstname="Bob")  #xyz is cast to a list node with one dict node
 
     A tree can be *serialized* back to native python objects using the :code:`serialize` method
-    
+
     Example
     -------------
     >>> tree = easytree.Tree()
@@ -122,7 +120,7 @@ class Node:
 
         If the node is undefined, this operations casts the node to a dict node.
 
-        Raises an AttributeError for list nodes. 
+        Raises an AttributeError for list nodes.
         """
         if name == "_ipython_canary_method_should_not_exist_":
             return True  # ipython workaround
@@ -146,11 +144,11 @@ class Node:
 
     def __setattr__(self, name, value):
         """
-        Sets the value at an attribute for dict nodes. 
+        Sets the value at an attribute for dict nodes.
 
         If the node is undefined, this operation casts the node to a dict node.
 
-        Raises an AttributeError for list nodes. 
+        Raises an AttributeError for list nodes.
         """
         if name in ("_value", "_frozen", "_sealed"):
             return super().__setattr__(name, value)
@@ -191,7 +189,7 @@ class Node:
 
     def __getitem__(self, name):
         """
-        Retrieves an item at an index (for list nodes) or at a key (for dict nodes). 
+        Retrieves an item at an index (for list nodes) or at a key (for dict nodes).
 
         If the node is undefined, this operation casts the node to a dict node.
         """
@@ -219,9 +217,9 @@ class Node:
 
     def __setitem__(self, name, value):
         """
-        Sets the value at an index (for list nodes) or at a key (for dict node). 
+        Sets the value at an index (for list nodes) or at a key (for dict node).
 
-        If the node is undefined, this operation casts the node to a dict node, unlesss the given key/index is a slice object. 
+        If the node is undefined, this operation casts the node to a dict node, unlesss the given key/index is a slice object.
         """
         if self._frozen:
             raise TypeError(f"cannot set item '{name}' on frozen node")
@@ -246,7 +244,7 @@ class Node:
 
     def __delitem__(self, name):
         """
-        Deletes the value at an index (for list nodes) or at a key (for dict node). 
+        Deletes the value at an index (for list nodes) or at a key (for dict node).
         """
         if self._frozen:
             raise TypeError(f"cannot delete item '{name}' on frozen node")
@@ -300,7 +298,7 @@ class Node:
 
     def append(self, *args, **kwargs):
         """
-        Appends a value to a list node. If the node type was previously undefined, the node becomes a list. 
+        Appends a value to a list node. If the node type was previously undefined, the node becomes a list.
 
         Note
         ---------
@@ -317,14 +315,14 @@ class Node:
 
         Note
         ---------
-        The append method intentionally returns a reference to the last-added item, if that item is a new node. This allows for fluent code using the context manager. 
+        The append method intentionally returns a reference to the last-added item, if that item is a new node. This allows for fluent code using the context manager.
 
         Example
         -----------
         >>> chart = easytree.Tree()
-        >>> with chart.axes.append({}) as axis: 
+        >>> with chart.axes.append({}) as axis:
         ...     axis.title.text = "primary axis"
-        >>> with chart.axes.append({}) as axis: 
+        >>> with chart.axes.append({}) as axis:
         ...     axis.title.text = "secondary axis"
         >>> chart.serialize()
         {
@@ -385,7 +383,7 @@ class Node:
 
     def deepget(self, keys, default=None):
         """
-        Returns the value at the end of the keys' path, or 
+        Returns the value at the end of the keys' path, or
         default if such path raises an KeyError or IndexError
 
         Parameters
@@ -423,7 +421,7 @@ class Node:
 
         Note
         ----
-        Calling pop on an undefined node 
+        Calling pop on an undefined node
 
         Example
         -------
@@ -508,7 +506,7 @@ class Node:
         """
         Updates (in place) the dict node with other mapping
 
-        Note 
+        Note
         ----
         An undefined node will be cast as a dict node
 
@@ -647,209 +645,3 @@ def serialize(tree: Node):
     if tree._Node__nodetype == NODETYPES.DICT:
         return {key: serialize(value) for key, value in tree._value.items()}
     raise RuntimeError
-
-
-def new(root=None, *, sealed: bool = False, frozen: bool = False):
-    """
-    Creates a new :code:`easytree.Tree`
-        
-    Returns
-    -------
-    easytree.Tree
-    """
-    warnings.warn(
-        "Creating an easytree.Tree with the easytree.new function will be deprecated in future versions. Use easytree.Tree instead",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-        
-    return Node(root, sealed=sealed, frozen=frozen)
-
-
-def load(stream, *args, frozen=False, sealed=False, **kwargs):
-    """
-    Deserialize a text file or binary file containing a JSON document to an :code:`Tree` object 
-
-
-    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.load` function
-
-    Example
-    -------------
-    >>> with open("data.json", "r") as file: 
-    ...     tree = easytree.load(file)
-    """
-    return Node(json.load(stream, *args, **kwargs), sealed=sealed, frozen=frozen)
-
-
-def loads(s, *args, frozen=False, sealed=False, **kwargs):
-    """
-    Deserialize s (a str, bytes or bytearray instance containing a JSON document) to an :code:`Tree` object 
-
-    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.loads` function
-    """
-    return Node(json.loads(s, *args, **kwargs), sealed=sealed, frozen=frozen)
-
-
-def dump(obj, stream, *args, **kwargs):
-    """
-    Serialize :code:`Tree` object as a JSON formatted string to stream (a .write()-supporting file-like object). 
-
-    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.dump` function
-
-    Example
-    -------------
-    >>> tree = easytree.Tree({"foo": "bar"})
-    >>> with open("data.json", "w") as file: 
-    ...     easytree.dump(tree, file, indent=4)
-    """
-    return json.dump(serialize(obj), stream, *args, **kwargs)
-
-
-def dumps(obj, *args, **kwargs):
-    """
-    Serialize :code:`Tree` to a JSON formatted string. 
-
-    :code:`*args` and :code:`**kwargs` are passed to the :code:`json.dumps` function
-    """
-    return json.dumps(serialize(obj), *args, **kwargs)
-
-
-def frozen(tree):
-    """
-    Returns :code:`True` if the tree is frozen
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-        
-    Returns
-    -------
-    easytree.Tree
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
-        )
-    return tree._frozen
-
-
-def freeze(tree):
-    """
-    Returns a new frozen copy of the tree
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-        
-    Returns
-    -------
-    easytree.Tree
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
-        )
-    return Node(tree, frozen=True)
-
-
-def unfreeze(tree):
-    """
-    Returns a new unfrozen copy of the tree
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-        
-    Returns
-    -------
-    easytree.Tree
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
-        )
-    return Node(tree, frozen=False)
-
-
-def sealed(tree: Node) -> Node:
-    """
-    Returns :code:`True` if the tree is sealed
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-
-    Returns
-    -------
-    easytree.Tree
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
-        )
-    return tree._sealed
-
-
-def seal(tree: Node) -> Node:
-    """
-    Returns a new sealed copy of the tree
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-    
-    Returns
-    -------
-    easytree.Tree
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
-        )
-    return Node(tree, sealed=False)
-
-
-def unseal(tree: Node) -> Node:
-    """
-    Returns a new unsealed copy of the tree
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-
-    Returns
-    -------
-    unsealed : easytree.Tree
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be instance of easytree.Tree, received {type(tree)}"
-        )
-    return Node(tree, sealed=False)
-
-
-def nodetype(tree: Node) -> str:
-    """
-    Return the node type 
-
-    Parameters
-    ----------
-    tree : easytree.Tree
-        an easytree.Tree or Node
-    
-    Returns
-    -------
-    type : str
-        one of 'dict', 'list' or 'undefined'
-    """
-    if not isinstance(tree, Node):
-        raise TypeError(
-            f"Expected tree to be an instance of easytree.Tree, received {type(tree)}"
-        )
-    return tree._Node__nodetype
