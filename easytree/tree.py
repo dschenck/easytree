@@ -725,7 +725,7 @@ def frozen(tree):
         
     Returns
     -------
-    easytree.Tree
+    bool
     """
     if not isinstance(tree, Node):
         raise TypeError(
@@ -785,7 +785,7 @@ def sealed(tree: Node) -> Node:
 
     Returns
     -------
-    easytree.Tree
+    bool
     """
     if not isinstance(tree, Node):
         raise TypeError(
