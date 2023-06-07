@@ -426,6 +426,23 @@ class TestTree(unittest.TestCase):
         with self.assertRaises(TypeError):
             easytree.seal("Not an easytree")
 
+        tree = easytree.seal(
+            easytree.Tree(
+                {"name": "David", "address": {"city": "New York"}, "friends": ["Alice"]}
+            )
+        )
+
+        tree.address.city = "Paris"
+
+        with self.assertRaises(Exception):
+            tree.address.country = "France"
+
+        assert easytree.frozen(tree) is False
+        assert easytree.sealed(tree) is True
+
+        with self.assertRaises(TypeError):
+            easytree.seal("Not an easytree")
+
     def test_pickling(self):
         this = easytree.Tree(
             {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
@@ -546,19 +563,3 @@ class TestTree(unittest.TestCase):
         assert tree.deepget(("children", 10, "university", "name")) is None
         assert tree.deepget(("address", "city")) is None
         assert tree.deepget(("address", "city"), "New York") == "New York"
-
-    def test_type(self):
-        tree = easytree.Tree(
-            {
-                "name": "Bob",
-                "children": [{"name": "Alice", "university": {"name": "MIT"}}],
-                "address": {"country": "US"},
-            }
-        )
-
-        assert easytree.type(tree) == "dict"
-        assert easytree.type(tree.children) == "list"
-        assert easytree.type(tree.missing) == "undefined"
-
-        with self.assertRaises(Exception):
-            assert easytree.type(tree.name)

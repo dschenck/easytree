@@ -1,18 +1,75 @@
 import unittest
 import easytree
 import easytree.types
+import pytest
 
 import pickle
 import io
 
 
+def test_isinstance():
+    tree = easytree.dict()
+    assert isinstance(tree, dict)
+
+    tree = easytree.list()
+    assert isinstance(tree, list)
+
+
+def test_context_manager():
+    tree = easytree.dict()
+    with tree as t:
+        assert t is tree
+
+    tree = easytree.list()
+    with tree as t:
+        assert t is tree
+
+
+def test_frozen_dict():
+    tree = easytree.dict({"age": 24}, frozen=True)
+
+    with pytest.raises(KeyError):
+        tree["name"]
+
+    with pytest.raises(AttributeError):
+        tree.name
+
+    with pytest.raises(KeyError):
+        tree["name"] = "Bob"
+
+    with pytest.raises(AttributeError):
+        tree.name = "Bob"
+
+
+def test_sealed_dict():
+    tree = easytree.dict({"age": 24}, sealed=True)
+
+    with pytest.raises(KeyError):
+        tree["name"]
+
+    with pytest.raises(AttributeError):
+        tree.name
+
+    with pytest.raises(KeyError):
+        tree["name"] = "Bob"
+
+    with pytest.raises(AttributeError):
+        tree.name = "Bob"
+
+
+def test_undefined_value():
+    tree = easytree.dict({"age": 29})
+    assert isinstance(tree.name, easytree.types.undefined)
+    assert isinstance(tree["name"], easytree.types.undefined)
+
+
 class TestTree(unittest.TestCase):
     def test_initialization(self):
-        tree = easytree.types.Node(1)
+        tree = easytree.types.cast(1)
         self.assertEqual(tree, 1)
         self.assertIsInstance(tree, int)
 
-        tree = easytree.types.Node(True)
+        tree = easytree.types.cast(True)
         self.assertEqual(tree, True)
         self.assertIsInstance(tree, bool)
 
@@ -89,13 +146,13 @@ class TestTree(unittest.TestCase):
         tree = easytree.list()
         self.assertIsInstance(tree, list)
 
-        tree = easytree.types.Node(True)
+        tree = easytree.types.cast(True)
         self.assertIsInstance(tree, bool)
 
-        tree = easytree.types.Node(10)
+        tree = easytree.types.cast(10)
         self.assertIsInstance(tree, int)
 
-        tree = easytree.types.Node("hello world")
+        tree = easytree.types.cast("hello world")
         self.assertIsInstance(easytree.serialize(tree), str)
 
         tree = easytree.dict()
@@ -129,6 +186,7 @@ class TestTree(unittest.TestCase):
             tree[0] = "test"
 
         tree = easytree.list([1, 2, 3, 4, 5])
+
         with self.assertRaises(TypeError):
             tree["A"]
 
@@ -334,3 +392,52 @@ class TestTree(unittest.TestCase):
         assert value == 5
 
         assert tree == {"numbers": [1, 3], "address": {"country": "US"}}
+
+    def test_context(self):
+        tree = easytree.dict({"name": "David", "address": {"country": "France"}})
+
+        with tree:
+            assert tree.name == "David"
+
+        with tree.address as address:
+            assert address.country == "France"
+
+    def test_undefined(self):
+        tree = easytree.dict({})
+        tree.people.append("Dave")
+        assert isinstance(tree.people, list)
+        assert len(tree.people) == 1
+
+        tree = easytree.dict({})
+        tree.people.append({}).name = "David"
+        assert isinstance(tree.people, list)
+        assert len(tree.people) == 1
+
+        tree = easytree.dict({})
+        tree.people.append(None).name = "David"
+        assert isinstance(tree.people, list)
+        assert len(tree.people) == 1
+
+        tree = easytree.dict({})
+        tree.abc.xyz.append(name="David")
+        assert isinstance(tree.abc, dict)
+        assert isinstance(tree.abc.xyz, list)
+        assert isinstance(tree.abc.xyz[0], dict)
+
+
+def test_list_appending():
+    tree = easytree.list()
+    tree.append(None)
+    assert len(tree) == 1
+
+
+def test_list_extending():
+    tree = easytree.list([0, True])
+    tree.extend([1, 2, {}])
+    assert len(tree) == 5
+    assert isinstance(tree[-1], easytree.dict)
+
+    tree = easytree.list([0, True])
+    tree.extend(easytree.list([1, 2, {}]))
+    assert len(tree) == 5
+    assert isinstance(tree[-1], easytree.dict)

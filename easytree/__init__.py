@@ -15,7 +15,6 @@ from easytree.utils import (
     sealed,
     seal,
     unseal,
-    nodetype as type,
 )
 
 from easytree.types import dict, list, undefined

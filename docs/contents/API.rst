@@ -6,5 +6,14 @@ API
 .. autoclass:: easytree.Node
     :members:
 
+.. autoclass:: easytree.dict
+    :members:
+
+.. autoclass:: easytree.list
+    :members:
+
+.. autoclass:: easytree.undefined
+    :members:
+
 .. automodule:: easytree
-    :members: new, serialize, load, loads, dump, dumps, frozen, freeze, unfreeze, sealed, seal, unseal, type, dict, list, undefined
+    :members: new, serialize, load, loads, dump, dumps, frozen, freeze, unfreeze, sealed, seal, unseal

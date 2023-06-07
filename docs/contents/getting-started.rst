@@ -1,5 +1,5 @@
 Getting started 
-=====================================
+===============
 
 Installing :code:`easytree` is simple with pip: 
 ::
