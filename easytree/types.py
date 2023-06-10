@@ -49,14 +49,9 @@ class list(builtins.list):
                 "append must take either one positional argument or one-to-many named arguments"
             )
 
-        value = args[0] if args else kwargs
-
-        if value is None and len(kwargs) == 0:
-            super().append(undefined(self, len(self)))
-        elif value is not None:
-            super().append(cast(value, sealed=self._sealed, frozen=self._frozen))
-        else:
-            super().append(cast(kwargs, sealed=self._sealed, frozen=self._frozen))
+        super().append(
+            cast(args[0] if args else kwargs, sealed=self._sealed, frozen=self._frozen)
+        )
         return self[len(self) - 1]
 
     def extend(self, other):
@@ -194,6 +189,13 @@ class dict(builtins.dict):
             key, cast(value, sealed=self._sealed, frozen=self._frozen)
         )
 
+    def get(self, key, default=None):
+        """
+        Get item by key, it is exists
+        Otherwise, return default
+        """
+        return super().get(key, cast(default, sealed=self._sealed, frozen=self._frozen))
+
     @classmethod
     def fromkeys(cls, keys, value):
         return super().fromkeys(keys, cast(value))
@@ -233,7 +235,7 @@ class undefined:
 
     def __setitem__(self, key, value):
         self._parent[self.key] = dict(
-            {key: cast(value, self._parent.sealed, frozen=self._parent.frozen)},
+            {key: cast(value, sealed=self._parent.sealed, frozen=self._parent.frozen)},
             sealed=self._parent.sealed,
             frozen=self._parent.frozen,
         )
@@ -258,7 +260,7 @@ class undefined:
         return self._parent[self.key]
 
     def get(self, key, default=None):
-        return default
+        return cast(default, sealed=self._parent.sealed, frozen=self._parent.frozen)
 
     def setdefault(self, key, default):
         self._parent[self.key] = {key: default}
