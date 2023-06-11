@@ -86,6 +86,12 @@ class list(builtins.list):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         pass
 
+    def __reduce__(self):
+        return self.__class__, (), self.__dict__, iter(self), None
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
 
 class dict(builtins.dict):
     """
@@ -101,6 +107,12 @@ class dict(builtins.dict):
         )
         self._sealed = sealed
         self._frozen = frozen
+
+    def __reduce__(self):
+        return self.__class__, (), self.__dict__, None, iter(self.items())
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
     def __getitem__(self, key):
         """
@@ -193,7 +205,23 @@ class dict(builtins.dict):
         """
         Get item by key, it is exists
         Otherwise, return default
+
+        If key is list, traverses the tree
         """
+        if isinstance(key, builtins.list):
+            if len(key) == 0:
+                return cast(default, sealed=self._sealed, frozen=self._frozen)
+
+            current = self
+            while len(key) > 0:
+                try:
+                    current = current[key.pop(0)]
+                except (KeyError, IndexError):
+                    return cast(default, sealed=self._sealed, frozen=self._frozen)
+                if isinstance(current, undefined):
+                    return cast(default, sealed=self._sealed, frozen=self._frozen)
+            return current
+
         return super().get(key, cast(default, sealed=self._sealed, frozen=self._frozen))
 
     @classmethod

@@ -1,6 +1,8 @@
 import easytree
 import easytree.types
 import pytest
+import pickle
+import io
 
 
 def test_isinstance():
@@ -460,3 +462,63 @@ def test_inheritence():
     assert instance.append("test", 1) == ("test", 1, 0)
     assert instance.append("test", name="alpha") == ("test", 0, 1)
     assert instance.append("test", True, name="alpha") == ("test", 1, 1)
+
+
+def test_deep_get():
+    tree = easytree.dict(
+        {
+            "name": "foo",
+            "numbers": [1, 3, {"value": 5, "prime": True}],
+            "address": {"country": "US"},
+        }
+    )
+
+    assert tree.get(["name"]) == "foo"
+    assert tree.get([]) is None
+    assert tree.get(["numbers", 0]) == 1
+    assert tree.get(["numbers", -1, "prime"]) == True
+    assert tree.get(["numbers", -1, "odd"]) is None
+    assert tree.get(["address", "country"]) == "US"
+
+    assert tree.get(["numbers", 3]) is None
+    assert tree.get(["address", "continent"]) is None
+
+
+def test_pickling():
+    this = easytree.dict(
+        {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+    )
+
+    stream = io.BytesIO(pickle.dumps(this))
+
+    that = pickle.load(stream)
+
+    assert isinstance(that, easytree.dict)
+    assert isinstance(that.numbers, easytree.list)
+    assert isinstance(that.address, easytree.dict)
+    assert isinstance(that.address.country, str) and that.address.country == "US"
+
+
+def test_keys():
+    tree = easytree.dict(
+        {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
+    )
+
+    assert all([k in tree.keys() for k in ["name", "numbers", "address"]])
+
+    tree = easytree.list([1, 2, 3])
+
+    with pytest.raises(AttributeError):
+        keys = tree.keys()
+
+
+def test_name_collisions_with_methods():
+    tree = easytree.dict({})
+    tree.values = 1
+
+    assert tree["values"] == 1
+    assert callable(tree.values)  # not to be confused with method...
+
+    setattr(tree, "keys", 2)
+    assert tree["keys"] == 2
+    assert callable(tree.keys)
