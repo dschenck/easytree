@@ -3,6 +3,7 @@ import easytree.types
 import pytest
 import pickle
 import io
+import json
 
 
 def test_isinstance():
@@ -88,12 +89,6 @@ def test_casting():
     assert easytree.types.cast("hello world") == "hello world"
 
 
-def test_copy():
-    foo = easytree.types.dict({})
-    bar = easytree.types.dict(foo)
-    assert foo is not bar
-
-
 def test_attribute_lookup():
     tree = easytree.dict(
         {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
@@ -160,6 +155,10 @@ def test_update():
 
 
 def test_copy():
+    foo = easytree.types.dict({})
+    bar = easytree.types.dict(foo)
+    assert foo is not bar
+
     this = easytree.dict(
         {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
     )
@@ -202,6 +201,8 @@ def test_appending():
     tree.append([])
     tree.append([]).append(1)
     tree.append([]).append([1])
+    tree.append([]).append([]).append([1])
+    tree.append([]).append([]).append([]).append(1)
 
     assert isinstance(tree, easytree.list)
     assert isinstance(tree[0], easytree.dict)
@@ -211,6 +212,8 @@ def test_appending():
     assert isinstance(tree[4], easytree.list)
     assert tree[4] == [1]
     assert tree[5] == [[1]]
+    assert tree[6] == [[[1]]]
+    assert tree[7] == [[[1]]]
 
     # appending should return the appended value
     assert tree.append(1) == 1
@@ -367,19 +370,6 @@ def test_undefined():
     assert isinstance(tree.abc.xyz[0], dict)
 
 
-def test_keys():
-    tree = easytree.dict(
-        {"name": "foo", "numbers": [1, 3, 5], "address": {"country": "US"}}
-    )
-
-    assert all([k in tree.keys() for k in ["name", "numbers", "address"]])
-
-    tree = easytree.list([1, 2, 3])
-
-    with pytest.raises(AttributeError):
-        keys = tree.keys()
-
-
 def test_values():
     # dict node
     tree = easytree.dict(
@@ -394,18 +384,6 @@ def test_values():
 
     with pytest.raises(AttributeError):
         keys = tree.values()
-
-
-def test_name_collisions_with_methods():
-    tree = easytree.dict({})
-    tree.values = 1
-
-    assert tree["values"] == 1
-    assert callable(tree.values)  # not to be confused with method...
-
-    setattr(tree, "keys", 2)
-    assert tree["keys"] == 2
-    assert callable(tree.keys)
 
 
 def test_pop():
@@ -522,3 +500,143 @@ def test_name_collisions_with_methods():
     setattr(tree, "keys", 2)
     assert tree["keys"] == 2
     assert callable(tree.keys)
+
+
+def test_appending_nothing_raises():
+    x = easytree.list([1, 2, 3])
+
+    with pytest.raises(Exception):
+        x.append()
+
+
+def test_inserting():
+    x = easytree.list([1, 2, 3])
+    x.insert(1, 4)
+    assert x == [1, 4, 2, 3]
+
+    x = easytree.list([1, 2, 3])
+    x.insert(3, {"name": "David"})
+    assert isinstance(x[-1], easytree.dict)
+
+    x = easytree.list([1, 2, 3])
+    x.insert(3, [4, 5, 6])
+    assert isinstance(x[-1], easytree.list)
+
+    x = easytree.list([1, 2, 3], frozen=True)
+    with pytest.raises(TypeError):
+        x.insert(1, 4)
+
+    x = easytree.list([1, 2, 3], sealed=True)
+    with pytest.raises(TypeError):
+        x.insert(1, 4)
+
+
+def test_removing():
+    x = easytree.list([1, 2, 3])
+    x.remove(2)
+
+    assert x == [1, 3]
+
+    x = easytree.list([1, 2, 3], frozen=True)
+    with pytest.raises(TypeError):
+        x.remove(2)
+
+    x = easytree.list([1, 2, 3], sealed=True)
+    with pytest.raises(TypeError):
+        x.remove(2)
+
+
+def test_poping():
+    x = easytree.list([1, 2, 3])
+    x.pop()
+
+    assert x == [1, 2]
+
+    x = easytree.list([{"name": "Bob"}])
+    y = x.pop()
+
+    assert y == {"name": "Bob"}
+
+    x = easytree.list([1, 2, 3], frozen=True)
+    with pytest.raises(TypeError):
+        x.pop()
+
+    x = easytree.list([1, 2, 3], sealed=True)
+    with pytest.raises(TypeError):
+        x.pop()
+
+
+def test_clearing():
+    x = easytree.list([1, 2, 3])
+    x.clear()
+
+    assert x == []
+
+    x = easytree.list([1, 2, 3], frozen=True)
+    with pytest.raises(TypeError):
+        x.clear()
+
+    x = easytree.list([1, 2, 3], sealed=True)
+    with pytest.raises(TypeError):
+        x.clear()
+
+
+def test_sorting():
+    x = easytree.list([2, 1, 3])
+    x.sort()
+
+    assert x == [1, 2, 3]
+
+    x = easytree.list([2, 1, 3], sealed=True)
+    x.sort()
+
+    assert x == [1, 2, 3]
+
+    x = easytree.list([2, 1, 3], frozen=True)
+
+    with pytest.raises(TypeError):
+        x.sort()
+
+
+def test_copy():
+    x = easytree.list([2, 1, 3])
+    assert x.copy() is not x
+    assert x.copy() == [2, 1, 3]
+
+
+def test_deleting():
+    x = easytree.list([2, 1, 3])
+    del x[0]
+    assert x == [1, 3]
+
+    x = easytree.list([2, 1, 3], sealed=True)
+    with pytest.raises(TypeError):
+        del x[1]
+
+    x = easytree.list([2, 1, 3], frozen=True)
+    with pytest.raises(TypeError):
+        del x[1]
+
+    x = easytree.dict({1: 1, 2: 2, 3: 3})
+    del x[1]
+    assert x == {2: 2, 3: 3}
+
+
+def test_setitem():
+    x = easytree.list([1, 2, 3])
+    x[0] = {"name": "David"}
+    assert isinstance(x[0], easytree.dict)
+
+
+def test_encoding():
+    tree = easytree.dict({})
+    assert json.dumps(tree) == json.dumps({})
+
+    tree = easytree.list([1, 2, 3])
+    assert json.dumps(tree) == json.dumps([1, 2, 3])
+
+
+def test_recursive_undefined():
+    x = easytree.dict()
+    x.a.b.c.d.append(True)
+    assert x == {"a": {"b": {"c": {"d": [True]}}}}

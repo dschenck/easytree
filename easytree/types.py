@@ -14,7 +14,7 @@ def cast(value=None, *args, **kwargs):
 
 class list(builtins.list):
     """
-    List node
+    List
     """
 
     def __init__(self, args=None, sealed=False, frozen=False):
@@ -32,7 +32,7 @@ class list(builtins.list):
         Intentionally returns self
         """
         if self._frozen or self._sealed:
-            raise TypeError("cannot append value to frozen or sealed node")
+            raise TypeError("cannot append value to frozen or sealed list")
         if (
             len(args) > 1
             or (len(args) != 0 and len(kwargs) != 0)
@@ -68,6 +68,18 @@ class list(builtins.list):
         if self._frozen or self._sealed:
             raise TypeError("cannot insert into frozen or sealed list")
         super().insert(index, cast(value, sealed=self._sealed, frozen=self._frozen))
+
+    def __delitem__(self, key):
+        if self._frozen or self._sealed:
+            raise TypeError("cannot delete item from frozen or sealed list")
+        return super().__delitem__(key)
+
+    def __setitem__(self, key, value):
+        if self._frozen or self._sealed:
+            raise TypeError("cannot set item on frozen or sealed list")
+        return super().__setitem__(
+            key, cast(value, frozen=self._frozen, sealed=self._sealed)
+        )
 
     def remove(self, x):
         """
@@ -144,7 +156,7 @@ class list(builtins.list):
 
 class dict(builtins.dict):
     """
-    dict node
+    dict
     """
 
     def __init__(self, *args, sealed=False, frozen=False, **kwargs):
@@ -158,9 +170,15 @@ class dict(builtins.dict):
         self._frozen = frozen
 
     def __reduce__(self):
+        """
+        Pickling
+        """
         return self.__class__, (), self.__dict__, None, iter(self.items())
 
     def __setstate__(self, state):
+        """
+        Unpickling
+        """
         self.__dict__.update(state)
 
     def __getitem__(self, key):
@@ -228,9 +246,9 @@ class dict(builtins.dict):
         Remove an attribute
         """
         if self._frozen:
-            raise AttributeError(f"cannot delete attribute '{key}' on frozen node")
+            raise AttributeError(f"cannot delete attribute '{key}' from frozen dict")
         if self._sealed:
-            raise AttributeError(f"cannot delete attribute '{key}' on sealed node")
+            raise AttributeError(f"cannot delete attribute '{key}' from sealed dict")
         del self[key]
 
     def setdefault(self, key, value):
@@ -243,9 +261,9 @@ class dict(builtins.dict):
             return self[key]
         except KeyError:
             if self._frozen:
-                raise AttributeError(f"Cannot set {key} on frozen node")
+                raise AttributeError(f"Cannot set {key} on frozen dict")
             if self._sealed and key not in self:
-                raise AttributeError(f"Cannot set {key} on frozen node")
+                raise AttributeError(f"Cannot set {key} on frozen dict")
         return super().setdefault(
             key, cast(value, sealed=self._sealed, frozen=self._frozen)
         )
@@ -313,7 +331,7 @@ class dict(builtins.dict):
 
 class undefined:
     """
-    undefined type
+    undefined
     """
 
     def __init__(self, parent, key):
@@ -335,7 +353,6 @@ class undefined:
             sealed=self._parent.sealed,
             frozen=self._parent.frozen,
         )
-        return
 
     def __setattr__(self, key, value):
         if key in ["key", "_parent"]:
@@ -353,11 +370,29 @@ class undefined:
 
     def append(self, value=None, **kwargs):
         self._parent[self.key] = list([value or kwargs])
-        return self._parent[self.key]
+        return self._parent[self.key][-1]
+
+    def extend(self, other):
+        self._parent[self.key] = list(other)
 
     def get(self, key, default=None):
         return cast(default, sealed=self._parent.sealed, frozen=self._parent.frozen)
 
     def setdefault(self, key, default):
         self._parent[self.key] = {key: default}
-        return self._parent.setdefault(key, default)
+
+    def update(self, other):
+        self._parent[self.key] = dict(other)
+        return self._parent
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        pass
+
+    def __len__(self):
+        return 0
+
+    def __str__(self):
+        return "undefined value"
