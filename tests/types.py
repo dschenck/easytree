@@ -284,12 +284,6 @@ def test_get():
         tree.get("foo")
 
 
-def test_list_appending():
-    tree = easytree.list()
-    tree.append(None)
-    assert len(tree) == 1
-
-
 def test_list_extending():
     tree = easytree.list([0, True])
     tree.extend([1, 2, {}])
@@ -359,7 +353,7 @@ def test_undefined():
     assert len(tree.people) == 1
 
     tree = easytree.dict({})
-    tree.people.append(None).name = "David"
+    tree.people.append({}).name = "David"
     assert isinstance(tree.people, list)
     assert len(tree.people) == 1
 

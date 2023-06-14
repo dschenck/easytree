@@ -1,9 +1,27 @@
 import builtins
 
 
-def cast(value=None, *args, **kwargs):
+def cast(value, *args, **kwargs):
     """
-    Converts the value to an easytree type
+    Convert a value to an easytree object, when possible, based on its type.
+
+    - dict instances are converted to easytree.dict instances.
+    - lists, tuples, sets, ranges and zip objects are cast to easytree.list
+    instances
+    - other types are returns as is, without further transformations
+
+    Parameters
+    ----------
+    value : any
+        the value to cast to an easytree type
+    kwargs : dict
+        additional parameters to pass to the easytree.dict or easytree.list
+        initialisation (sealed, frozen)
+
+    Returns
+    -------
+    cast : any
+        the cast value, or value itself, as the case may be
     """
     if isinstance(value, builtins.dict):
         return dict(value, **kwargs)
@@ -14,7 +32,23 @@ def cast(value=None, *args, **kwargs):
 
 class list(builtins.list):
     """
-    List
+    easytree.list
+
+    Parameters
+    ----------
+    args : iterable, None
+        an iterable values
+
+    sealed : bool
+        True if list is sealed, False otherwise
+
+    frozen : bool
+        True if list is frozen, False otherwise
+
+    Note
+    ----
+    Lists and dicts included or appended in the list
+    are recursively sealed and frozen as per its containing parent.
     """
 
     def __init__(self, args=None, sealed=False, frozen=False):
@@ -24,114 +58,68 @@ class list(builtins.list):
         self._sealed = sealed
         self._frozen = frozen
 
-    def append(self, *args, **kwargs):
-        """
-        If provided with a list or a dict, the value is cast to
-        an easytree.list or easytree.dict.
-
-        Intentionally returns self
-        """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot append value to frozen or sealed list")
-        if (
-            len(args) > 1
-            or (len(args) != 0 and len(kwargs) != 0)
-            or (len(args) == len(kwargs) == 0)
-        ):
-            raise ValueError(
-                "append must take either one positional argument or one-to-many named arguments"
-            )
-
-        super().append(
-            cast(args[0] if args else kwargs, sealed=self._sealed, frozen=self._frozen)
-        )
-        return self[len(self) - 1]
-
-    def extend(self, other):
-        """
-        Extend the list by appending all the items from the iterable.
-        List or dict items from other are cast to easytree.list or
-        easytree.dict values respectively.
-        """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot extend frozen or sealed list")
-        super().extend(
-            [cast(v, sealed=self._sealed, frozen=self._frozen) for v in other]
-        )
-
-    def insert(self, index, value):
-        """
-        Insert an item at a given position.
-        If provided with a list or a dict, the value is cast to
-        an easytree.list or easytree.dict
-        """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot insert into frozen or sealed list")
-        super().insert(index, cast(value, sealed=self._sealed, frozen=self._frozen))
-
-    def __delitem__(self, key):
-        if self._frozen or self._sealed:
-            raise TypeError("cannot delete item from frozen or sealed list")
-        return super().__delitem__(key)
-
     def __setitem__(self, key, value):
+        """
+        Set a value in the list at an index or slice
+
+        If the value is a list or a dict, the value is cast to
+        an :code:`easytree.list` or :code:`easytree.dict`
+
+        Parameters
+        ----------
+        key : int, slice
+            the index or slice of indices
+        value : any
+            the value
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
         if self._frozen or self._sealed:
             raise TypeError("cannot set item on frozen or sealed list")
         return super().__setitem__(
             key, cast(value, frozen=self._frozen, sealed=self._sealed)
         )
 
-    def remove(self, x):
+    def __delitem__(self, key):
         """
-        Remove the first item from the list whose value is equal to x.
-        It raises a ValueError if there is no such item.
+        Delete an item from the list by its index
+
+        Parameter
+        ---------
+        key : int, slice
+            the index or slice of indices
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
         """
         if self._frozen or self._sealed:
-            raise TypeError("cannot remove from frozen or sealed list")
-        return super().remove(x)
-
-    def pop(self, *args):
-        """
-        Remove the item at the given position in the list,
-        and return it.
-        """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot pop from frozen or sealed list")
-        return super().pop(*args)
-
-    def clear(self):
-        """
-        Remove all items from the list.
-        """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot clear frozen or sealed list")
-        return super().clear()
-
-    def sort(self, *, key=None, reverse=False):
-        """
-        Sort the items of the list in place
-        """
-        if self._frozen:
-            raise TypeError("cannot sort frozen list")
-        return super().sort(key=key, reverse=reverse)
-
-    def reverse(self):
-        """
-        Reverse the elements of the list in place.
-        """
-        if self._frozen:
-            raise TypeError("cannot reverse frozen list")
-        return super().reverse()
-
-    def copy(self):
-        """
-        Return a shallow copy of the list
-        """
-        return list(self, frozen=self._frozen, sealed=self._sealed)
+            raise TypeError("cannot delete item from frozen or sealed list")
+        return super().__delitem__(key)
 
     def __enter__(self):
         """
-        Context manager returns self
+        For convenience, you can use a context manager to write to deeply
+        nested trees.
+
+        The context manager has no side effect.
+
+        Returns
+        -------
+        self : list
+            the list itself
         """
         return self
 
@@ -153,6 +141,206 @@ class list(builtins.list):
         """
         self.__dict__.update(state)
 
+    def append(self, *args, **kwargs):
+        """
+        Append a value to the list
+
+        Note
+        ---------
+        The :code:`append` method can take either one positional argument or
+        one-to-many named (keyword) arguments. If passed one-to-many keyword
+        arguments, the kwargs dictionary is added to the list as an
+        :code:`easytree.dict`.
+
+        Returns
+        -------
+        item : any
+            the last added item
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        ValueError
+            if neither a value nor a set of kwargs is given
+        """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot append value to frozen or sealed list")
+        if (
+            len(args) > 1
+            or (len(args) != 0 and len(kwargs) != 0)
+            or (len(args) == len(kwargs) == 0)
+        ):
+            raise ValueError(
+                "append must take either one positional argument or one-to-many named arguments"
+            )
+
+        super().append(
+            cast(args[0] if args else kwargs, sealed=self._sealed, frozen=self._frozen)
+        )
+        return self[len(self) - 1]
+
+    def extend(self, other):
+        """
+        Extend the list by appending all the items from another iterable.
+
+        list or dict items from other are cast to :code:`easytree.list` or
+        :code:`easytree.dict` values respectively.
+
+        Parameters
+        ----------
+        other : iterable
+            the other iterable
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot extend frozen or sealed list")
+        return super().extend(
+            [cast(v, sealed=self._sealed, frozen=self._frozen) for v in other]
+        )
+
+    def insert(self, index, value):
+        """
+        Insert an item into the list at a given position.
+
+        If the value is a list or a dict, the value is cast to
+        an :code:`easytree.list` or :code:`easytree.dict`
+
+        Parameters
+        ----------
+        index : int
+            the index at which to insert the value
+        value : any
+            the inserted value
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot insert into frozen or sealed list")
+        return super().insert(
+            index, cast(value, sealed=self._sealed, frozen=self._frozen)
+        )
+
+    def remove(self, x):
+        """
+        Remove the first item from the list whose value is equal to x.
+
+        Parameters
+        ----------
+        x : any
+            the value to remove
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        ValueError
+            if there is no such item
+        """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot remove from frozen or sealed list")
+        return super().remove(x)
+
+    def pop(self, *args):
+        """
+        Remove the item at the given position in the list,
+        and return it.
+
+        Returns
+        -------
+        item : any
+            the popped item
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot pop from frozen or sealed list")
+        return super().pop(*args)
+
+    def clear(self):
+        """
+        Remove all items from the list.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
+        if self._frozen or self._sealed:
+            raise TypeError("cannot clear frozen or sealed list")
+        return super().clear()
+
+    def sort(self, *, key=None, reverse=False):
+        """
+        Sort the items of the list in place
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is frozen
+        """
+        if self._frozen:
+            raise TypeError("cannot sort frozen list")
+        return super().sort(key=key, reverse=reverse)
+
+    def reverse(self):
+        """
+        Reverse the elements of the list in place.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
+        if self._frozen:
+            raise TypeError("cannot reverse frozen list")
+        return super().reverse()
+
+    def copy(self):
+        """
+        Return a shallow copy of the list
+
+        Returns
+        -------
+        copy : list
+            the new list
+        """
+        return list(self, frozen=self._frozen, sealed=self._sealed)
+
 
 class dict(builtins.dict):
     """
@@ -169,22 +357,16 @@ class dict(builtins.dict):
         self._sealed = sealed
         self._frozen = frozen
 
-    def __reduce__(self):
-        """
-        Pickling
-        """
-        return self.__class__, (), self.__dict__, None, iter(self.items())
-
-    def __setstate__(self, state):
-        """
-        Unpickling
-        """
-        self.__dict__.update(state)
-
     def __getitem__(self, key):
         """
         Returns a value at a key, or :code:`undefined` if
         key does not exist
+
+        Raises
+        ------
+        KeyError
+            if the dict is frozen or sealed, and the key does not
+            exist in the dict
         """
         try:
             return super().__getitem__(key)
@@ -198,6 +380,16 @@ class dict(builtins.dict):
     def __setitem__(self, key, value):
         """
         Set a value at a key
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        KeyError
+            if the dict is frozen
+            if the dict is sealed and the key does not exist in the dict
         """
         if self._frozen:
             raise KeyError(f"cannot define value for {key} on frozen dict")
@@ -212,10 +404,16 @@ class dict(builtins.dict):
 
         Note
         ----
-        if key in :code:`_frozen` or :code:`_sealed`,
+        if key is :code:`_frozen` or :code:`_sealed`,
         then the instance is an instance of a subclass
         to :code:`easytree.dict` which overrode the
         default :code:`__init__`
+
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen and the key does not exist in the dict
+            if the dict is sealed and the key does not exist in the dict
         """
         try:
             return super().__getitem__(key)
@@ -223,15 +421,21 @@ class dict(builtins.dict):
             if key in ["_frozen", "_sealed"]:
                 return False  # if subclass overrides the init (see note)
             if self._frozen:
-                raise AttributeError(f"frozen dict has not attribute {key}") from None
+                raise AttributeError(f"frozen dict has no attribute {key}") from None
             if self._sealed:
-                raise AttributeError(f"sealed dict has not attribute {key}") from None
+                raise AttributeError(f"sealed dict has no attribute {key}") from None
         return undefined(parent=self, key=key)
 
     def __setattr__(self, key, value):
         """
         Sets a value at a key, recursively casting the value
         to a :code:`easytree.dict` or :code:`easytree.list`.
+
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed and the key does not exist in the dict
         """
         if key in ["_sealed", "_frozen"]:
             return super().__setattr__(key, value)
@@ -244,6 +448,12 @@ class dict(builtins.dict):
     def __delattr__(self, key: str) -> None:
         """
         Remove an attribute
+
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed
         """
         if self._frozen:
             raise AttributeError(f"cannot delete attribute '{key}' from frozen dict")
@@ -251,11 +461,29 @@ class dict(builtins.dict):
             raise AttributeError(f"cannot delete attribute '{key}' from sealed dict")
         del self[key]
 
+    def __reduce__(self):
+        """
+        Pickling
+        """
+        return self.__class__, (), self.__dict__, None, iter(self.items())
+
+    def __setstate__(self, state):
+        """
+        Unpickling
+        """
+        self.__dict__.update(state)
+
     def setdefault(self, key, value):
         """
         Insert key with a value of default if key is not in the dictionary.
 
         Return the value for key if key is in the dictionary, else default.
+
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed and the key does not exist in the dict
         """
         try:
             return self[key]
@@ -263,7 +491,7 @@ class dict(builtins.dict):
             if self._frozen:
                 raise AttributeError(f"Cannot set {key} on frozen dict")
             if self._sealed and key not in self:
-                raise AttributeError(f"Cannot set {key} on frozen dict")
+                raise AttributeError(f"Cannot set {key} on sealed dict")
         return super().setdefault(
             key, cast(value, sealed=self._sealed, frozen=self._frozen)
         )
@@ -274,6 +502,15 @@ class dict(builtins.dict):
         Otherwise, return default
 
         If key is list, traverses the tree
+
+        Parameters
+        ----------
+        key : hashable, list[hashable]
+            the key (or path of keys)
+
+        Returns
+        -------
+        value
         """
         if isinstance(key, builtins.list):
             if len(key) == 0:
@@ -293,9 +530,22 @@ class dict(builtins.dict):
 
     @classmethod
     def fromkeys(cls, keys, value):
+        """
+        Create a dict from a set of keys and a fixed value
+        """
         return super().fromkeys(keys, cast(value))
 
     def update(self, other):
+        """
+        Update the dict from keys and values of another mapping
+        object
+
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed and a key of other does not exist in the dict
+        """
         if self._frozen:
             raise AttributeError(f"Cannot update frozen dict")
         if self._sealed:
@@ -309,6 +559,13 @@ class dict(builtins.dict):
         )
 
     def popitem(self):
+        """
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed
+        """
         if self._frozen:
             raise AttributeError(f"Cannot popitem from frozen dict")
         if self._sealed:
@@ -316,6 +573,13 @@ class dict(builtins.dict):
         return super().popitem()
 
     def pop(self, *args):
+        """
+        Raises
+        ------
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed
+        """
         if self._frozen:
             raise AttributeError(f"Cannot pop from frozen dict")
         if self._sealed:
@@ -323,15 +587,33 @@ class dict(builtins.dict):
         return super().pop(*args)
 
     def __enter__(self):
+        """
+        Context manager
+
+        Returns
+        -------
+        self : dict
+            a reference to self
+        """
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        """
+        Context manager
+        """
         pass
 
 
 class undefined:
     """
     undefined
+
+    Parameters
+    ----------
+    key : hashable
+        the key of the undefined value in its parent
+    parent : list, dict
+        the containing parent
     """
 
     def __init__(self, parent, key):
@@ -339,60 +621,124 @@ class undefined:
         self._parent = parent
 
     def __bool__(self):
+        """
+        Return False
+        """
         return False
 
     def __getitem__(self, key):
+        """
+        Return a new undefined node
+        """
         return undefined(parent=self, key=key)
 
     def __getattr__(self, key):
+        """
+        Return a new undefined node
+        """
         return self[key]
 
     def __setitem__(self, key, value):
-        self._parent[self.key] = dict(
-            {key: cast(value, sealed=self._parent.sealed, frozen=self._parent.frozen)},
-            sealed=self._parent.sealed,
-            frozen=self._parent.frozen,
-        )
+        """
+        Set a value at a key, casting the
+        undefined value to a dict value
+
+        Returns
+        -------
+        None
+        """
+        if self.key in self._parent:
+            self._parent[self.key][key] = value
+            return
+
+        self._parent[self.key] = dict({key: value})
 
     def __setattr__(self, key, value):
+        """
+        Set a value at a key, casting the
+        undefined value to a dict value
+
+        Returns
+        -------
+        None
+        """
         if key in ["key", "_parent"]:
             return super().__setattr__(key, value)
         self[key] = value
 
     def __contains__(self, value):
+        """
+        Return False
+        """
         return False
 
     def __iter__(self):
+        """
+        Iterate over empty list
+        """
         return iter([])
 
-    def __bool__(self):
-        return False
-
-    def append(self, value=None, **kwargs):
-        self._parent[self.key] = list([value or kwargs])
+    def append(self, *args, **kwargs):
+        """
+        Cast undefined node to list and append value
+        """
+        if (
+            len(args) > 1
+            or (len(args) != 0 and len(kwargs) != 0)
+            or (len(args) == len(kwargs) == 0)
+        ):
+            raise ValueError(
+                "append must take either one positional argument or one-to-many named arguments"
+            )
+        value = args[0] if len(args) > 0 else kwargs
+        self._parent[self.key] = list([value])
         return self._parent[self.key][-1]
 
     def extend(self, other):
+        """
+        Cast undefined node to list and extend with other
+        """
         self._parent[self.key] = list(other)
 
     def get(self, key, default=None):
-        return cast(default, sealed=self._parent.sealed, frozen=self._parent.frozen)
+        """
+        Return default value
+        """
+        return cast(default)
 
     def setdefault(self, key, default):
-        self._parent[self.key] = {key: default}
+        """
+        Cast node to dict and insert default value at key
+        """
+        self._parent[self.key] = dict({key: default})
 
     def update(self, other):
+        """
+        Cast node to dict and insert items from other
+        """
         self._parent[self.key] = dict(other)
         return self._parent
 
     def __enter__(self):
+        """
+        Return self
+        """
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(self, *args, **kwargs):
+        """
+        Context manager
+        """
         pass
 
     def __len__(self):
+        """
+        Return 0
+        """
         return 0
 
-    def __str__(self):
-        return "undefined value"
+    def __repr__(self):
+        """
+        Return representation
+        """
+        return f"<undefined value at '{self.key}'>"
