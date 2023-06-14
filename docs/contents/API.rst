@@ -1,10 +1,8 @@
 API
 =====================================
-.. autoclass:: easytree.Tree
-    :members:
 
-.. autoclass:: easytree.Node
-    :members:
+Types
+-----
 
 .. autoclass:: easytree.dict
     :members:
@@ -15,5 +13,21 @@ API
 .. autoclass:: easytree.undefined
     :members:
 
+Utility functions
+-----------------
+
 .. automodule:: easytree
-    :members: new, serialize, load, loads, dump, dumps, frozen, freeze, unfreeze, sealed, seal, unseal
+    :members: frozen, freeze, unfreeze, sealed, seal, unseal
+
+Tree (deprecated)
+-----------------
+
+.. autoclass:: easytree.Tree
+    :members:
+
+.. autoclass:: easytree.Node
+    :members:
+
+.. automodule:: easytree
+    :noindex:
+    :members: new, serialize, load, loads, dump, dumps

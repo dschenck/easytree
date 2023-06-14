@@ -634,3 +634,13 @@ def test_recursive_undefined():
     x = easytree.dict()
     x.a.b.c.d.append(True)
     assert x == {"a": {"b": {"c": {"d": [True]}}}}
+
+
+def test_context_manager():
+    profile = easytree.dict()
+
+    with profile.friends.append({"firstname": "Flora"}) as friend:
+        friend.birthday = "25/02"
+        friend.address.country = "France"
+
+    assert profile.friends[0].birthday == "25/02"

@@ -1,6 +1,6 @@
 easytree
-======================================
-`easytree <https://easytree.readthedocs.io/>`_ is a lightweight Python library designed to easily read and write deeply-nested tree configurations.
+========
+recursive dot-styled dict and list to read and write deeply-nested trees
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg
     :target: https://github.com/dschenck/easytree/actions
@@ -26,86 +26,53 @@ Using :code:`easytree` is also easy
 
     >>> import easytree
 
-    >>> tree = easytree.Tree()
+    >>> tree = easytree.dict()
     >>> tree.foo.bar.baz = "Hello world!"
     >>> tree 
-    Tree({
-        "foo":{
-            "bar":{
-                "baz":"Hello world!"
+    {
+        "foo": {
+            "bar": {
+                "baz": "Hello world!"
             }
         }
-    })
-
-Writing configurations that combine both list and dict nodes is easy - here's an example of an Highcharts chart configuration
-::
-    
-    >>> import easytree
-
-    >>> chart = easytree.Tree()
-    >>> chart.chart.type = "bar"
-    >>> chart.title.text = "France Olympic Medals"
-    >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
-    >>> chart.yAxis.title.text = "Count"
-    >>> chart.series.append(name="2016", data=[10, 18, 14])
-    >>> chart.series.append({"name":"2012"})
-    >>> chart.series[1].data = [11, 11, 13] #list items recursively become nodes
-
-    >>> chart.serialize() #convert back to Python native objects
-    {
-        "chart": {
-            "type": "bar"
-        },
-        "title": {
-            "text": "France Olympic Medals"
-        },
-        "xAxis": {
-            "categories": [
-                "Gold",
-                "Silver",
-                "Bronze"
-            ]
-        },
-        "yAxis": {
-            "title": {
-                "text": "Count"
-            }
-        },
-        "series": [
-            {
-                "name": "2016",
-                "data": [
-                    10,
-                    18,
-                    14
-                ]
-            },
-            {
-                "name": "2012",
-                "data": [
-                    11,
-                    11,
-                    13
-                ]
-            }
-        ]
     }
+
+Creating trees that combine both list and dict nodes is easy
+::
+
+    >>> friends = easytree.list()
+    >>> friends.append({"firstname":"Alice"})
+    >>> friends[0].address.country = "Netherlands"
+    >>> friends[0]["interests"].append("science")
+    >>> friends
+    [
+        {
+            "firstname": "Alice",
+            "address": {
+                "country": "Netherlands"
+            },
+            "interests": [
+                "science"
+            ]
+        }
+    ]
 
 Writing deeply-nested trees with list nodes is easy with a context-manager:
 ::
 
-    >>> chart = easytree.Tree()
-    >>> with chart.axes.append({}) as axis: 
-    ...     axis.title.text = "primary axis"
-    ...     axis.min = 0
-    >>> chart.serialize()
+    >>> profile = easytree.dict()
+    >>> with profile.friends.append({"firstname":"Flora"}) as friend: 
+    ...     friend.birthday = "25/02",
+    ...     friend.address.country = "France
+    >>> profile
     {
-        "axes": [
+        "friends": [
             {
-                "title": {
-                    "text": "primary axis"
+                "firstname": "Flora",
+                "birthday": "25/02",
+                "address": {
+                    "country": "France"
                 }
-                "min":0
             }
         ]
     }

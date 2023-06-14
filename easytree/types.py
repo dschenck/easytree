@@ -163,6 +163,52 @@ class list(builtins.list):
             if the list is sealed or frozen
         ValueError
             if neither a value nor a set of kwargs is given
+
+        Example
+        -------
+        >>> tree = easytree.list()                                # list node
+        >>> tree.append("hello world")                            # simple append
+        >>> tree.append(name="David", age=29)                     # call with kwargs
+        >>> tree.append({"animal":"elephant", "country":"India"}) # call with dict
+        >>> tree
+        [
+            "Hello world",
+            {
+                "name": "David",
+                "age": 29
+            },
+            {
+                "animal": "elephant",
+                "country": "India"
+            }
+        ]
+
+        Note
+        ---------
+        The append method intentionally returns a reference to the last-added item. This allows for fluent code using the context manager.
+
+        Example
+        -------
+        >>> chart = easytree.dict()
+        >>> with chart.axes.append({}) as axis:
+        ...     axis.title.text = "primary axis"
+        >>> with chart.axes.append({}) as axis:
+        ...     axis.title.text = "secondary axis"
+        >>> chart
+        {
+            "axes": [
+                {
+                    "title": {
+                        "text": "primary axis"
+                    }
+                },
+                {
+                    "title": {
+                        "text": "secondary axis"
+                    }
+                }
+            ]
+        }
         """
         if self._frozen or self._sealed:
             raise TypeError("cannot append value to frozen or sealed list")
@@ -344,7 +390,7 @@ class list(builtins.list):
 
 class dict(builtins.dict):
     """
-    dict
+    recursive dot-styled dict
     """
 
     def __init__(self, *args, sealed=False, frozen=False, **kwargs):
@@ -434,8 +480,7 @@ class dict(builtins.dict):
         Raises
         ------
         AttributeError
-            if the dict is frozen
-            if the dict is sealed and the key does not exist in the dict
+            if the dict is frozen, or if the dict is sealed and the key does not exist in the dict
         """
         if key in ["_sealed", "_frozen"]:
             return super().__setattr__(key, value)
@@ -452,8 +497,7 @@ class dict(builtins.dict):
         Raises
         ------
         AttributeError
-            if the dict is frozen
-            if the dict is sealed
+            if the dict is frozen or sealed
         """
         if self._frozen:
             raise AttributeError(f"cannot delete attribute '{key}' from frozen dict")
@@ -473,17 +517,23 @@ class dict(builtins.dict):
         """
         self.__dict__.update(state)
 
-    def setdefault(self, key, value):
+    def setdefault(self, key, default):
         """
         Insert key with a value of default if key is not in the dictionary.
 
         Return the value for key if key is in the dictionary, else default.
 
+        Parameters
+        ----------
+        key : any
+            the key
+        default : any
+            the default value to insert if the key does not exist
+
         Raises
         ------
         AttributeError
-            if the dict is frozen
-            if the dict is sealed and the key does not exist in the dict
+            if the dict is frozen, or if the dict is sealed and the key does not exist in the dict
         """
         try:
             return self[key]
@@ -493,15 +543,14 @@ class dict(builtins.dict):
             if self._sealed and key not in self:
                 raise AttributeError(f"Cannot set {key} on sealed dict")
         return super().setdefault(
-            key, cast(value, sealed=self._sealed, frozen=self._frozen)
+            key, cast(default, sealed=self._sealed, frozen=self._frozen)
         )
 
     def get(self, key, default=None):
         """
-        Get item by key, it is exists
-        Otherwise, return default
+        Get item by key, it is exists; otherwise, return default
 
-        If key is list, traverses the tree
+        If key is list, recursively traverses the tree
 
         Parameters
         ----------
@@ -510,7 +559,19 @@ class dict(builtins.dict):
 
         Returns
         -------
-        value
+        value : any
+
+        Example
+        -------
+        >>> person = easytree.dict({"age":31, "friends":[{"firstname":"Michael"}]})
+        >>> person.get("address")
+        None
+        >>> person.get(["friends",0,"firstname"])
+        "Michael"
+        >>> person.get(["friends",1,"firstname"])
+        None
+        >>> person.get(["friends",0,"avatar"],"N/A")
+        "N/A"
         """
         if isinstance(key, builtins.list):
             if len(key) == 0:
@@ -540,11 +601,15 @@ class dict(builtins.dict):
         Update the dict from keys and values of another mapping
         object
 
+        Parameters
+        ----------
+        other : mapping
+            other dictionary
+
         Raises
         ------
         AttributeError
-            if the dict is frozen
-            if the dict is sealed and a key of other does not exist in the dict
+            if the dict is frozen, or if the dict is sealed and a key of other does not exist in the dict
         """
         if self._frozen:
             raise AttributeError(f"Cannot update frozen dict")
@@ -560,8 +625,14 @@ class dict(builtins.dict):
 
     def popitem(self):
         """
+        Remove and return the last item (key, value pair)
+        inserted into the dictionary
+
         Raises
         ------
+        KeyError
+            if the dict is empty
+
         AttributeError
             if the dict is frozen
             if the dict is sealed
@@ -574,8 +645,21 @@ class dict(builtins.dict):
 
     def pop(self, *args):
         """
+        Removes and return an element from a dictionary
+        having the given key.
+
+        Parameters
+        ----------
+        key : any
+            the key to pop
+        default : any
+            the default value, if the key does not exist
+
         Raises
         ------
+        KeyError
+            if the given key does not exist, and no default value is given
+
         AttributeError
             if the dict is frozen
             if the dict is sealed

@@ -1,4 +1,5 @@
 import collections.abc as abc
+import warnings
 
 
 class NODETYPES:
@@ -9,6 +10,8 @@ class NODETYPES:
 
 class Node:
     """
+    .. attention:: This class is deprecated since 0.2.0 and may be removed in future versions. Use :code:`easytree.dict` or :code:`easytree.list` instead.
+
     A recursive tree structure, supporting both dict and list nodes. New children nodes can be read and written as attributes, and dynamically become nodes themselves.
 
     Example
@@ -79,6 +82,12 @@ class Node:
         return value
 
     def __init__(self, value=None, *, sealed=False, frozen=False):
+        warnings.warn(
+            "easytree.Tree will be deprecated in future versions. Use :code:`easytree.dict` or :code:`easytree.list` instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         if isinstance(value, Node):
             value = value.serialize()
         if isinstance(value, dict):
@@ -529,6 +538,8 @@ class Node:
 
     def serialize(self):
         """
+        .. attention:: Deprecated since 0.2.0
+
         Recursively converts itself to a native python type (dict, list or None).
 
         Example
@@ -585,6 +596,8 @@ class Node:
 
 def serialize(tree: Node):
     """
+    .. attention:: Deprecated since 0.2.0
+
     Recursively converts an :code:`easytree.Tree` back to a native python type.
 
     Example
