@@ -62,8 +62,8 @@ Writing deeply-nested trees with list nodes is easy with a context-manager:
 
     >>> profile = easytree.dict()
     >>> with profile.friends.append({"firstname":"Flora"}) as friend: 
-    ...     friend.birthday = "25/02",
-    ...     friend.address.country = "France
+    ...     friend.birthday = "25/02"
+    ...     friend.address.country = "France"
     >>> profile
     {
         "friends": [
