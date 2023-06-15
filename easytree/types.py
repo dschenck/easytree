@@ -434,8 +434,7 @@ class dict(builtins.dict):
         Raises
         ------
         KeyError
-            if the dict is frozen
-            if the dict is sealed and the key does not exist in the dict
+            if the dict is frozen, or if the dict is sealed and the key does not exist in the dict
         """
         if self._frozen:
             raise KeyError(f"cannot define value for {key} on frozen dict")
@@ -458,7 +457,7 @@ class dict(builtins.dict):
         Raises
         ------
         AttributeError
-            if the dict is frozen and the key does not exist in the dict
+            if the dict is frozen and the key does not exist in the dict, or
             if the dict is sealed and the key does not exist in the dict
         """
         try:
@@ -548,7 +547,7 @@ class dict(builtins.dict):
 
     def get(self, key, default=None):
         """
-        Get item by key, it is exists; otherwise, return default
+        Get item by key, if it is exists; otherwise, return default
 
         If key is list, recursively traverses the tree
 
@@ -564,6 +563,8 @@ class dict(builtins.dict):
         Example
         -------
         >>> person = easytree.dict({"age":31, "friends":[{"firstname":"Michael"}]})
+        >>> person.get("age")
+        31
         >>> person.get("address")
         None
         >>> person.get(["friends",0,"firstname"])
