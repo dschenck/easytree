@@ -1,6 +1,6 @@
 easytree
 ========
-A dot-styled dict to read and write deeply-nested trees
+A recursive dot-styled default dict to read and write deeply-nested trees
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg
     :target: https://github.com/dschenck/easytree/actions

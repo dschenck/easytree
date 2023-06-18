@@ -27,7 +27,7 @@ def cast(value, **kwargs):
     if isinstance(value, builtins.list):
         return list(value, **kwargs)
     if isinstance(value, tuple):
-        return tuple([cast(x, **kwargs) for x in value])
+        return tuple(cast(x, **kwargs) for x in value)
     if isinstance(value, set):
         return {cast(x, **kwargs) for x in value}
     return value
@@ -409,7 +409,7 @@ class list(builtins.list):
 
 class dict(builtins.dict):
     """
-    recursive dot-styled dict
+    recursive dot-styled defaultdict
     """
 
     def __init__(self, *args, sealed=False, frozen=False, **kwargs):
@@ -844,4 +844,4 @@ class undefined:
         """
         Return representation
         """
-        return f"<undefined value at '{self.key}'>"
+        return f"<Node '{self.key}'>"
