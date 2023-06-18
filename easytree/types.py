@@ -81,8 +81,10 @@ class list(builtins.list):
         TypeError
             if the list is sealed or frozen
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot set item on frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot set item on frozen list")
+        if self._sealed:
+            raise TypeError("cannot set item on sealed list")
         return super().__setitem__(
             key, cast(value, frozen=self._frozen, sealed=self._sealed)
         )
@@ -105,8 +107,10 @@ class list(builtins.list):
         TypeError
             if the list is sealed or frozen
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot delete item from frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot delete item from frozen list")
+        if self._sealed:
+            raise TypeError("cannot delete item from sealed list")
         return super().__delitem__(key)
 
     def __enter__(self):
@@ -210,8 +214,10 @@ class list(builtins.list):
             ]
         }
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot append value to frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot append value to frozen list")
+        if self._sealed:
+            raise TypeError("cannot append value to sealed list")
         if (
             len(args) > 1
             or (len(args) != 0 and len(kwargs) != 0)
@@ -247,8 +253,10 @@ class list(builtins.list):
         TypeError
             if the list is sealed or frozen
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot extend frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot extend frozen list")
+        if self._sealed:
+            raise TypeError("cannot extend sealed list")
         return super().extend(
             [cast(v, sealed=self._sealed, frozen=self._frozen) for v in other]
         )
@@ -276,8 +284,10 @@ class list(builtins.list):
         TypeError
             if the list is sealed or frozen
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot insert into frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot insert into frozen list")
+        if self._sealed:
+            raise TypeError("cannot insert into sealed list")
         return super().insert(
             index, cast(value, sealed=self._sealed, frozen=self._frozen)
         )
@@ -302,8 +312,10 @@ class list(builtins.list):
         ValueError
             if there is no such item
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot remove from frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot remove from frozen list")
+        if self._sealed:
+            raise TypeError("cannot remove from sealed list")
         return super().remove(x)
 
     def pop(self, *args):
@@ -321,8 +333,10 @@ class list(builtins.list):
         TypeError
             if the list is sealed or frozen
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot pop from frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot pop from frozen list")
+        if self._sealed:
+            raise TypeError("cannot pop from sealed list")
         return super().pop(*args)
 
     def clear(self):
@@ -338,8 +352,10 @@ class list(builtins.list):
         TypeError
             if the list is sealed or frozen
         """
-        if self._frozen or self._sealed:
-            raise TypeError("cannot clear frozen or sealed list")
+        if self._frozen:
+            raise TypeError("cannot clear frozen list")
+        if self._sealed:
+            raise TypeError("cannot clear sealed list")
         return super().clear()
 
     def sort(self, *, key=None, reverse=False):
