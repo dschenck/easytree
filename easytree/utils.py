@@ -12,7 +12,7 @@ def frozen(tree):
 
     Parameters
     ----------
-    tree : easytree.list, easytree.dict
+    tree
         list or dict
 
     Returns
@@ -32,7 +32,7 @@ def freeze(tree):
 
     Parameters
     ----------
-    tree : easytree.list, easytree.dict
+    tree
         list or dict
 
     Returns
@@ -54,7 +54,7 @@ def unfreeze(tree):
 
     Parameters
     ----------
-    tree : easytree.list, easytree.dict
+    tree
         list or dict
 
     Returns
@@ -76,7 +76,7 @@ def sealed(tree):
 
     Parameters
     ----------
-    tree : easytree.list, easytree.dict
+    tree
         list or dict
 
     Returns
@@ -96,7 +96,7 @@ def seal(tree):
 
     Parameters
     ----------
-    tree : easytree.list, easytree.dict
+    tree
         list or dict
 
     Returns
@@ -118,7 +118,7 @@ def unseal(tree):
 
     Parameters
     ----------
-    tree : easytree.Tree, easytree.list, easytree.dict
+    tree
         list or dict
 
     Returns

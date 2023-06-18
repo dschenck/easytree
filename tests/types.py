@@ -644,3 +644,20 @@ def test_context_manager():
         friend.address.country = "France"
 
     assert profile.friends[0].birthday == "25/02"
+
+
+def test_assigning_list_to_undefined():
+    value = easytree.dict()
+    value.x = [1, 2, 3]
+
+    assert isinstance(value.x, easytree.list)
+
+
+def test_undefined_does_not_contain():
+    value = easytree.dict()
+    assert 1 not in value.x
+
+
+def test_length_of_undefined_is_zero():
+    value = easytree.dict()
+    assert len(value.x) == 0

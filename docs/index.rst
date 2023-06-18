@@ -1,6 +1,6 @@
 easytree
 ========
-recursive dot-styled dict and list to read and write deeply-nested trees
+A dot-styled dict to read and write deeply-nested trees
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg
     :target: https://github.com/dschenck/easytree/actions
@@ -14,6 +14,9 @@ recursive dot-styled dict and list to read and write deeply-nested trees
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 
+.. image:: https://codecov.io/gh/dschenck/easytree/branch/master/graph/badge.svg?token=CPJXDL17CB 
+   :target: https://codecov.io/gh/dschenck/easytree
+
 Quickstart
 -------------------------------------
 Installing :code:`easytree` is simple with pip: 
@@ -21,8 +24,9 @@ Installing :code:`easytree` is simple with pip:
 
     pip install easytree
 
-Using :code:`easytree` is also easy
-::
+Simply import :code:`easytree` and create nested :code:`dict` nodes on the fly using the dot notation
+
+.. code-block::
 
     >>> import easytree
 
@@ -37,28 +41,51 @@ Using :code:`easytree` is also easy
         }
     }
 
-Creating trees that combine both list and dict nodes is easy
-::
+Or use a list method such as :code:`append` to cast a new node as a :code:`list`
+
+.. code-block:: 
+
+    >>> tree = easytree.dict()
+    >>> tree.foo.bar.baz.append("Hello world!")
+    >>> tree
+    {
+        "foo": {
+            "bar": {
+                "baz": ["Hello world!"]
+            }
+        }
+    }
+
+You can use the dot or bracket notation interchangeably
+
+.. code-block:: 
+
+    >>> tree = easytree.dict({"foo":"bar"})
+    >>> tree["foo"]
+    "bar"
+    >>> tree.foo
+    "bar"
+
+A dict node in a list node is an :code:`easytree.dict`, allowing you to use the dot notation throughout the tree.
+
+.. code-block::
 
     >>> friends = easytree.list()
     >>> friends.append({"firstname":"Alice"})
     >>> friends[0].address.country = "Netherlands"
-    >>> friends[0]["interests"].append("science")
     >>> friends
     [
         {
             "firstname": "Alice",
             "address": {
                 "country": "Netherlands"
-            },
-            "interests": [
-                "science"
-            ]
+            }
         }
     ]
 
 Writing deeply-nested trees with list nodes is easy with a context-manager:
-::
+
+.. code-block::
 
     >>> profile = easytree.dict()
     >>> with profile.friends.append({"firstname":"Flora"}) as friend: 

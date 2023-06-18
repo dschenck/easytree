@@ -1,13 +1,12 @@
 import builtins
 
 
-def cast(value, *args, **kwargs):
+def cast(value, **kwargs):
     """
     Convert a value to an easytree object, when possible, based on its type.
 
-    - dict instances are converted to easytree.dict instances.
-    - lists, tuples, sets, ranges and zip objects are cast to easytree.list
-    instances
+    - dict instances are cast to easytree.dict instances.
+    - lists instances are cast to easytree.list instances
     - other types are returns as is, without further transformations
 
     Parameters
@@ -25,8 +24,12 @@ def cast(value, *args, **kwargs):
     """
     if isinstance(value, builtins.dict):
         return dict(value, **kwargs)
-    if isinstance(value, (builtins.list, tuple, set, range, zip)):
+    if isinstance(value, builtins.list):
         return list(value, **kwargs)
+    if isinstance(value, tuple):
+        return tuple([cast(x, **kwargs) for x in value])
+    if isinstance(value, set):
+        return {cast(x, **kwargs) for x in value}
     return value
 
 
@@ -152,7 +155,7 @@ class list(builtins.list):
         Note
         ---------
         The :code:`append` method can take either one positional argument or
-        one-to-many named (keyword) arguments. If passed one-to-many keyword
+        one-to-many named (keyword) arguments. If passed keyword
         arguments, the kwargs dictionary is added to the list as an
         :code:`easytree.dict`.
 
@@ -662,7 +665,7 @@ class dict(builtins.dict):
 
     def pop(self, *args):
         """
-        Removes and return an element from a dictionary
+        Remove and return an element from a dictionary
         having the given key.
 
         Parameters
@@ -678,8 +681,7 @@ class dict(builtins.dict):
             if the given key does not exist, and no default value is given
 
         AttributeError
-            if the dict is frozen
-            if the dict is sealed
+            if the dict is frozen, or if the dict is sealed
         """
         if self._frozen:
             raise AttributeError(f"Cannot pop from frozen dict")

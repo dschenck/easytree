@@ -1,105 +1,148 @@
 Getting started 
 ===============
 
+Installation
+------------
+
 Installing :code:`easytree` is simple with pip: 
 ::
 
     pip install easytree
 
-Consider the following tree, as an example:
-::
 
-    config = easytree.dict({
-        "date":"2020-02-20",
-        "size":{
-            "height":"1.56 cm",
-            "width":"30.41 cm"
-        },
-        "users":[
-            "Alice",
-            "Bob"
-        ]
-    })
+Usage 
+-----
 
-There are three types of nodes in this tree: 
+Simply import :code:`easytree` and create nested nodes on the fly using the dot notation. 
 
-- value leaves (e.g. "2020-02-20", "1.56 cm" or "Alice")
-- dict nodes (e.g. "size")
-- list nodes (e.g. "users")
+.. code-block::
 
-Instead of raising an :code:`AttributeError`, reading or setting a new attribute on a dict node creates and returns a new child node.
-::
+    >>> import easytree
 
-    >>> config.memory.size = "512GB SSD" #memory node is created on the fly
-    >>> config
+    >>> tree = easytree.dict()
+    >>> tree.foo.bar.baz = "Hello world!"
+    >>> tree 
     {
-        "date":"2020-02-20",
-        "size":{
-            "height":"1.56 cm",
-            "width":"30.41 cm"
-        },
-        "users":[
-            "Alice",
-            "Bob"
-        ]
-        "memory":{
-            "size": "512GB SSD"
+        "foo": {
+            "bar": {
+                "baz": "Hello world!"
+            }
         }
     }
 
-You can recursively create list and dict nodes on the fly: 
-:: 
+Instead of raising an :code:`AttributeError`, reading or setting a new attribute on an :code:`easytree.dict` node creates and returns a new child node. Assigning or reading a value from the child node *casts* the node as a dict. 
 
-    >>> config.events.append(name="create", user="Alice") #events node is created on the fly
-    >>> config.events.append({"name":"edit", "user":"Bob"})
-    >>> config
+.. code-block:: 
+
+    >>> tree = easytree.dict()
+    >>> tree.address 
+    <Node 'address'>
+
+    >>> tree.address.country = "United States"
+    >>> tree.address
+    {"country": "United States"}
+
+
+Use a list method such as :code:`append` to cast a new node as a :code:`list`
+
+.. code-block:: 
+
+    >>> tree = easytree.dict()
+    >>> tree.foo.bar.baz.append("Hello world!")
+    >>> tree
     {
-        "date":"2020-02-20",
-        "size":{
-            "height":"1.56 cm",
-            "width":"30.41 cm"
-        },
-        "users":[
-            "Alice",
-            "Bob"
-        ]
-        "memory":{
-            "size": "512GB SSD"
-        },
-        "events":[
+        "foo": {
+            "bar": {
+                "baz": ["Hello world!"]
+            }
+        }
+    }
+
+.. hint:: The :code:`baz` node *became* a list node because a list method was called on it.
+
+You can use the dot or bracket notation interchangeably
+
+.. code-block:: 
+
+    >>> tree = easytree.dict({"foo":"bar"})
+    >>> tree["foo"]
+    "bar"
+    >>> tree.foo
+    "bar"
+
+.. hint:: The :code:`easytree.dict` *inherits* from the native python dict class.
+
+A dict node in a list node is an :code:`easytree.dict`, allowing you to use the dot notation throughout the tree.
+
+.. code-block::
+
+    >>> friends = easytree.list()
+    >>> friends.append({"firstname":"Alice"})
+    >>> friends[0].address.country = "Netherlands"
+    >>> friends
+    [
+        {
+            "firstname": "Alice",
+            "address": {
+                "country": "Netherlands"
+            }
+        }
+    ]
+
+Writing deeply-nested trees with list nodes is easy with a context-manager:
+
+.. code-block::
+
+    >>> profile = easytree.dict()
+    >>> with profile.friends.append({"firstname":"Flora"}) as friend: 
+    ...     friend.birthday = "25/02"
+    ...     friend.address.country = "France"
+    >>> profile
+    {
+        "friends": [
             {
-                "name": "create", 
-                "user": "Alice"
-            },
-            {
-                "name": "edit", 
-                "user": "Bob"
+                "firstname": "Flora",
+                "birthday": "25/02",
+                "address": {
+                    "country": "France"
+                }
             }
         ]
     }
 
-The type of each newly-created node, unless given an explicit value, is initially :code:`undefined`, and can change into a list node, a dict node (e.g. :code:`memory`) or a value-node (e.g. :code:`512GB SSD`). The type of an undefined node is dynamically determined by subsequent interactions.
+.. hint:: The :code:`append` method of an :code:`easytree.list` returns the added value rather than :code:`None` to allow for the above syntax.
 
-- if a list method (e.g. :code:`append`) is called on an undefined node, that node becomes a list node. 
-- if a dict method (e.g. :code:`update`) is called on an undefined node, or an attribute is called on an undefined node (e.g. :code:`node.name`), or a key is retrieved (e.g. :code:`node["name"]`), that node becomes a dict node.
-- any value appended or assigned at a node recursively becomes a node, whose type is determined by the type of the given value (list node for iterables (lists, tuples, sets, ranges and zips), dict node for dictionaries, value-nodes for other types).
+The :code:`get` method is supercharged to query deeply-nested trees.
 
-Example: 
-::
+.. code-block:: 
 
-    >>> root = easytree.dict({"name":"David"})  # root is a dict node
-    >>> root.colors = ["blue", "brown"]         # colors is a list node of strings
-    >>> root.cities.append(name="Paris")        # cities is a list node of dict nodes
-    >>> root
-    {
-        "name": "David",
-        "colors": [
-            "blue",
-            "brown"
-        ],
-        "cities": [
-            {
-                "name": "Paris"
-            }
-        ]
-    }
+    >>> profile = easytree.dict()
+    >>> profile.friends.append({"name":"Bob", "address":{"country":"France"}})
+    >>> profile.get(["friends", 0, "address", "country"])
+    France
+    >>> profile.get(["friends", 0, "address", "street"])
+    None
+
+.. hint:: Normally, this would raise an error, as a list is not hashable.
+
+
+Pitfalls
+--------
+By definition, and unless an easytree is sealed or frozen, reading an undefined attribute will not raise an exception. 
+
+.. code-block:: 
+
+    >>> profile = easytree.dict({"firstname":"David"})
+    >>> profile.firstnam #typo
+    <Node 'firstnam'> 
+
+Dictionary and lists added to an easytree will be *cast* to an :code:`easytree.dict` or :code:`easytree.list` object
+
+.. code-block:: 
+
+    >>> point = {"x":1, "y":1}
+    >>> graph = easytree.list([point])
+    >>> point in graph
+    True
+    >>> graph[0] is point 
+    False
