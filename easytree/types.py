@@ -85,9 +85,9 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot set item on frozen list")
+            raise TypeError("cannot set item on frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot set item on sealed list")
+            raise TypeError("cannot set item on sealed easytree.list")
         return super().__setitem__(
             key, cast(value, frozen=self._frozen, sealed=self._sealed)
         )
@@ -111,9 +111,9 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot delete item from frozen list")
+            raise TypeError("cannot delete item from frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot delete item from sealed list")
+            raise TypeError("cannot delete item from sealed easytree.list")
         return super().__delitem__(key)
 
     def __enter__(self):
@@ -218,9 +218,9 @@ class list(builtins.list):
         }
         """
         if self._frozen:
-            raise TypeError("cannot append value to frozen list")
+            raise TypeError("cannot append value to frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot append value to sealed list")
+            raise TypeError("cannot append value to sealed easytree.list")
         if (
             len(args) > 1
             or (len(args) != 0 and len(kwargs) != 0)
@@ -257,9 +257,9 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot extend frozen list")
+            raise TypeError("cannot extend frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot extend sealed list")
+            raise TypeError("cannot extend sealed easytree.list")
         return super().extend(
             [cast(v, sealed=self._sealed, frozen=self._frozen) for v in other]
         )
@@ -288,9 +288,9 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot insert into frozen list")
+            raise TypeError("cannot insert into frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot insert into sealed list")
+            raise TypeError("cannot insert into sealed easytree.list")
         return super().insert(
             index, cast(value, sealed=self._sealed, frozen=self._frozen)
         )
@@ -316,9 +316,9 @@ class list(builtins.list):
             if there is no such item
         """
         if self._frozen:
-            raise TypeError("cannot remove from frozen list")
+            raise TypeError("cannot remove from frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot remove from sealed list")
+            raise TypeError("cannot remove from sealed easytree.list")
         return super().remove(x)
 
     def pop(self, *args):
@@ -337,9 +337,9 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot pop from frozen list")
+            raise TypeError("cannot pop from frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot pop from sealed list")
+            raise TypeError("cannot pop from sealed easytree.list")
         return super().pop(*args)
 
     def clear(self):
@@ -356,9 +356,9 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot clear frozen list")
+            raise TypeError("cannot clear frozen easytree.list")
         if self._sealed:
-            raise TypeError("cannot clear sealed list")
+            raise TypeError("cannot clear sealed easytree.list")
         return super().clear()
 
     def sort(self, *, key=None, reverse=False):
@@ -375,7 +375,7 @@ class list(builtins.list):
             if the list is frozen
         """
         if self._frozen:
-            raise TypeError("cannot sort frozen list")
+            raise TypeError("cannot sort frozen easytree.list")
         return super().sort(key=key, reverse=reverse)
 
     def reverse(self):
@@ -392,7 +392,7 @@ class list(builtins.list):
             if the list is sealed or frozen
         """
         if self._frozen:
-            raise TypeError("cannot reverse frozen list")
+            raise TypeError("cannot reverse frozen easytree.list")
         return super().reverse()
 
     def copy(self):
@@ -437,9 +437,9 @@ class dict(builtins.dict):
             return super().__getitem__(key)
         except KeyError:
             if self._frozen:
-                raise KeyError(f"frozen dict has no value for {key}") from None
+                raise KeyError(f"frozen easytree.dict has no value for {key}") from None
             if self._sealed:
-                raise KeyError(f"sealed dict has no value for {key}") from None
+                raise KeyError(f"sealed easytree.dict has no value for {key}") from None
         return undefined(parent=self, key=key)
 
     def __setitem__(self, key, value):
@@ -456,9 +456,9 @@ class dict(builtins.dict):
             if the dict is frozen, or if the dict is sealed and the key does not exist in the dict
         """
         if self._frozen:
-            raise KeyError(f"cannot define value for {key} on frozen dict")
+            raise KeyError(f"cannot define value for {key} on frozen easytree.dict")
         if self._sealed and key not in self:
-            raise KeyError(f"sealed define value for {key} on sealed dict")
+            raise KeyError(f"sealed define value for {key} on sealed easytree.dict")
         super().__setitem__(key, value)
 
     def __getattr__(self, key):
@@ -485,9 +485,13 @@ class dict(builtins.dict):
             if key in ["_frozen", "_sealed"]:
                 return False  # if subclass overrides the init (see note)
             if self._frozen:
-                raise AttributeError(f"frozen dict has no attribute {key}") from None
+                raise AttributeError(
+                    f"frozen easytree.dict has no attribute {key}"
+                ) from None
             if self._sealed:
-                raise AttributeError(f"sealed dict has no attribute {key}") from None
+                raise AttributeError(
+                    f"sealed easytree.dict has no attribute {key}"
+                ) from None
         return undefined(parent=self, key=key)
 
     def __setattr__(self, key, value):
@@ -503,9 +507,11 @@ class dict(builtins.dict):
         if key in ["_sealed", "_frozen"]:
             return super().__setattr__(key, value)
         if self._frozen:
-            raise AttributeError(f"cannot set attribute {key} on frozen dict")
+            raise AttributeError(f"cannot set attribute {key} on frozen easytree.dict")
         if self._sealed and key not in self:
-            raise AttributeError(f"cannot define attribute {key} on sealed dict")
+            raise AttributeError(
+                f"cannot define attribute {key} on sealed easytree.dict"
+            )
         self[key] = cast(value, sealed=self._sealed, frozen=self._frozen)
 
     def __delattr__(self, key: str) -> None:
@@ -518,9 +524,13 @@ class dict(builtins.dict):
             if the dict is frozen or sealed
         """
         if self._frozen:
-            raise AttributeError(f"cannot delete attribute '{key}' from frozen dict")
+            raise AttributeError(
+                f"cannot delete attribute '{key}' from frozen easytree.dict"
+            )
         if self._sealed:
-            raise AttributeError(f"cannot delete attribute '{key}' from sealed dict")
+            raise AttributeError(
+                f"cannot delete attribute '{key}' from sealed easytree.dict"
+            )
         del self[key]
 
     def __reduce__(self):
@@ -557,9 +567,9 @@ class dict(builtins.dict):
             return self[key]
         except KeyError:
             if self._frozen:
-                raise AttributeError(f"Cannot set {key} on frozen dict")
+                raise AttributeError(f"Cannot set {key} on frozen easytree.dict")
             if self._sealed and key not in self:
-                raise AttributeError(f"Cannot set {key} on sealed dict")
+                raise AttributeError(f"Cannot set {key} on sealed easytree.dict")
         return super().setdefault(
             key, cast(default, sealed=self._sealed, frozen=self._frozen)
         )
@@ -632,10 +642,12 @@ class dict(builtins.dict):
             if the dict is frozen, or if the dict is sealed and a key of other does not exist in the dict
         """
         if self._frozen:
-            raise AttributeError(f"Cannot update frozen dict")
+            raise AttributeError(f"Cannot update frozen easytree.dict")
         if self._sealed:
             if any(key not in self for key in other):
-                raise AttributeError(f"Cannot update sealed dict with new keys")
+                raise AttributeError(
+                    f"Cannot update sealed easytree.dict with new keys"
+                )
         return super().update(
             {
                 k: cast(v, sealed=self._sealed, frozen=self._frozen)
@@ -658,9 +670,9 @@ class dict(builtins.dict):
             if the dict is sealed
         """
         if self._frozen:
-            raise AttributeError(f"Cannot popitem from frozen dict")
+            raise AttributeError(f"Cannot popitem from frozen easytree.dict")
         if self._sealed:
-            raise AttributeError(f"Cannot popitem from sealed dict")
+            raise AttributeError(f"Cannot popitem from sealed easytree.dict")
         return super().popitem()
 
     def pop(self, *args):
@@ -684,9 +696,9 @@ class dict(builtins.dict):
             if the dict is frozen, or if the dict is sealed
         """
         if self._frozen:
-            raise AttributeError(f"Cannot pop from frozen dict")
+            raise AttributeError(f"Cannot pop from frozen easytree.dict")
         if self._sealed:
-            raise AttributeError(f"Cannot pop from sealed dict")
+            raise AttributeError(f"Cannot pop from sealed easytree.dict")
         return super().pop(*args)
 
     def __enter__(self):
