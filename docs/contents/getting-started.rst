@@ -1,17 +1,6 @@
 Getting started 
 ===============
 
-Installation
-------------
-
-Installing :code:`easytree` is simple with pip: 
-::
-
-    pip install easytree
-
-
-Usage 
------
 
 Simply import :code:`easytree` and create nested nodes on the fly using the dot notation. 
 
@@ -30,7 +19,7 @@ Simply import :code:`easytree` and create nested nodes on the fly using the dot 
         }
     }
 
-Instead of raising an :code:`AttributeError`, reading or setting a new attribute on an :code:`easytree.dict` node creates and returns a new child node. Assigning or reading a value from the child node *casts* the node as a dict. 
+Instead of raising an :code:`AttributeError`, reading or setting a new attribute on an :code:`easytree.dict` node creates and returns a new child node. Assigning or reading a value from the child node *casts* the node as an :code:`easytree.dict`. 
 
 .. code-block:: 
 
@@ -43,7 +32,7 @@ Instead of raising an :code:`AttributeError`, reading or setting a new attribute
     {"country": "United States"}
 
 
-Use a list method such as :code:`append` to cast a new node as a :code:`list`
+Alternatively, use a list method such as :code:`append` to cast a new node as a :code:`list`
 
 .. code-block:: 
 
@@ -58,7 +47,7 @@ Use a list method such as :code:`append` to cast a new node as a :code:`list`
         }
     }
 
-.. hint:: The :code:`baz` node *became* a list node because a list method was called on it.
+.. hint:: The :code:`baz` node *became* an :code:`easytree.list` node because a list method was called on it.
 
 You can use the dot or bracket notation interchangeably
 
@@ -70,9 +59,9 @@ You can use the dot or bracket notation interchangeably
     >>> tree.foo
     "bar"
 
-.. hint:: The :code:`easytree.dict` *inherits* from the native python dict class.
+.. hint:: The :code:`easytree.dict` *inherits* from the native python :code:`dict` class.
 
-A dict node in a list node is an :code:`easytree.dict`, allowing you to use the dot notation throughout the tree.
+A dict node in (or appended to) an :code:`easytree.list` is always cast as an :code:`easytree.dict`, allowing you to use the dot notation throughout the tree.
 
 .. code-block::
 
@@ -89,7 +78,34 @@ A dict node in a list node is an :code:`easytree.dict`, allowing you to use the 
         }
     ]
 
-Writing deeply-nested trees with list nodes is easy with a context-manager:
+Writing deeply-nested trees is made easy with a context-manager:
+
+.. code-block:: 
+
+    >>> order = easytree.dict()
+    >>> with order.customer.delivery.address as a: 
+    ...     a.country = "United States"
+    ...     a.city    = "New York"
+    ...     a.street  = "5th avenue"
+    >>> order
+    {
+        "order": {
+            "customer": {
+                "delivery": {
+                    "address": {
+                        "country": "United States",
+                        "city": "New York", 
+                        "street": "5th avenue"
+                    }
+                }
+            }
+        }
+    }
+
+Because the append method returns a reference to the last-appended object, writing deeply-nested trees which combine :code:`easytree.dict` and :code:`easytree.list` nodes is also easy: 
+
+
+.. hint:: The :code:`append` method of an :code:`easytree.list` returns the added value rather than :code:`None` to allow for the below syntax.
 
 .. code-block::
 
@@ -109,8 +125,6 @@ Writing deeply-nested trees with list nodes is easy with a context-manager:
             }
         ]
     }
-
-.. hint:: The :code:`append` method of an :code:`easytree.list` returns the added value rather than :code:`None` to allow for the above syntax.
 
 The :code:`get` method is supercharged to query deeply-nested trees.
 
