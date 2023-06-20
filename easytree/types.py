@@ -605,19 +605,19 @@ class dict(builtins.dict):
         """
         if isinstance(key, builtins.list):
             if len(key) == 0:
-                return cast(default, sealed=self._sealed, frozen=self._frozen)
+                return default
 
             current = self
             while len(key) > 0:
                 try:
                     current = current[key.pop(0)]
                 except (KeyError, IndexError):
-                    return cast(default, sealed=self._sealed, frozen=self._frozen)
+                    return default
                 if isinstance(current, undefined):
-                    return cast(default, sealed=self._sealed, frozen=self._frozen)
+                    return default
             return current
 
-        return super().get(key, cast(default, sealed=self._sealed, frozen=self._frozen))
+        return super().get(key, default)
 
     @classmethod
     def fromkeys(cls, keys, value):
@@ -819,7 +819,7 @@ class undefined:
         """
         Return default value
         """
-        return cast(default)
+        return default
 
     def setdefault(self, key, default):
         """
