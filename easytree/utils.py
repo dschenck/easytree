@@ -37,9 +37,9 @@ def freeze(tree):
 
     Returns
     -------
-    frozen object
+    frozen : dict | list
     """
-    if not isinstance(tree, (Node, dict, list)):
+    if not isinstance(tree, (Node, dict, list, builtins.dict, builtins.list)):
         raise TypeError(
             f"Expected tree to be instance of :code:`easytree.Tree`, :code:`easytree.dict` or :code:`easytree.list`, received {type(tree)}"
         )
@@ -59,9 +59,9 @@ def unfreeze(tree):
 
     Returns
     -------
-    unfrozen object
+    unfrozen : dict | list
     """
-    if not isinstance(tree, (Node, dict, list)):
+    if not isinstance(tree, (Node, dict, list, builtins.dict, builtins.list)):
         raise TypeError(
             f"Expected tree to be instance of :code:`easytree.Tree`, :code:`easytree.dict` or :code:`easytree.list`, received {type(tree)}"
         )
@@ -101,9 +101,9 @@ def seal(tree):
 
     Returns
     -------
-    sealed object
+    sealed : dict | list
     """
-    if not isinstance(tree, (Node, dict, list)):
+    if not isinstance(tree, (Node, dict, list, builtins.dict, builtins.list)):
         raise TypeError(
             f"Expected tree to be instance of :code:`easytree.Tree`, :code:`easytree.dict` or :code:`easytree.list`, received {type(tree)}"
         )
@@ -123,9 +123,9 @@ def unseal(tree):
 
     Returns
     -------
-    unsealed object
+    unsealed : dict | list
     """
-    if not isinstance(tree, (Node, dict, list)):
+    if not isinstance(tree, (Node, dict, list, builtins.dict, builtins.list)):
         raise TypeError(
             f"Expected tree to be instance of :code:`easytree.Tree`, :code:`easytree.dict` or :code:`easytree.list`, received {type(tree)}"
         )
