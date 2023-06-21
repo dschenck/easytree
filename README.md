@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A lightweight Python library designed to easily read and write deeply-nested tree configurations.
+recursive dot-styled dict and list to read and write deeply-nested trees
 
 ## Documentation
 Documentation is hosted on [read the docs](https://easytree.readthedocs.io/en/latest/)
@@ -19,14 +19,54 @@ pip install easytree
 ```python
 >>> import easytree
 
->>> tree = easytree.Tree()
+>>> tree = easytree.dict()
 >>> tree.foo.bar.baz = "Hello world!"
->>> tree
-Tree({
-    "foo":{
-        "bar":{
-            "baz":"Hello world!"
+>>> tree 
+{
+    "foo": {
+        "bar": {
+            "baz": "Hello world!"
         }
     }
-})
+}
+```
+
+Creating trees that combine both list and dict nodes is easy
+```python
+>>> friends = easytree.list()
+>>> friends.append({"firstname":"Alice"})
+>>> friends[0].address.country = "Netherlands"
+>>> friends[0]["interests"].append("science")
+>>> friends
+[
+    {
+        "firstname": "Alice",
+        "address": {
+            "country": "Netherlands"
+        },
+        "interests": [
+            "science"
+        ]
+    }
+]
+```
+
+Writing deeply-nested trees with list nodes is easy with a context-manager:
+```python
+>>> profile = easytree.dict()
+>>> with profile.friends.append({"firstname":"Flora"}) as friend: 
+...     friend.birthday = "25/02"
+...     friend.address.country = "France"
+>>> profile
+{
+    "friends": [
+        {
+            "firstname": "Flora",
+            "birthday": "25/02",
+            "address": {
+                "country": "France"
+            }
+        }
+    ]
+}
 ```

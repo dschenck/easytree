@@ -1,10 +1,16 @@
 API
 =====================================
-.. autoclass:: easytree.Tree
-    :members:
 
-.. autoclass:: easytree.Node
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Table of contents
 
-.. automodule:: easytree
-    :members: new, serialize, load, loads, dump, dumps, frozen, freeze, unfreeze, sealed, seal, unseal, type
+   API/easytree.dict
+   API/easytree.list
+   API/easytree.freeze
+   API/easytree.frozen
+   API/easytree.unfreeze
+   API/easytree.seal
+   API/easytree.sealed
+   API/easytree.unseal
+   API/deprecated

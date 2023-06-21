@@ -1,6 +1,6 @@
 easytree
-======================================
-`easytree <https://easytree.readthedocs.io/>`_ is a lightweight Python library designed to easily read and write deeply-nested tree configurations.
+========
+A recursive dot-styled defaultdict to read and write deeply-nested trees
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg
     :target: https://github.com/dschenck/easytree/actions
@@ -14,6 +14,9 @@ easytree
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 
+.. image:: https://codecov.io/gh/dschenck/easytree/branch/master/graph/badge.svg?token=CPJXDL17CB 
+   :target: https://codecov.io/gh/dschenck/easytree
+
 Quickstart
 -------------------------------------
 Installing :code:`easytree` is simple with pip: 
@@ -21,94 +24,39 @@ Installing :code:`easytree` is simple with pip:
 
     pip install easytree
 
-Using :code:`easytree` is also easy
-::
+Simply import :code:`easytree` and create nested :code:`dict` nodes on the fly using the dot notation
+
+.. code-block::
 
     >>> import easytree
 
-    >>> tree = easytree.Tree()
+    >>> tree = easytree.dict()
     >>> tree.foo.bar.baz = "Hello world!"
     >>> tree 
-    Tree({
-        "foo":{
-            "bar":{
-                "baz":"Hello world!"
+    {
+        "foo": {
+            "bar": {
+                "baz": "Hello world!"
             }
         }
-    })
-
-Writing configurations that combine both list and dict nodes is easy - here's an example of an Highcharts chart configuration
-::
-    
-    >>> import easytree
-
-    >>> chart = easytree.Tree()
-    >>> chart.chart.type = "bar"
-    >>> chart.title.text = "France Olympic Medals"
-    >>> chart.xAxis.categories = ["Gold", "Silver", "Bronze"]
-    >>> chart.yAxis.title.text = "Count"
-    >>> chart.series.append(name="2016", data=[10, 18, 14])
-    >>> chart.series.append({"name":"2012"})
-    >>> chart.series[1].data = [11, 11, 13] #list items recursively become nodes
-
-    >>> chart.serialize() #convert back to Python native objects
-    {
-        "chart": {
-            "type": "bar"
-        },
-        "title": {
-            "text": "France Olympic Medals"
-        },
-        "xAxis": {
-            "categories": [
-                "Gold",
-                "Silver",
-                "Bronze"
-            ]
-        },
-        "yAxis": {
-            "title": {
-                "text": "Count"
-            }
-        },
-        "series": [
-            {
-                "name": "2016",
-                "data": [
-                    10,
-                    18,
-                    14
-                ]
-            },
-            {
-                "name": "2012",
-                "data": [
-                    11,
-                    11,
-                    13
-                ]
-            }
-        ]
     }
 
-Writing deeply-nested trees with list nodes is easy with a context-manager:
-::
+Or use a list method such as :code:`append` to dynamically cast a new node as a :code:`list`
 
-    >>> chart = easytree.Tree()
-    >>> with chart.axes.append({}) as axis: 
-    ...     axis.title.text = "primary axis"
-    ...     axis.min = 0
-    >>> chart.serialize()
+.. code-block:: 
+
+    >>> tree = easytree.dict()
+    >>> tree.foo.bar.baz.append("Hello world!")
+    >>> tree
     {
-        "axes": [
-            {
-                "title": {
-                    "text": "primary axis"
-                }
-                "min":0
+        "foo": {
+            "bar": {
+                "baz": ["Hello world!"]
             }
-        ]
+        }
     }
+
+Find out more about what :code:`easytree` can do on the **Getting Started** page. 
 
 .. toctree::
    :maxdepth: 2

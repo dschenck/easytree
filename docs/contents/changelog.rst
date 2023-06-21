@@ -78,3 +78,6 @@ Version 0.1.13 (2023-04-25)
 -------------------------------------
     - added :code:`type` function to help distinguish between node types (in lieu of :code:`isinstance`)
     
+Version 0.2.0 (2023-06-14)
+--------------------------
+    - refactored library to create :code:`dict` and :code:`list` objects

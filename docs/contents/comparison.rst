@@ -1,20 +1,107 @@
-How does :code:`easytree` compare with :code:`jsontree`
+Alternatives
 ========================================================
+:code:`easytree` shares some functionality with other existing libraries, but differs with each in some respect.
 
-:code:`easytree` differs from :code:`jsontree` (see `here <https://github.com/dougn/jsontree>`_) in three important ways:
+How does :code:`easytree` compare with :code:`collections.defaultdict`
+-----------------------------------------------------------------------
+The recursive nature of the :code:`easytree.dict` can be replicated with the native :code:`collections.defaultdict`. 
 
-1. elements, when attached or appended to an :code:`easytree.Tree`, recursively become tree branches if they are themselves lists, sets, tuples or dictionaries. 
+.. code-block:: 
+
+    >>> import collections
+
+    >>> recursivedict = lambda: collections.defaultdict(lambda: recursivedict())
+    >>> data = recursivedict()
+    >>> data["foo"]["bar"]["baz"] = "Hello world!"
+    >>> data
+    {
+        "foo": {
+            "bar": {
+                "baz": "Hello world!"
+            }
+        }
+    }
+
+**However**
+
+1. :code:`easytree.dict` allows for the dot notation
+
+2. new nodes in an :code:`easytree.dict` can become a new :code:`easytree.dict` *or* :code:`easytree.list`.
+
+.. code-block:: 
+
+    >>> import easytree
+
+    >>> data = easytree.dict()
+    >>> data.foo.bar.baz.append("Hello world!")
+    >>> data
+    {
+        "foo": {
+            "bar": {
+                "baz": ["Hello world!"]
+            }
+        }
+    }
+
+
+How does :code:`easytree` compare with :code:`dictdot`
+------------------------------------------------------
+:code:`dictdot` is an alternative library (see `here <https://pypi.org/project/dictdot/>`_) which allows for the use of the dot notation.
+
+**However**
+
+1. :code:`easytree` allows you to recursively write new nested nodes
+
+Compare:
+
+.. code-block:: 
+
+    >>> import easytree
+
+    >>> data = easytree.dict()
+    >>> data.foo.bar.baz = "Hello world!"
+    >>> data 
+    {
+        "foo": {
+            "bar": {
+                "baz": "Hello world!"
+            }
+        }
+    }
+
+with 
+
+.. code-block:: 
+
+    >>> from dictdot import dictdot
+    
+    >>> data = dictdot()
+    >>> data.foo.bar.baz
+    AttributeError: 'NoneType' object has no attribute 'bar'
+
+How does :code:`easytree` compare with :code:`jsontree`
+-------------------------------------------------------
+Another competing alternative is :code:`jsontree` (see `here <https://github.com/dougn/jsontree>`_)
+
+**However**
+
+1. dictionaries and lists, when attached or appended to an :code:`easytree.list`, are recursively cast as :code:`easytree.dict` and :code:`easytree.list`. 
 
 Compare: 
 ::
 
     >>> import easytree
 
-    >>> tree = easytree.Tree()
+    >>> tree = easytree.dict()
     >>> tree.friends = [{"name":"David"},{"name":"Celine"}]
     >>> tree.friends[0].age = 29 #this works
     >>> tree
-    {'friends': [{'age': 29, 'name': 'David'}, {'name': 'Celine'}]}
+    {
+        'friends': [
+            {'age': 29, 'name': 'David'},
+            {'name': 'Celine'}
+        ]
+    }
 
 with: 
 :: 
@@ -26,20 +113,19 @@ with:
     >>> tree.friends[0].age = 29 #this does not work
     AttributeError: 'dict' object has no attribute 'age'
 
-2. serialization of an :code:`easytree.Tree` merely converts the tree to a dictionary, list or underlying value (for leaves). It does not serialize to JSON-string.
+2. :code:`easytree.dict` and :code:`easytree.list` objects inherit from the builtin :code:`dict` and :code:`list` objects, allowing for seamless integration into existing codebases
 
-For example: 
-::
+.. code-block:: 
 
-    >>> import easytree
-
-    >>> tree = easytree.Tree()
-    >>> tree.abc.xyz = [1,2,3]
-    >>> isinstance(tree.serialize(), dict)
-    True
-    >>> isinstance(tree.serialize()["abc"]["xyz"], list)
+    >>> data = easytree.dict({"foo":"bar"})
+    >>> isinstance(data, dict)
     True
 
-3. starting with version 0.1.8, :code:`easytree` supports freezing and sealing trees.
+    >>> items = easytree.list([1,2,3])
+    >>> isinstance(items, list)
+    True
+
+
+3. :code:`easytree.dict` and :code:`easytree.list` support freezing and sealing.
 
 

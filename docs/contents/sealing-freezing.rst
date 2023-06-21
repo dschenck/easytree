@@ -25,9 +25,9 @@ Sealing
 Sealing a tree prevents the user from accidentally creating new nodes; it does allow to edit leaf values. 
 ::
 
-    >>> person = easytree.Tree({"name":"Bob", "address":{"city":"New York"}}, sealed=True)
-    >>> person.name = "Alice" #you can still edit leaf values
-    >>> person.adress.city    #typo spelling address
+    >>> person = easytree.dict({"name":"Bob", "address":{"city":"New York"}}, sealed=True)
+    >>> person.name = "Alice" # you can still edit leaf values
+    >>> person.adress.city    # typo spelling address
     AttributeError: sealed node has no attribute 'adress'
 
 
@@ -38,7 +38,7 @@ Freezing
 Freezing a tree prevents the user from accidentally creating new nodes or changing existing nodes. 
 :: 
 
-    >>> person = easytree.Tree({"name":"Bob", "address":{"city":"New York"}}, frozen=True)
+    >>> person = easytree.dict({"name":"Bob", "address":{"city":"New York"}}, frozen=True)
     >>> person.address.city = "Los Angeles"
     AttributeError: cannot set attribute 'city' on frozen node
 
