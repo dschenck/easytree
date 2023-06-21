@@ -19,7 +19,9 @@ Simply import :code:`easytree` and create nested nodes on the fly using the dot 
         }
     }
 
-Instead of raising an :code:`AttributeError`, reading or setting a new attribute on an :code:`easytree.dict` node creates and returns a new child node. Assigning or reading a value from the child node *casts* the node as an :code:`easytree.dict`. 
+
+
+Instead of raising an :code:`AttributeError`, reading or setting a new attribute on an :code:`easytree.dict` node creates and returns a new child :code:`Node`. 
 
 .. code-block:: 
 
@@ -27,29 +29,28 @@ Instead of raising an :code:`AttributeError`, reading or setting a new attribute
     >>> tree.address 
     <Node 'address'>
 
+Assigning or reading an attribute from the child node dynamically *casts* the node as an :code:`easytree.dict`. 
+
+.. code-block:: 
+
     >>> tree.address.country = "United States"
     >>> tree.address
     {"country": "United States"}
 
 
-Alternatively, use a list method such as :code:`append` to cast a new node as a :code:`list`
+Alternatively, using a list method such as :code:`append` dynamically casts the new node as an :code:`easytree.list`
 
 .. code-block:: 
 
     >>> tree = easytree.dict()
-    >>> tree.foo.bar.baz.append("Hello world!")
-    >>> tree
-    {
-        "foo": {
-            "bar": {
-                "baz": ["Hello world!"]
-            }
-        }
-    }
+    >>> tree.address 
+    <Node 'address'>
 
-.. hint:: The :code:`baz` node *became* an :code:`easytree.list` node because a list method was called on it.
+    >>> tree.address.country.append("United States")
+    >>> tree.address
+    {"country": ["United States"]}
 
-You can use the dot or bracket notation interchangeably
+Of course, you can use the dot or bracket notation interchangeably
 
 .. code-block:: 
 
@@ -59,9 +60,18 @@ You can use the dot or bracket notation interchangeably
     >>> tree.foo
     "bar"
 
-.. hint:: The :code:`easytree.dict` *inherits* from the native python :code:`dict` class.
+.. note:: 
+    The bracket notation remains necessary if the key is not a valid attribute name (e.g. keys starting with a digit, or keys that include a space).
 
-A dict node in (or appended to) an :code:`easytree.list` is always cast as an :code:`easytree.dict`, allowing you to use the dot notation throughout the tree.
+The :code:`easytree.dict` *inherits* from the native python :code:`dict` class.
+
+.. code-block:: 
+
+    >>> tree = easytree.dict({"foo":"bar"})
+    >>> isinstance(tree, dict) 
+    True
+
+A dict node in an :code:`easytree.list` is always cast as an :code:`easytree.dict`, allowing you to use the dot notation on dictionaries included in lists.
 
 .. code-block::
 
@@ -78,7 +88,7 @@ A dict node in (or appended to) an :code:`easytree.list` is always cast as an :c
         }
     ]
 
-Writing deeply-nested trees is made easy with a context-manager:
+The context manager returns the node, such that writing deeply-nested trees is easy:
 
 .. code-block:: 
 
@@ -102,10 +112,7 @@ Writing deeply-nested trees is made easy with a context-manager:
         }
     }
 
-Because the append method returns a reference to the last-appended object, writing deeply-nested trees which combine :code:`easytree.dict` and :code:`easytree.list` nodes is also easy: 
-
-
-.. hint:: The :code:`append` method of an :code:`easytree.list` returns the added value rather than :code:`None` to allow for the below syntax.
+Because the :code:`append` method returns a reference to the last appended item, writing deeply-nested trees which combine :code:`easytree.dict` and :code:`easytree.list` nodes is also easy: 
 
 .. code-block::
 
@@ -160,3 +167,16 @@ Dictionary and lists added to an easytree will be *cast* to an :code:`easytree.d
     True
     >>> graph[0] is point 
     False
+
+Using a numeric key on an undefined node will cast the node as a dictionary, not a list. 
+
+.. code-block:: 
+
+    >>> profile = easytree.dict({"firstname":"David"})
+    >>> profile.friends[0].name = "Flora"
+    >>> profile
+    {
+        "friends": {
+            0: "Flora"
+        }
+    }

@@ -1,6 +1,6 @@
 easytree
 ========
-A recursive dot-styled default dict to read and write deeply-nested trees
+A recursive dot-styled defaultdict to read and write deeply-nested trees
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg
     :target: https://github.com/dschenck/easytree/actions
@@ -41,7 +41,7 @@ Simply import :code:`easytree` and create nested :code:`dict` nodes on the fly u
         }
     }
 
-Or use a list method such as :code:`append` to cast a new node as a :code:`list`
+Or use a list method such as :code:`append` to dynamically cast a new node as a :code:`list`
 
 .. code-block:: 
 
@@ -56,53 +56,7 @@ Or use a list method such as :code:`append` to cast a new node as a :code:`list`
         }
     }
 
-You can use the dot or bracket notation interchangeably
-
-.. code-block:: 
-
-    >>> tree = easytree.dict({"foo":"bar"})
-    >>> tree["foo"]
-    "bar"
-    >>> tree.foo
-    "bar"
-
-A dict node in a list node is an :code:`easytree.dict`, allowing you to use the dot notation throughout the tree.
-
-.. code-block::
-
-    >>> friends = easytree.list()
-    >>> friends.append({"firstname":"Alice"})
-    >>> friends[0].address.country = "Netherlands"
-    >>> friends
-    [
-        {
-            "firstname": "Alice",
-            "address": {
-                "country": "Netherlands"
-            }
-        }
-    ]
-
-Writing deeply-nested trees with list nodes is easy with a context-manager:
-
-.. code-block::
-
-    >>> profile = easytree.dict()
-    >>> with profile.friends.append({"firstname":"Flora"}) as friend: 
-    ...     friend.birthday = "25/02"
-    ...     friend.address.country = "France"
-    >>> profile
-    {
-        "friends": [
-            {
-                "firstname": "Flora",
-                "birthday": "25/02",
-                "address": {
-                    "country": "France"
-                }
-            }
-        ]
-    }
+Find out more about what :code:`easytree` can do on the **Getting Started** page. 
 
 .. toctree::
    :maxdepth: 2
