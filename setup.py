@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.2.0",
     author="David Schenck",
     author_email="david.schenck@outlook.com",
-    description="A lightweight library designed to easily read and write deeply-nested tree configurations",
+    description="A recursive dot-styled defaultdict to read and write deeply-nested trees",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://easytree.readthedocs.io/en/latest",
