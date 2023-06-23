@@ -1,8 +1,8 @@
 Alternatives
 ========================================================
-:code:`easytree` shares some functionality with other existing libraries, but differs with each in some respect.
+:code:`easytree` shares some functionality with other existing libraries, but differs from each in some respect.
 
-How does :code:`easytree` compare with :code:`collections.defaultdict`
+:code:`collections.defaultdict`
 -----------------------------------------------------------------------
 The recursive nature of the :code:`easytree.dict` can be replicated with the native :code:`collections.defaultdict`. 
 
@@ -44,7 +44,7 @@ The recursive nature of the :code:`easytree.dict` can be replicated with the nat
     }
 
 
-How does :code:`easytree` compare with :code:`dictdot`
+:code:`dictdot`
 ------------------------------------------------------
 :code:`dictdot` is an alternative library (see `here <https://pypi.org/project/dictdot/>`_) which allows for the use of the dot notation.
 
@@ -79,7 +79,7 @@ with
     >>> data.foo.bar.baz
     AttributeError: 'NoneType' object has no attribute 'bar'
 
-How does :code:`easytree` compare with :code:`jsontree`
+:code:`jsontree`
 -------------------------------------------------------
 Another competing alternative is :code:`jsontree` (see `here <https://github.com/dougn/jsontree>`_)
 
