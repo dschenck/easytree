@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-recursive dot-styled dict and list to read and write deeply-nested trees
+A recursive dot-styled defaultdict to read and write deeply-nested trees
 
 ## Documentation
 Documentation is hosted on [read the docs](https://easytree.readthedocs.io/en/latest/)
