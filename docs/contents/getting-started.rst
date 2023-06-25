@@ -41,20 +41,20 @@ Inheritence
 Setting or assigning values
 ---------------------------
 
-Instead of raising an :code:`AttributeError`, reading or setting a new attribute on an :code:`easytree.dict` creates and returns a new child :code:`Node`. 
+Instead of raising an :code:`AttributeError`, reading a new attribute on an :code:`easytree.dict` creates and returns a new child :code:`Node`. 
 
 .. code-block:: 
 
     >>> tree = easytree.dict()
-    >>> tree.address 
+    >>> tree.address # new undefined node
     <Node 'address'>
 
-Assigning or reading an attribute from such child node dynamically *casts* it as an :code:`easytree.dict`. 
+Reading or setting an attribute on such child node dynamically *casts* it as an :code:`easytree.dict`. 
 
 .. code-block:: 
 
     >>> tree.address.country = "United States"
-    >>> tree.address
+    >>> tree.address # now a dict
     {"country": "United States"}
 
 
@@ -74,7 +74,7 @@ Alternatively, using a list method such as :code:`append` dynamically *casts* th
 .. note:: 
     Technically, *casting* replaces the node with an appropriate class instance (e.g. dict or list) in the parent object
 
-Of course, you can use the dot or bracket notation interchangeably, both to read and assign nested value
+Of course, you can use the dot or bracket notation interchangeably, both to read and assign nested values
 
 .. code-block:: 
 
@@ -85,7 +85,7 @@ Of course, you can use the dot or bracket notation interchangeably, both to read
     "bar"
 
 .. note:: 
-    The bracket notation remains necessary if the key is not a valid attribute name.
+    The bracket notation remains necessary if the key is not a valid attribute identifier name.
     
     .. code-block:: 
 
@@ -99,7 +99,7 @@ Of course, you can use the dot or bracket notation interchangeably, both to read
 Nested assignment
 -----------------
 
-Dictionaries assigned to an :code:`easytree.dict` or added to an :code:`easytree.list` are themselves cast as :code:`easytree.dict` instances, allowing you to use the dot notation on dictionaries nested inside of lists.
+Dictionaries assigned to an :code:`easytree.dict` or added to an :code:`easytree.list` are themselves cast as :code:`easytree.dict` instances, allowing you to use the dot notation on nested dictionaries.
 
 .. code-block::
 
@@ -204,7 +204,42 @@ Because the :code:`append` method returns a reference to the last appended item,
         ]
     }
 
+The undefined node
+------------------
+An :code:`undefined` node object created when an undefined attribute is read from an :code:`easytree.dict` node. 
 
+.. code-block:: 
+
+    >>> person = easytree.dict()
+    >>> person.address 
+    <Node 'address'> 
+
+Assigning or reading an attribute from an :code:`undefined` node *casts* it as a dictionary. 
+
+.. code-block:: 
+
+    >>> person = easytree.dict()
+    >>> person.address.country = "Nigeria"
+    >>> person.address
+    {"country": "Nigeria"}
+
+Using the bracket notation works identically. 
+
+.. code-block:: 
+
+    >>> person = easytree.dict()
+    >>> person["address"].country = "Nigeria"
+    >>> person.address
+    {"country": "Nigeria"}
+
+An :code:`undefined` node evaluates to :code:`False`. 
+
+.. code-block:: 
+
+    >>> person = easytree.dict()
+    >>> if not person.address:
+    ...     print("address is missing")
+    address is missing
 
 Pitfalls
 --------

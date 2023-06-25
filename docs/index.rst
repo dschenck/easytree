@@ -58,9 +58,11 @@ Or use a list method such as :code:`append` to dynamically cast a new node as a 
 
 Find out more about what :code:`easytree` can do on the **Getting Started** page. 
 
+Table of contents
+-----------------
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Table of contents
+   :maxdepth: 1
 
    contents/installation
    contents/getting-started
