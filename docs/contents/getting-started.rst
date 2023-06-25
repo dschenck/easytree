@@ -34,7 +34,7 @@ Inheritence
 
 .. code-block:: 
 
-    >>> numbers = easytree.lists([1,3,5])
+    >>> numbers = easytree.list([1,3,5])
     >>> isinstance(numbers, list)
     True
 
