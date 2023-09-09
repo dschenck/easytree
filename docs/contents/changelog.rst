@@ -2,6 +2,11 @@ Changelog
 =====================================
 The source code is hosted and maintained on `github <https://github.com/dschenck/easytree/>`_.
 
+Version 0.2.1 (2023-09-09)
+--------------------------
+    - optimize recursive casting
+    - allow for subclassing of :code:`easytree.dict` and :code:`easytree.list`
+
 Version 0.2.0 (2023-06-14)
 --------------------------
     - refactored library to create :code:`dict` and :code:`list` objects

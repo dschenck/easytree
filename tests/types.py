@@ -661,3 +661,54 @@ def test_undefined_does_not_contain():
 def test_length_of_undefined_is_zero():
     value = easytree.dict()
     assert len(value.x) == 0
+
+
+def test_cast_optimization():
+    x = easytree.list([1, 2, 3])
+    assert easytree.types.cast(x) is x
+
+    assert easytree.types.cast(x, sealed=True) is not x
+    assert easytree.types.cast(x, frozen=True) is not x
+
+    x = [1, 2, 3]
+    assert easytree.types.cast(x) is not x
+
+    x = easytree.dict({"name": "David", "address": {"country": "United States"}})
+    assert easytree.types.cast(x) is x
+    assert easytree.types.cast(x).address is x.address
+    assert easytree.types.cast(x, sealed=True) is not x
+    assert easytree.types.cast(x, frozen=True) is not x
+    assert easytree.types.cast(x, sealed=True).address is not x.address
+    assert easytree.types.cast(x, frozen=True).address is not x.address
+
+
+def test_subclass_types_are_preserved():
+    class A(easytree.list):
+        def method_should_exist(self):
+            return True
+
+    a = A([1, 2, 3])
+    assert isinstance(a, easytree.list)
+    assert isinstance(a, A)
+    assert isinstance(easytree.types.cast(a), A)
+    assert isinstance(easytree.types.cast(a, sealed=True), A)
+    assert isinstance(easytree.types.cast(a, frozen=True), A)
+    assert easytree.types.cast(a, frozen=True).method_should_exist() is True
+
+
+def test_nested_subclassing():
+    class A(easytree.list):
+        def method_should_exist(self):
+            return True
+
+    class B(easytree.dict):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.a = A([])
+
+    b = B(name="David", address={"country": "France"}, x=A([1, 3, 5]))
+    assert isinstance(b, easytree.dict)
+    assert isinstance(b, B)
+    assert isinstance(b.a, A)
+    assert isinstance(b.x, A)
+    assert b.x.method_should_exist() is True

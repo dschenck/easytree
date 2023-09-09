@@ -1,7 +1,8 @@
 import builtins
+import easytree
 
 
-def cast(value, **kwargs):
+def cast(value, *, sealed=False, frozen=False):
     """
     Convert a value to an easytree object, when possible, based on its type.
 
@@ -22,14 +23,19 @@ def cast(value, **kwargs):
     cast : any
         the cast value, or value itself, as the case may be
     """
+    if isinstance(value, (list, dict)):
+        if (easytree.sealed(value) is sealed) and (easytree.frozen(value) is frozen):
+            return value
+        # version 0.2.1 - allow for subclassing of easytree.dict and easytree.list
+        return type(value)(value, sealed=sealed, frozen=frozen)
     if isinstance(value, builtins.dict):
-        return dict(value, **kwargs)
+        return dict(value, sealed=sealed, frozen=frozen)
     if isinstance(value, builtins.list):
-        return list(value, **kwargs)
+        return list(value, sealed=sealed, frozen=frozen)
     if isinstance(value, tuple):
-        return tuple(cast(x, **kwargs) for x in value)
+        return tuple(cast(x, sealed=sealed, frozen=frozen) for x in value)
     if isinstance(value, set):
-        return {cast(x, **kwargs) for x in value}
+        return {cast(x, sealed=sealed, frozen=frozen) for x in value}
     return value
 
 
