@@ -54,6 +54,7 @@ Table of contents
    contents/installation
    contents/getting-started
    contents/sealing-freezing
+   contents/subclassing
    contents/comparison
    contents/API
    contents/changelog
