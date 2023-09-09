@@ -60,7 +60,7 @@ class list(builtins.list):
     are recursively sealed and frozen as per its containing parent.
     """
 
-    def __init__(self, args=None, sealed=False, frozen=False):
+    def __init__(self, args=None, *, sealed=False, frozen=False):
         super().__init__(
             [cast(arg, sealed=sealed, frozen=frozen) for arg in (args or [])]
         )
