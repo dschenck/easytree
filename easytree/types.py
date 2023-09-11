@@ -738,7 +738,7 @@ class undefined:
     """
 
     def __init__(self, parent, key):
-        self.key = key
+        self._key = key
         self._parent = parent
 
     def __bool__(self):
@@ -768,11 +768,11 @@ class undefined:
         -------
         None
         """
-        if self.key in self._parent:
-            self._parent[self.key][key] = value
+        if self._key in self._parent:
+            self._parent[self._key][key] = value
             return
 
-        self._parent[self.key] = dict({key: value})
+        self._parent[self._key] = dict({key: value})
 
     def __setattr__(self, key, value):
         """
@@ -783,7 +783,7 @@ class undefined:
         -------
         None
         """
-        if key in ["key", "_parent"]:
+        if key in ["_key", "_parent"]:
             return super().__setattr__(key, value)
         self[key] = value
 
@@ -812,14 +812,14 @@ class undefined:
                 "append must take either one positional argument or one-to-many named arguments"
             )
         value = args[0] if len(args) > 0 else kwargs
-        self._parent[self.key] = list([value])
-        return self._parent[self.key][-1]
+        self._parent[self._key] = list([value])
+        return self._parent[self._key][-1]
 
     def extend(self, other):
         """
         Cast undefined node to list and extend with other
         """
-        self._parent[self.key] = list(other)
+        self._parent[self._key] = list(other)
 
     def get(self, key, default=None):
         """
@@ -831,13 +831,13 @@ class undefined:
         """
         Cast node to dict and insert default value at key
         """
-        self._parent[self.key] = dict({key: default})
+        self._parent[self._key] = dict({key: default})
 
     def update(self, other):
         """
         Cast node to dict and insert items from other
         """
-        self._parent[self.key] = dict(other)
+        self._parent[self._key] = dict(other)
         return self._parent
 
     def __enter__(self):
@@ -862,4 +862,4 @@ class undefined:
         """
         Return representation
         """
-        return f"<Node '{self.key}'>"
+        return f"<Node '{self._key}'>"
