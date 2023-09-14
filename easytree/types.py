@@ -977,7 +977,7 @@ class undefined:
         """
         return self._cast(list).reverse()
 
-    def count(self, value, /):
+    def count(self, value):
         """
         Return number of occurrences of value (read-only).
         """
@@ -987,7 +987,7 @@ class undefined:
             return 0
         return self._parent[self._key].count(value)
 
-    def index(self, value, start=0, stop=9223372036854775807, /):
+    def index(self, value, start=0, stop=9223372036854775807):
         """
         Return first index of value (read-only)
         """
