@@ -712,3 +712,90 @@ def test_nested_subclassing():
     assert isinstance(b.a, A)
     assert isinstance(b.x, A)
     assert b.x.method_should_exist() is True
+
+
+def test_nested_undefined_writes_multiple():
+    x = easytree.dict()
+    y = x.y
+    y.a = "a"
+    y.b = "b"
+    y.c = "c"
+
+    assert x.y.a == "a"
+    assert x.y.b == "b"
+    assert x.y.c == "c"
+
+    x = easytree.dict()
+    with x.y as y:
+        y.a = "a"
+        y.b = "b"
+        y.c = "c"
+
+    assert x.y.a == "a"
+    assert x.y.b == "b"
+    assert x.y.c == "c"
+
+    x = easytree.dict()
+    with x.y.z as z:
+        z.a = "a"
+        z.b = "b"
+        z.c = "c"
+
+    assert x.y.z.a == "a"
+    assert x.y.z.b == "b"
+    assert x.y.z.c == "c"
+
+    x = easytree.dict()
+    with x.y.z as z:
+        z.a = "a"
+        z.b = "b"
+        z.c = "c"
+
+    x.y.z = "overwritten"
+    assert x.y.z == "overwritten"
+
+    x = easytree.dict()
+    with x.y.z as z:
+        z.append(1)
+        z.append(2)
+
+    assert x.y.z == [1, 2]
+
+
+def test_undefined_node_cast_as_dict_cannot_append():
+    x = easytree.dict()
+    with x.y.z as z:
+        with pytest.raises(
+            TypeError,
+        ):
+            z.name = "dict node"
+            z.append("list node")
+
+
+def test_undefined_conflict():
+    x = easytree.dict()
+    with x.y.z as z:
+        with pytest.raises(
+            TypeError,
+        ):
+            z.append("list node")
+            z.name = "dict node"
+
+
+def test_undefined_race_conditions():
+    x = easytree.dict()
+    a = x.y.z
+    b = x.y
+
+    assert x == {}
+
+    a.name = "a"
+    b.name = "b"
+
+    assert x == {"y": {"z": {"name": "a"}, "name": "b"}}
+
+    x = easytree.dict()
+    a = x.y.z
+    b = x.y
+
+    assert x == {}

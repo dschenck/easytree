@@ -727,7 +727,10 @@ class dict(builtins.dict):
 
 class undefined:
     """
-    undefined
+    Undefined node
+
+    The undefined node can be dynamically cast as a :code:`dict` or :code:`list` node depending on
+    mutations called on it (e.g. setting an item, setting at attribute, sorting)
 
     Parameters
     ----------
@@ -735,44 +738,134 @@ class undefined:
         the key of the undefined value in its parent
     parent : list, dict
         the containing parent
+
+    Example
+    -------
+    .. code-block::
+
+        >>> import easytree
+
+        >>> person = easytree.dict()
+        >>> person.address
+        <undefined 'address'>
+
+        >>> person.address.country
+        <undefined 'country'>
+
+        >>> person.address.country = "United States"
+        >>> person.address.country
+        "United States"
+
+        >>> person
+        {"address": {"country": "United States"}}
     """
 
     def __init__(self, parent, key):
         self._key = key
         self._parent = parent
 
+    @property
+    def _frozen(self):
+        """
+        Returns True if parent is frozen (read-only)
+        """
+        return self._parent._frozen
+
+    @property
+    def _sealed(self):
+        """
+        Returns True if parent is sealed (read-only)
+        """
+        return self._parent._sealed
+
+    def _cast(self, type):
+        """
+        Casts to the desired type (dict or list), unless it has already been cast.
+        """
+        if isinstance(self._parent, undefined):
+            self._parent = self._parent._cast(dict)
+
+        if self._key not in self._parent:
+            self._parent[self._key] = type(sealed=self._sealed, frozen=self._frozen)
+
+        if not isinstance(self._parent[self._key], type):
+            raise TypeError(
+                f"undefined node '{self._key}' already cast as a '{'dict' if type is list else 'list'}' node"
+            )
+
+        return self._parent[self._key]
+
+    def __enter__(self):
+        """
+        Return self (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return self
+        if isinstance(self._parent[self._key], undefined):
+            return self
+        return self._parent[self._key]
+
+    def __exit__(self, *args, **kwargs):
+        """
+        Context manager
+        """
+        pass
+
+    def __len__(self):
+        """
+        Return length of node (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return 0
+        if isinstance(self._parent[self._key], undefined):
+            return 0
+        return len(self._parent[self._key])
+
+    def __repr__(self):
+        """
+        Return representation (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return f"<undefined '{self._key}'>"
+        if isinstance(self._parent[self._key], undefined):
+            return f"<undefined '{self._key}'>"
+        return repr(self._parent[self._key])
+
     def __bool__(self):
         """
-        Return False
+        Return the truthy value of the node (read-only)
         """
-        return False
+        if isinstance(self._parent, undefined):
+            return False
+        if isinstance(self._parent[self._key], undefined):
+            return False
+        return bool(self._parent[self._key])
 
     def __getitem__(self, key):
         """
-        Return a new undefined node
+        Return a new undefined node (read-only)
         """
-        return undefined(parent=self, key=key)
+        if isinstance(self._parent, undefined):
+            return undefined(parent=self, key=key)
+        if isinstance(self._parent[self._key], undefined):
+            return undefined(parent=self, key=key)
+        return self._parent[self._key][key]
 
     def __getattr__(self, key):
         """
-        Return a new undefined node
+        Return a new undefined node (read-only)
         """
         return self[key]
 
     def __setitem__(self, key, value):
         """
-        Set a value at a key, casting the
-        undefined value to a dict value
+        Cast as dict and set a value at a key
 
         Returns
         -------
         None
         """
-        if self._key in self._parent:
-            self._parent[self._key][key] = value
-            return
-
-        self._parent[self._key] = dict({key: value})
+        self._cast(dict)[key] = value
 
     def __setattr__(self, key, value):
         """
@@ -789,77 +882,225 @@ class undefined:
 
     def __contains__(self, value):
         """
-        Return False
+        Return False (read-only)
         """
-        return False
+        if isinstance(self._parent, undefined):
+            return False
+        if isinstance(self._parent[self._key], undefined):
+            return False
+        return value in self._parent[self._key]
 
     def __iter__(self):
         """
-        Iterate over empty list
+        Iterate over as a list (read-only)
         """
-        return iter([])
+        if isinstance(self._parent, undefined):
+            return iter([])
+        if isinstance(self._parent[self._key], undefined):
+            return iter([])
+        return iter(self._parent[self._key])
 
     def append(self, *args, **kwargs):
         """
-        Cast undefined node to list and append value
+        Cast as list and append value
         """
-        if (
-            len(args) > 1
-            or (len(args) != 0 and len(kwargs) != 0)
-            or (len(args) == len(kwargs) == 0)
-        ):
-            raise ValueError(
-                "append must take either one positional argument or one-to-many named arguments"
-            )
-        value = args[0] if len(args) > 0 else kwargs
-        self._parent[self._key] = list([value])
-        return self._parent[self._key][-1]
+        return self._cast(list).append(*args, **kwargs)
 
     def extend(self, other):
         """
-        Cast undefined node to list and extend with other
+        Cast as list and extend with other
         """
-        self._parent[self._key] = list(other)
+        return self._cast(list).extend(other)
+
+    def insert(self, index, value):
+        """
+        Cast as list and insert value at index
+
+        Parameters
+        ----------
+        index : int
+            the index
+        value : any
+            the value
+        """
+        return self._cast(list).insert(index, value)
+
+    def remove(self, x):
+        """
+        Cast as list and remove the first item from the list whose value is equal to x.
+
+        Parameters
+        ----------
+        x : any
+            the value to remove
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        ValueError
+            if there is no such item
+        """
+        return self._cast(list).remove(x)
+
+    def sort(self, *, key=None, reverse=False):
+        """
+        Cast as list and sort the items in place
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is frozen
+        """
+        return self._cast(list).sort(key=key, reverse=reverse)
+
+    def reverse(self):
+        """
+        Cast as list and reverse the elements in place.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            if the list is sealed or frozen
+        """
+        return self._cast(list).reverse()
+
+    def count(self, value, /):
+        """
+        Return number of occurrences of value (read-only).
+        """
+        if isinstance(self._parent, undefined):
+            return 0
+        if isinstance(self._parent[self._key], undefined):
+            return 0
+        return self._parent[self._key].count(value)
+
+    def index(self, value, start=0, stop=9223372036854775807, /):
+        """
+        Return first index of value (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return ValueError(f"{value} is not in the undefined node")
+        if isinstance(self._parent[self._key], undefined):
+            return ValueError(f"{value} is not in the undefined node")
+        return self._parent[self._key].index(value, start, stop)
+
+    def keys(self):
+        """
+        Return keys of empty the dict (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return dict().keys()
+        if isinstance(self._parent[self._key], undefined):
+            return dict().keys()
+        return self._parent[self._key].keys()
+
+    def values(self):
+        """
+        Return values of empty the dict (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return dict().values()
+        if isinstance(self._parent[self._key], undefined):
+            return dict().values()
+        return self._parent[self._key].values()
+
+    def items(self):
+        """
+        Return items of empty the dict (read-only)
+        """
+        if isinstance(self._parent, undefined):
+            return dict().items()
+        if isinstance(self._parent[self._key], undefined):
+            return dict().items()
+        return self._parent[self._key].items()
 
     def get(self, key, default=None):
         """
-        Return default value
+        Return default value (read-only)
+
+        Parameters
+        ----------
+        key : hashable
+            the key to look-up
+        default : any
+            the default value if the key does not exist
         """
-        return default
+        if isinstance(self._parent, undefined):
+            return default
+        if isinstance(self._parent[self._key], undefined):
+            return default
+        return self._parent.get(key, default=default)
 
     def setdefault(self, key, default):
         """
-        Cast node to dict and insert default value at key
+        Cast as dict and insert default value at key
+
+        Parameters
+        ----------
+        key : hashable
+            the key to look-up
+        default : any
+            the default value if the key does not exist
         """
-        self._parent[self._key] = dict({key: default})
+        return self._cast(dict).setdefault(key, default=default)
 
     def update(self, other):
         """
-        Cast node to dict and insert items from other
-        """
-        self._parent[self._key] = dict(other)
-        return self._parent
+        Cast as dict and insert items from other
 
-    def __enter__(self):
+        Parameters
+        ----------
+        other : mapping
+            other dictionary
         """
-        Return self
-        """
-        return self
+        return self._cast(dict).update(other)
 
-    def __exit__(self, *args, **kwargs):
+    def popitem(self):
         """
-        Context manager
-        """
-        pass
+        Cast as dict and remove and return the last item (key, value pair) inserted into the dictionary
 
-    def __len__(self):
-        """
-        Return 0
-        """
-        return 0
+        Raises
+        ------
+        KeyError
+            if the dict is empty
 
-    def __repr__(self):
+        AttributeError
+            if the dict is frozen
+            if the dict is sealed
         """
-        Return representation
+        return self._cast(dict).popitem()
+
+    def pop(self, *args):
         """
-        return f"<Node '{self._key}'>"
+        If the node has been cast as a dict:
+            remove and return the item under the given key (first argument), otherwse the default
+
+        If the node has been cast as a list:
+            remove and return the item at the given position in the list
+
+        Otherwise, raise a KeyError
+        """
+        if isinstance(self._parent, undefined):
+            if len(args) == 2:
+                return args[1]
+            raise KeyError("Unable to pop from undefined node")
+
+        if isinstance(self._parent[self._key], undefined):
+            if len(args) == 2:
+                return args[1]
+            raise KeyError("Unable to pop from undefined node")
+
+        return self._parent[self._key].pop(args)
