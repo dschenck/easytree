@@ -2,6 +2,10 @@ Changelog
 =====================================
 The source code is hosted and maintained on `github <https://github.com/dschenck/easytree/>`_.
 
+Version 0.2.3 (2023-09-14)
+--------------------------
+    - maintain backward compatability with Python 3.6 and 3.7
+    
 Version 0.2.2 (2023-09-14)
 --------------------------
     - add missing methods to :code:`undefined` class
