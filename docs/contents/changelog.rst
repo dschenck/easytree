@@ -2,6 +2,11 @@ Changelog
 =====================================
 The source code is hosted and maintained on `github <https://github.com/dschenck/easytree/>`_.
 
+Version 0.2.2 (2023-09-14)
+--------------------------
+    - add missing methods to :code:`undefined` class
+    - correct `bug #7 <https://github.com/dschenck/easytree/issues/7>`_
+
 Version 0.2.1 (2023-09-09)
 --------------------------
     - optimize recursive casting
