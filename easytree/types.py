@@ -14,9 +14,10 @@ def cast(value, *, sealed=False, frozen=False):
     ----------
     value : any
         the value to cast to an easytree type
-    kwargs : dict
-        additional parameters to pass to the easytree.dict or easytree.list
-        initialisation (sealed, frozen)
+    sealed : bool
+        True if cast object is sealed, False otherwise
+    frozen : bool
+        True if cast object is frozen, False otherwise
 
     Returns
     -------
