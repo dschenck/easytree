@@ -1,4 +1,4 @@
-.. image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue
+.. image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue
    :target: https://pypi.org/project/easytree
 
 .. image:: https://github.com/dschenck/easytree/workflows/easytree/badge.svg

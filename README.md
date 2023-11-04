@@ -1,5 +1,5 @@
 # easytree
-[![pythons](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)](https://pypi.org/project/easytree)
+[![pythons](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://pypi.org/project/easytree)
 [![build](https://github.com/dschenck/easytree/workflows/easytree/badge.svg)](https://github.com/dschenck/easytree/actions)
 [![PyPI version](https://badge.fury.io/py/easytree.svg)](https://badge.fury.io/py/easytree) 
 [![Documentation Status](https://readthedocs.org/projects/easytree/badge/?version=latest)](https://easytree.readthedocs.io/en/latest/?badge=latest) 
