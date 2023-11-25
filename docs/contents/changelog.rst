@@ -2,6 +2,10 @@ Changelog
 =====================================
 The source code is hosted and maintained on `github <https://github.com/dschenck/easytree/>`_.
 
+Version 0.2.4 (2023-11-25)
+--------------------------
+    - fixed a bug where :code:`dict.setdefault` would never set the default value
+
 Version 0.2.3 (2023-09-14)
 --------------------------
     - maintain backward compatability with Python 3.6 and 3.7
