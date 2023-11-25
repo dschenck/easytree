@@ -808,3 +808,17 @@ def test_dict_setdefault():
 
     x.a.b.setdefault("c", "this should not be overriden")
     assert x == {"a": {"b": {"c": "this should be set"}}}
+
+
+def test_dict_setdefault_on_frozen():
+    x = easytree.dict(frozen=True)
+
+    with pytest.raises(Exception):
+        x.a.b.setdefault("c", "this should raise an error")
+
+
+def test_dict_setdefault_on_sealed():
+    x = easytree.dict(sealed=True)
+
+    with pytest.raises(Exception):
+        x.a.b.setdefault("c", "this should raise an error")
