@@ -799,3 +799,12 @@ def test_undefined_race_conditions():
     b = x.y
 
     assert x == {}
+
+
+def test_dict_setdefault():
+    x = easytree.dict()
+    x.a.b.setdefault("c", "this should be set")
+    assert x == {"a": {"b": {"c": "this should be set"}}}
+
+    x.a.b.setdefault("c", "this should not be overriden")
+    assert x == {"a": {"b": {"c": "this should be set"}}}
