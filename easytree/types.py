@@ -570,16 +570,15 @@ class dict(builtins.dict):
         AttributeError
             if the dict is frozen, or if the dict is sealed and the key does not exist in the dict
         """
-        try:
-            return self[key]
-        except KeyError:
+        if key not in self:
             if self._frozen:
                 raise AttributeError(f"Cannot set {key} on frozen easytree.dict")
             if self._sealed and key not in self:
                 raise AttributeError(f"Cannot set {key} on sealed easytree.dict")
-        return super().setdefault(
-            key, cast(default, sealed=self._sealed, frozen=self._frozen)
-        )
+            return super().setdefault(
+                key, cast(default, sealed=self._sealed, frozen=self._frozen)
+            )
+        return self[key]
 
     def get(self, key, default=None):
         """
