@@ -816,9 +816,78 @@ def test_dict_setdefault_on_frozen():
     with pytest.raises(Exception):
         x.a.b.setdefault("c", "this should raise an error")
 
+    with pytest.raises(Exception):
+        x.setdefault("a", "should not be set")
+
 
 def test_dict_setdefault_on_sealed():
     x = easytree.dict(sealed=True)
 
     with pytest.raises(Exception):
         x.a.b.setdefault("c", "this should raise an error")
+
+    with pytest.raises(Exception):
+        x.setdefault("a", "should not be set")
+
+
+def test_frozen_list_append():
+    l = easytree.list([1, 2, 3], frozen=True)
+
+    with pytest.raises(Exception):
+        l.append(1)
+
+    with pytest.raises(Exception):
+        l[0] = "changed"
+
+    l = easytree.list([1, 2, 3], sealed=True)
+
+    with pytest.raises(Exception):
+        l.append(1)
+
+    with pytest.raises(Exception):
+        l[0] = "changed"
+
+
+def test_list_context_manager():
+    l = easytree.list()
+
+    with l as ref:
+        assert l == ref
+
+
+def test_sealed_list_extend():
+    this = easytree.list([1, 2, 3], sealed=True)
+
+    with pytest.raises(Exception):
+        this.extend([4, 5, 6])
+
+
+def test_frozen_list_cannot_reverse():
+    this = easytree.list([1, 2, 3], sealed=True)
+    this.reverse()
+
+    assert this == [3, 2, 1]
+
+    this = easytree.list([1, 2, 3], frozen=True)
+
+    with pytest.raises(Exception):
+        this.reverse()
+
+
+def test_dict_update_frozen():
+    d = easytree.dict(frozen=True)
+
+    with pytest.raises(Exception):
+        d.update({})
+
+
+def test_dict_update_sealed():
+    d = easytree.dict(sealed=True)
+    d.update({})
+
+    d = easytree.dict(name="David", sealed=True)
+    d.update({"name": "Celine"})
+    assert d["name"] == "Celine"
+
+    with pytest.raises(Exception):
+        d.update({"age": 22})
