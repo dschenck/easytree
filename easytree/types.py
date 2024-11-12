@@ -648,12 +648,10 @@ class dict(builtins.dict):
             if the dict is frozen, or if the dict is sealed and a key of other does not exist in the dict
         """
         if self._frozen:
-            raise AttributeError(f"Cannot update frozen easytree.dict")
+            raise AttributeError("Cannot update frozen easytree.dict")
         if self._sealed:
             if any(key not in self for key in other):
-                raise AttributeError(
-                    f"Cannot update sealed easytree.dict with new keys"
-                )
+                raise AttributeError("Cannot update sealed easytree.dict with new keys")
         return super().update(
             {
                 k: cast(v, sealed=self._sealed, frozen=self._frozen)
@@ -676,9 +674,9 @@ class dict(builtins.dict):
             if the dict is sealed
         """
         if self._frozen:
-            raise AttributeError(f"Cannot popitem from frozen easytree.dict")
+            raise AttributeError("Cannot popitem from frozen easytree.dict")
         if self._sealed:
-            raise AttributeError(f"Cannot popitem from sealed easytree.dict")
+            raise AttributeError("Cannot popitem from sealed easytree.dict")
         return super().popitem()
 
     def pop(self, *args):
@@ -702,9 +700,9 @@ class dict(builtins.dict):
             if the dict is frozen, or if the dict is sealed
         """
         if self._frozen:
-            raise AttributeError(f"Cannot pop from frozen easytree.dict")
+            raise AttributeError("Cannot pop from frozen easytree.dict")
         if self._sealed:
-            raise AttributeError(f"Cannot pop from sealed easytree.dict")
+            raise AttributeError("Cannot pop from sealed easytree.dict")
         return super().pop(*args)
 
     def __enter__(self):

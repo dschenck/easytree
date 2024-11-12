@@ -14,4 +14,3 @@ API
    API/easytree.seal
    API/easytree.sealed
    API/easytree.unseal
-   API/deprecated

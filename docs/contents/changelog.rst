@@ -2,6 +2,10 @@ Changelog
 =====================================
 The source code is hosted and maintained on `github <https://github.com/dschenck/easytree/>`_.
 
+Version 1.0.0 (2024-11-12)
+--------------------------
+    - release 1.0.0
+
 Version 0.2.4 (2023-11-25)
 --------------------------
     - fixed a bug where :code:`dict.setdefault` would never set the default value
