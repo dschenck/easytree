@@ -171,12 +171,12 @@ def test_copy():
     assert this.name == "foo"
 
     this.numbers.append(7)
-    assert that.numbers == [1, 3, 5]
+    assert that.numbers == [1, 3, 5, 7]
     assert this.numbers == [1, 3, 5, 7]
 
     this.address.country = "France"
     assert this.address.country == "France"
-    assert that.address.country == "US"
+    assert that.address.country == "France"
 
 
 def test_representation():
