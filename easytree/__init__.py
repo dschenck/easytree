@@ -13,14 +13,9 @@ from easytree.types import dict, list, undefined
 
 __all__ = [
     "dict",
-    "dump",
-    "dumps",
     "freeze",
     "frozen",
     "list",
-    "load",
-    "loads",
-    "new",
     "seal",
     "sealed",
     "undefined",
