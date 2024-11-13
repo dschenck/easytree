@@ -990,9 +990,9 @@ class undefined:
         Return first index of value (read-only)
         """
         if isinstance(self._parent, undefined):
-            return ValueError(f"{value} is not in the undefined node")
+            raise ValueError(f"{value} is not in the undefined node")
         if isinstance(self._parent[self._key], undefined):
-            return ValueError(f"{value} is not in the undefined node")
+            raise ValueError(f"{value} is not in the undefined node")
         return self._parent[self._key].index(value, start, stop)
 
     def keys(self):
