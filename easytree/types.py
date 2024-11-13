@@ -1040,7 +1040,7 @@ class undefined:
             return default
         if isinstance(self._parent[self._key], undefined):
             return default
-        return self._parent.get(key, default=default)
+        return self._parent[self._key].get(key, default=default)
 
     def setdefault(self, key, default):
         """
