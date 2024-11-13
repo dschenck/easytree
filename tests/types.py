@@ -891,3 +891,66 @@ def test_dict_update_sealed():
 
     with pytest.raises(Exception):
         d.update({"age": 22})
+
+
+def test_getting_from_undefined_nodes():
+    x = easytree.dict()
+    ref = x.y.z
+
+    assert ref.get("key") is None
+
+    x.y.z = {"other": "xxx"}
+    assert ref.get("key") is None
+
+
+def test_getting_from_undefined_node_with_defined_parent():
+    x = easytree.dict()
+    assert x.y.get("z") is None
+
+    # capture a ref
+    y = x.y
+    assert isinstance(y, easytree.undefined)
+
+    # set a value to y (such that y ref is stale)
+    x.y = {"name": "1"}
+    assert isinstance(y, easytree.undefined)
+
+    assert y.get("name") == "1"
+    assert y.get("z") is None
+
+
+def test_undefined_node_is_falsy():
+    x = easytree.dict()
+    assert bool(x.y.z) is False
+
+
+def test_undefined_node_length_is_zero():
+    x = easytree.dict()
+    assert len(x.z) == 0
+    assert len(x.y.z) == 0
+
+
+def test_repr_undefined_node():
+    x = easytree.dict()
+    repr(x.y) == "<undefined 'y' />"
+    repr(x.y.z) == "<undefined 'z' />"
+
+
+def test_iterate_undefined_node():
+    x = easytree.dict()
+    for _ in x.y:
+        pass
+
+    for _ in x.y.z:
+        pass
+
+
+def test_undefined_node_does_not_contain():
+    x = easytree.dict()
+    assert "a" not in x.y.z
+
+
+def test_undefined_node_count():
+    x = easytree.dict()
+    assert x.y.count(1) == 0
+    assert x.y.z.count(1) == 0
