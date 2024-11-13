@@ -4,7 +4,15 @@ The source code is hosted and maintained on `github <https://github.com/dschenck
 
 Version 1.0.0 (2024-11-12)
 --------------------------
-    - release 1.0.0
+    - removed deprecated :code:`easytree.Tree` class 
+    - removed deprecated :code:`easytree.Node` class alias 
+    - removed deprecated :code:`easytree.new` function
+    - removed deprecated :code:`easytree.load` function
+    - removed deprecated :code:`easytree.loads` function
+    - removed deprecated :code:`easytree.dump` function
+    - removed deprecated :code:`easytree.dumps` function
+    - removed deprecated :code:`easytree.serialize` function
+    - fixed bug on :code:`easytree.undefined.get`
 
 Version 0.2.4 (2023-11-25)
 --------------------------

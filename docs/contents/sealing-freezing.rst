@@ -1,9 +1,5 @@
 Sealing and freezing 
 =====================================
-.. note::
-
-    New with version 0.1.8
-
 While :code:`easytree` makes it easy to create deeply-nested trees, it can also make it error prone when reading back properties. 
 Sealing and freezing allow to protect trees by restricting some or all mutations to a tree. 
 
@@ -43,3 +39,8 @@ Freezing a tree prevents the user from accidentally creating new nodes or changi
     AttributeError: cannot set attribute 'city' on frozen node
 
 You can :code:`freeze` and :code:`unfreeze` a tree with the dedicated root-level functions. These functions return a *new* tree (i.e. these functions are not in-place).
+:: 
+
+    >>> person = easytree.freeze({"name":"Bob", "address":{"city":"New York"}})
+    >>> person.address.city = "Los Angeles"
+    AttributeError: cannot set attribute 'city' on frozen node
