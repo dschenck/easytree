@@ -1,26 +1,24 @@
-# metadata
-__version__ = "0.2.4"
-
-from easytree.tree import (
-    Node,
-    serialize,
-)
+__version__ = "1.0.0"
 
 from easytree.utils import (
-    new,
-    load,
-    loads,
-    dump,
-    dumps,
-    frozen,
     freeze,
     unfreeze,
-    sealed,
+    frozen,
     seal,
     unseal,
+    sealed,
 )
 
 from easytree.types import dict, list, undefined
 
-# export Node as Tree
-Tree = Node
+__all__ = [
+    "dict",
+    "freeze",
+    "frozen",
+    "list",
+    "seal",
+    "sealed",
+    "undefined",
+    "unfreeze",
+    "unseal",
+]

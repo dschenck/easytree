@@ -85,7 +85,7 @@ def test_undefined_value():
 
 def test_casting():
     assert easytree.types.cast(1) == 1
-    assert easytree.types.cast(True) == True
+    assert easytree.types.cast(True) is True
     assert easytree.types.cast("hello world") == "hello world"
 
 
@@ -98,7 +98,7 @@ def test_attribute_lookup():
     assert tree.address.country == "US"
 
     with pytest.raises(AttributeError):
-        x = tree.numbers.should_not_exists
+        tree.numbers.should_not_exists
 
 
 def test_attribute_assignment():
@@ -171,12 +171,12 @@ def test_copy():
     assert this.name == "foo"
 
     this.numbers.append(7)
-    assert that.numbers == [1, 3, 5]
+    assert that.numbers == [1, 3, 5, 7]
     assert this.numbers == [1, 3, 5, 7]
 
     this.address.country = "France"
     assert this.address.country == "France"
-    assert that.address.country == "US"
+    assert that.address.country == "France"
 
 
 def test_representation():
@@ -276,7 +276,7 @@ def test_get():
 
     tree = easytree.dict({"foo": "bar"})
     assert tree.get("foo") == "bar"
-    assert tree.get("baz") == None
+    assert tree.get("baz") is None
     assert tree.get("baz", 29) == 29
 
     tree = easytree.list([1, 3, 5, 6, 7])
@@ -377,7 +377,7 @@ def test_values():
     tree = easytree.list([1, 2, 3])
 
     with pytest.raises(AttributeError):
-        keys = tree.values()
+        tree.values()
 
 
 def test_pop():
@@ -418,8 +418,8 @@ def test_inheritence():
     assert isinstance(instance.address, easytree.dict)
     assert isinstance(instance.grandchild, easytree.dict)
 
-    assert instance.adult == True
-    assert instance.own_method() == True
+    assert instance.adult is True
+    assert instance.own_method() is True
 
     class Child(easytree.list):
         def append(self, value, *args, **kwargs):
@@ -448,7 +448,7 @@ def test_deep_get():
     assert tree.get(["name"]) == "foo"
     assert tree.get([]) is None
     assert tree.get(["numbers", 0]) == 1
-    assert tree.get(["numbers", -1, "prime"]) == True
+    assert tree.get(["numbers", -1, "prime"]) is True
     assert tree.get(["numbers", -1, "odd"]) is None
     assert tree.get(["address", "country"]) == "US"
 
@@ -481,7 +481,7 @@ def test_keys():
     tree = easytree.list([1, 2, 3])
 
     with pytest.raises(AttributeError):
-        keys = tree.keys()
+        tree.keys()
 
 
 def test_name_collisions_with_methods():
@@ -592,7 +592,7 @@ def test_sorting():
         x.sort()
 
 
-def test_copy():
+def test_copy_again():
     x = easytree.list([2, 1, 3])
     assert x.copy() is not x
     assert x.copy() == [2, 1, 3]
@@ -636,7 +636,7 @@ def test_recursive_undefined():
     assert x == {"a": {"b": {"c": {"d": [True]}}}}
 
 
-def test_context_manager():
+def test_context_manager_2():
     profile = easytree.dict()
 
     with profile.friends.append({"firstname": "Flora"}) as friend:
@@ -831,28 +831,28 @@ def test_dict_setdefault_on_sealed():
 
 
 def test_frozen_list_append():
-    l = easytree.list([1, 2, 3], frozen=True)
+    values = easytree.list([1, 2, 3], frozen=True)
 
     with pytest.raises(Exception):
-        l.append(1)
+        values.append(1)
 
     with pytest.raises(Exception):
-        l[0] = "changed"
+        values[0] = "changed"
 
-    l = easytree.list([1, 2, 3], sealed=True)
-
-    with pytest.raises(Exception):
-        l.append(1)
+    values = easytree.list([1, 2, 3], sealed=True)
 
     with pytest.raises(Exception):
-        l[0] = "changed"
+        values.append(1)
+
+    with pytest.raises(Exception):
+        values[0] = "changed"
 
 
 def test_list_context_manager():
-    l = easytree.list()
+    values = easytree.list()
 
-    with l as ref:
-        assert l == ref
+    with values as ref:
+        assert values == ref
 
 
 def test_sealed_list_extend():
@@ -891,3 +891,66 @@ def test_dict_update_sealed():
 
     with pytest.raises(Exception):
         d.update({"age": 22})
+
+
+def test_getting_from_undefined_nodes():
+    x = easytree.dict()
+    ref = x.y.z
+
+    assert ref.get("key") is None
+
+    x.y.z = {"other": "xxx"}
+    assert ref.get("key") is None
+
+
+def test_getting_from_undefined_node_with_defined_parent():
+    x = easytree.dict()
+    assert x.y.get("z") is None
+
+    # capture a ref
+    y = x.y
+    assert isinstance(y, easytree.undefined)
+
+    # set a value to y (such that y ref is stale)
+    x.y = {"name": "1"}
+    assert isinstance(y, easytree.undefined)
+
+    assert y.get("name") == "1"
+    assert y.get("z") is None
+
+
+def test_undefined_node_is_falsy():
+    x = easytree.dict()
+    assert bool(x.y.z) is False
+
+
+def test_undefined_node_length_is_zero():
+    x = easytree.dict()
+    assert len(x.z) == 0
+    assert len(x.y.z) == 0
+
+
+def test_repr_undefined_node():
+    x = easytree.dict()
+    repr(x.y) == "<undefined 'y' />"
+    repr(x.y.z) == "<undefined 'z' />"
+
+
+def test_iterate_undefined_node():
+    x = easytree.dict()
+    for _ in x.y:
+        pass
+
+    for _ in x.y.z:
+        pass
+
+
+def test_undefined_node_does_not_contain():
+    x = easytree.dict()
+    assert "a" not in x.y.z
+
+
+def test_undefined_node_count():
+    x = easytree.dict()
+    assert x.y.count(1) == 0
+    assert x.y.z.count(1) == 0

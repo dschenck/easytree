@@ -1,6 +1,6 @@
 Subclassing
 -----------
-Starting with version 0.2.1., subclassing :code:`easytree.dict` and :code:`easytree.list` classes is possible. 
+Subclassing an :code:`easytree.dict` or an :code:`easytree.list` class is possible.
 
 .. attention:: 
     The only requirement is to keep the signature of the :code:`__init__` method unchanged in your subclass. You may amend the actual method, but the signature should remain the same.

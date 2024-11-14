@@ -41,15 +41,15 @@ Inheritence
 Setting or assigning values
 ---------------------------
 
-Instead of raising an :code:`AttributeError`, reading a new attribute on an :code:`easytree.dict` creates and returns a new child :code:`Node`. 
+Instead of raising an :code:`AttributeError`, reading a new attribute on an :code:`easytree.dict` returns a new :code:`undefined` node. 
 
 .. code-block:: 
 
     >>> tree = easytree.dict()
-    >>> tree.address # new undefined node
-    <Node 'address'>
+    >>> tree.address # undefined node
+    <undefined 'address'>
 
-Reading or setting an attribute on such child node dynamically *casts* it as an :code:`easytree.dict`. 
+Reading or setting an attribute on such child node dynamically *casts* it as an :code:`easytree.dict` and assigns it to its parent. 
 
 .. code-block:: 
 
@@ -63,11 +63,11 @@ Alternatively, using a list method such as :code:`append` dynamically *casts* th
 .. code-block:: 
 
     >>> tree = easytree.dict()
-    >>> tree.address 
-    <Node 'address'>
+    >>> tree.address # undefined node
+    <undefined 'address'>
 
     >>> tree.address.country.append("United States")
-    >>> tree.address
+    >>> tree.address # now a dict
     {"country": ["United States"]}
 
 
@@ -85,7 +85,7 @@ Of course, you can use the dot or bracket notation interchangeably, both to read
     "bar"
 
 .. note:: 
-    The bracket notation remains necessary if the key is not a valid attribute identifier name.
+    The bracket notation remains necessary if the key is not a valid attribute identifier name, or if the key is identical to a :code:`dict` method name.
     
     .. code-block:: 
 
@@ -119,7 +119,7 @@ Dictionaries assigned to an :code:`easytree.dict` or added to an :code:`easytree
     ]
     
 
-Lists assigned to an :code:`easytree.dict` are *cast* as :code:`easytree.list` instances.
+Lists assigned to an :code:`easytree.dict` are also *cast* as :code:`easytree.list` instances.
 
 .. code-block:: 
 
@@ -127,7 +127,7 @@ Lists assigned to an :code:`easytree.dict` are *cast* as :code:`easytree.list` i
     >>> isinstance(tree.numbers, easytree.list)
     True
 
-Tuple values assigned to an :code:`easytree.dict` are also *cast*. 
+Tuple values assigned to an :code:`easytree.dict` are also *cast* as tuples of :code:`easytree` objects. 
 
 .. code-block:: 
 
@@ -206,15 +206,15 @@ Because the :code:`append` method returns a reference to the last appended item,
 
 The undefined node
 ------------------
-An :code:`undefined` node object created when an undefined attribute is read from an :code:`easytree.dict` node. 
+An :code:`undefined` node object is returned when an undefined attribute is read from an :code:`easytree.dict` node. This falsy object contains a reference to its parent object, as well as the key from which this object was returned. 
 
 .. code-block:: 
 
     >>> person = easytree.dict()
     >>> person.address 
-    <Node 'address'> 
+    <undefined 'address'> 
 
-Assigning or reading an attribute from an :code:`undefined` node *casts* it as a dictionary. 
+Assigning or reading an attribute from an :code:`undefined` node *casts* it as a dictionary. This is possible since the :code:`undefined` object keeps a reference to its parent and the key from which it was returned. 
 
 .. code-block:: 
 
@@ -249,7 +249,7 @@ By definition, and unless an easytree is sealed or frozen, reading an undefined 
 
     >>> profile = easytree.dict({"firstname":"David"})
     >>> profile.firstnam #typo
-    <Node 'firstnam'> 
+    <undefined 'firstnam'> 
 
 Using a numeric key on an undefined node will cast the node as a dictionary, not a list. 
 
