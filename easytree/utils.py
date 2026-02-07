@@ -18,7 +18,7 @@ def frozen(tree):
     """
     if not isinstance(tree, (dict, list)):
         raise TypeError(
-            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree)}"
+            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree).__name__}"
         )
     return tree._frozen
 
@@ -38,7 +38,7 @@ def freeze(tree):
     """
     if not isinstance(tree, (dict, list, builtins.dict, builtins.list)):
         raise TypeError(
-            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree)}"
+            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree).__name__}"
         )
     return cast(tree, frozen=True)
 
@@ -58,7 +58,7 @@ def unfreeze(tree):
     """
     if not isinstance(tree, (dict, list, builtins.dict, builtins.list)):
         raise TypeError(
-            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree)}"
+            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree).__name__}"
         )
     return cast(tree, frozen=False)
 
@@ -78,7 +78,7 @@ def sealed(tree):
     """
     if not isinstance(tree, (dict, list)):
         raise TypeError(
-            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree)}"
+            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree).__name__}"
         )
     return tree._sealed
 
@@ -98,7 +98,7 @@ def seal(tree):
     """
     if not isinstance(tree, (dict, list, builtins.dict, builtins.list)):
         raise TypeError(
-            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree)}"
+            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree).__name__}"
         )
     return cast(tree, sealed=True)
 
@@ -118,6 +118,6 @@ def unseal(tree):
     """
     if not isinstance(tree, (dict, list, builtins.dict, builtins.list)):
         raise TypeError(
-            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree)}"
+            f"Expected tree to be instance of easytree.dict or easytree.list, received {type(tree).__name__}"
         )
     return cast(tree, sealed=False)
