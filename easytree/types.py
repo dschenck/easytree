@@ -1101,4 +1101,4 @@ class undefined:
                 return args[1]
             raise KeyError("Unable to pop from undefined node")
 
-        return self._parent[self._key].pop(args)
+        return self._parent[self._key].pop(*args)
