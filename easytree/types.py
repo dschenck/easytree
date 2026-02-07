@@ -2,7 +2,7 @@ import builtins
 import easytree
 
 
-def cast(value, *, sealed=False, frozen=False):
+def cast(value, *, sealed: bool = False, frozen: bool = False):
     """
     Convert a value to an easytree object, when possible, based on its type.
 
@@ -61,7 +61,7 @@ class list(builtins.list):
     are recursively sealed and frozen as per its containing parent.
     """
 
-    def __init__(self, args=None, *, sealed=False, frozen=False):
+    def __init__(self, args=None, *, sealed: bool = False, frozen: bool = False):
         super().__init__(
             [cast(arg, sealed=sealed, frozen=frozen) for arg in (args or [])]
         )
@@ -271,7 +271,7 @@ class list(builtins.list):
             [cast(v, sealed=self._sealed, frozen=self._frozen) for v in other]
         )
 
-    def insert(self, index, value):
+    def insert(self, index: int, value):
         """
         Insert an item into the list at a given position.
 
@@ -368,7 +368,7 @@ class list(builtins.list):
             raise TypeError("cannot clear sealed easytree.list")
         return super().clear()
 
-    def sort(self, *, key=None, reverse=False):
+    def sort(self, *, key=None, reverse: bool = False):
         """
         Sort the items of the list in place
 
@@ -419,15 +419,15 @@ class dict(builtins.dict):
     recursive dot-styled defaultdict
     """
 
-    def __init__(self, *args, sealed=False, frozen=False, **kwargs):
+    def __init__(self, *args, sealed: bool = False, frozen: bool = False, **kwargs):
         super().__init__(
             {
                 k: cast(v, sealed=sealed, frozen=frozen)
                 for k, v in builtins.dict(*args, **kwargs).items()
             }
         )
-        self._sealed = sealed
-        self._frozen = frozen
+        self._sealed: bool = sealed
+        self._frozen: bool = frozen
 
     def __getitem__(self, key):
         """
