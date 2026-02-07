@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "easytree"
+version = "1.0.1"
+author = [{name = "David Schenck", email = "david.schenck@outlook.com"}]
+description = "A recursive dot-styled defaultdict to read and write deeply-nested trees"
+readme = "README.md"
+readme-content-type = "text/markdown"
+homepage = "https://easytree.readthedocs.io/en/latest"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
