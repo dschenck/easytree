@@ -954,3 +954,17 @@ def test_undefined_node_count():
     x = easytree.dict()
     assert x.y.count(1) == 0
     assert x.y.z.count(1) == 0
+
+
+def test_popping_from_undefined_node_subsequently_cast():
+    root = easytree.dict()
+
+    # get a ref to an undefined node
+    x = root.a
+
+    # cast the node as a dict by setting a value to it
+    root.a = {"key": "value"}
+
+    # pop a value from the node
+    value = x.pop("key", None)
+    assert value == "value"

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="easytree",
-    version="1.0.0",
+    version="1.0.1",
     author="David Schenck",
     author_email="david.schenck@outlook.com",
     description="A recursive dot-styled defaultdict to read and write deeply-nested trees",

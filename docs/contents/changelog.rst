@@ -2,6 +2,10 @@ Changelog
 =====================================
 The source code is hosted and maintained on `github <https://github.com/dschenck/easytree/>`_.
 
+Version 1.0.1 (2026-02-07)
+--------------------------
+    - fixed a bug where :code:`dict.pop` would not work on undefined nodes
+
 Version 1.0.0 (2024-11-12)
 --------------------------
     - removed deprecated :code:`easytree.Tree` class 

@@ -2,7 +2,7 @@ import builtins
 import easytree
 
 
-def cast(value, *, sealed=False, frozen=False):
+def cast(value, *, sealed: bool = False, frozen: bool = False):
     """
     Convert a value to an easytree object, when possible, based on its type.
 
@@ -61,7 +61,7 @@ class list(builtins.list):
     are recursively sealed and frozen as per its containing parent.
     """
 
-    def __init__(self, args=None, *, sealed=False, frozen=False):
+    def __init__(self, args=None, *, sealed: bool = False, frozen: bool = False):
         super().__init__(
             [cast(arg, sealed=sealed, frozen=frozen) for arg in (args or [])]
         )
@@ -271,7 +271,7 @@ class list(builtins.list):
             [cast(v, sealed=self._sealed, frozen=self._frozen) for v in other]
         )
 
-    def insert(self, index, value):
+    def insert(self, index: int, value):
         """
         Insert an item into the list at a given position.
 
@@ -368,7 +368,7 @@ class list(builtins.list):
             raise TypeError("cannot clear sealed easytree.list")
         return super().clear()
 
-    def sort(self, *, key=None, reverse=False):
+    def sort(self, *, key=None, reverse: bool = False):
         """
         Sort the items of the list in place
 
@@ -419,15 +419,15 @@ class dict(builtins.dict):
     recursive dot-styled defaultdict
     """
 
-    def __init__(self, *args, sealed=False, frozen=False, **kwargs):
+    def __init__(self, *args, sealed: bool = False, frozen: bool = False, **kwargs):
         super().__init__(
             {
                 k: cast(v, sealed=sealed, frozen=frozen)
                 for k, v in builtins.dict(*args, **kwargs).items()
             }
         )
-        self._sealed = sealed
-        self._frozen = frozen
+        self._sealed: bool = sealed
+        self._frozen: bool = frozen
 
     def __getitem__(self, key):
         """
@@ -444,9 +444,13 @@ class dict(builtins.dict):
             return super().__getitem__(key)
         except KeyError:
             if self._frozen:
-                raise KeyError(f"frozen easytree.dict has no value for {key}") from None
+                raise KeyError(
+                    f"frozen easytree.dict has no value for '{key}'"
+                ) from None
             if self._sealed:
-                raise KeyError(f"sealed easytree.dict has no value for {key}") from None
+                raise KeyError(
+                    f"sealed easytree.dict has no value for '{key}'"
+                ) from None
         return undefined(parent=self, key=key)
 
     def __setitem__(self, key, value):
@@ -463,9 +467,9 @@ class dict(builtins.dict):
             if the dict is frozen, or if the dict is sealed and the key does not exist in the dict
         """
         if self._frozen:
-            raise KeyError(f"cannot define value for {key} on frozen easytree.dict")
+            raise KeyError(f"cannot define value for '{key}' on frozen easytree.dict")
         if self._sealed and key not in self:
-            raise KeyError(f"sealed define value for {key} on sealed easytree.dict")
+            raise KeyError(f"sealed define value for '{key}' on sealed easytree.dict")
         super().__setitem__(key, value)
 
     def __getattr__(self, key):
@@ -493,11 +497,11 @@ class dict(builtins.dict):
                 return False  # if subclass overrides the init (see note)
             if self._frozen:
                 raise AttributeError(
-                    f"frozen easytree.dict has no attribute {key}"
+                    f"frozen easytree.dict has no attribute '{key}'"
                 ) from None
             if self._sealed:
                 raise AttributeError(
-                    f"sealed easytree.dict has no attribute {key}"
+                    f"sealed easytree.dict has no attribute '{key}'"
                 ) from None
         return undefined(parent=self, key=key)
 
@@ -514,10 +518,12 @@ class dict(builtins.dict):
         if key in ["_sealed", "_frozen"]:
             return super().__setattr__(key, value)
         if self._frozen:
-            raise AttributeError(f"cannot set attribute {key} on frozen easytree.dict")
+            raise AttributeError(
+                f"cannot set attribute '{key}' on frozen easytree.dict"
+            )
         if self._sealed and key not in self:
             raise AttributeError(
-                f"cannot define attribute {key} on sealed easytree.dict"
+                f"cannot define attribute '{key}' on sealed easytree.dict"
             )
         self[key] = cast(value, sealed=self._sealed, frozen=self._frozen)
 
@@ -572,9 +578,9 @@ class dict(builtins.dict):
         """
         if key not in self:
             if self._frozen:
-                raise AttributeError(f"Cannot set {key} on frozen easytree.dict")
+                raise AttributeError(f"Cannot set '{key}' on frozen easytree.dict")
             if self._sealed and key not in self:
-                raise AttributeError(f"Cannot set {key} on sealed easytree.dict")
+                raise AttributeError(f"Cannot set '{key}' on sealed easytree.dict")
             return super().setdefault(
                 key, cast(default, sealed=self._sealed, frozen=self._frozen)
             )
@@ -1101,4 +1107,4 @@ class undefined:
                 return args[1]
             raise KeyError("Unable to pop from undefined node")
 
-        return self._parent[self._key].pop(args)
+        return self._parent[self._key].pop(*args)
