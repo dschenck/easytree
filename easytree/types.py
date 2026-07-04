@@ -558,7 +558,7 @@ class dict(builtins.dict):
         """
         self.__dict__.update(state)
 
-    def setdefault(self, key, default):
+    def setdefault(self, key, default=None, *, ondefault=None):
         """
         Insert key with a value of default if key is not in the dictionary.
 
@@ -570,6 +570,8 @@ class dict(builtins.dict):
             the key
         default : any
             the default value to insert if the key does not exist
+        ondefault : callable, optional
+            a callable that takes the key and returns a default value; if provided, ondefault takes precedence over default
 
         Raises
         ------
@@ -582,11 +584,11 @@ class dict(builtins.dict):
             if self._sealed and key not in self:
                 raise AttributeError(f"Cannot set '{key}' on sealed easytree.dict")
             return super().setdefault(
-                key, cast(default, sealed=self._sealed, frozen=self._frozen)
+                key, cast(ondefault(key) if ondefault else default, sealed=self._sealed, frozen=self._frozen)
             )
         return self[key]
 
-    def get(self, key, default=None):
+    def get(self, key, default=None, *, ondefault=None):
         """
         Get item by key, if it is exists; otherwise, return default
 
@@ -596,6 +598,10 @@ class dict(builtins.dict):
         ----------
         key : hashable, list[hashable]
             the key (or path of keys)
+        default : any
+            the default value if the key does not exist
+        ondefault : callable, optional
+            a callable that takes the key and returns a default value; if provided, ondefault takes precedence over default
 
         Returns
         -------
@@ -617,19 +623,21 @@ class dict(builtins.dict):
         """
         if isinstance(key, builtins.list):
             if len(key) == 0:
-                return default
+                return ondefault(key) if ondefault else default
 
             current = self
             while len(key) > 0:
                 try:
                     current = current[key.pop(0)]
                 except (KeyError, IndexError):
-                    return default
+                    return ondefault(key) if ondefault else default
                 if isinstance(current, undefined):
-                    return default
+                    return ondefault(key) if ondefault else default
             return current
 
-        return super().get(key, default)
+        if key in self: 
+            return self[key]
+        return ondefault(key) if ondefault else default
 
     @classmethod
     def fromkeys(cls, keys, value):
@@ -1031,7 +1039,7 @@ class undefined:
             return dict().items()
         return self._parent[self._key].items()
 
-    def get(self, key, default=None):
+    def get(self, key, default=None, *, ondefault=None):
         """
         Return default value (read-only)
 
@@ -1043,12 +1051,12 @@ class undefined:
             the default value if the key does not exist
         """
         if isinstance(self._parent, undefined):
-            return default
+            return ondefault(key) if ondefault else default
         if isinstance(self._parent[self._key], undefined):
-            return default
-        return self._parent[self._key].get(key, default=default)
+            return ondefault(key) if ondefault else default
+        return self._parent[self._key].get(key, default=ondefault(key) if ondefault else default)
 
-    def setdefault(self, key, default):
+    def setdefault(self, key, default=None, *, ondefault=None):
         """
         Cast as dict and insert default value at key
 
@@ -1058,8 +1066,11 @@ class undefined:
             the key to look-up
         default : any
             the default value if the key does not exist
+        ondefault : callable
+            a callable that takes the key and returns a default value; 
+            if provided, ondefault takes precedence over default
         """
-        return self._cast(dict).setdefault(key, default=default)
+        return self._cast(dict).setdefault(key, default=ondefault(key) if ondefault else default)
 
     def update(self, other):
         """

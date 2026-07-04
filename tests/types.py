@@ -284,6 +284,32 @@ def test_get():
         tree.get("foo")
 
 
+def test_get_ondefault_callable():
+    tree = easytree.dict({"name": "foo", "friends": [{"name": "bob"}]})
+
+    assert tree.get("name", ondefault=lambda key: "missing") == "foo"
+    assert tree.get("age", ondefault=lambda key: f"missing {key}") == "missing age"
+    assert tree.get([], default="empty") == "empty"
+    assert tree.get([], ondefault=lambda key: f"empty {key}") == "empty []"
+    assert tree.get(["address"], ondefault=lambda key: f"missing {key}") == "missing []"
+
+    undefined_node = easytree.dict().y
+    assert undefined_node.get("name", ondefault=lambda key: "unknown") == "unknown"
+
+
+def test_get_ondefault_not_called_when_key_present():
+    tree = easytree.dict({"name": "foo"})
+    called = False
+
+    def ondefault(key):
+        nonlocal called
+        called = True
+        return "missing"
+
+    assert tree.get("name", ondefault=ondefault) == "foo"
+    assert called is False
+
+
 def test_list_extending():
     tree = easytree.list([0, True])
     tree.extend([1, 2, {}])
@@ -808,6 +834,18 @@ def test_dict_setdefault():
 
     x.a.b.setdefault("c", "this should not be overriden")
     assert x == {"a": {"b": {"c": "this should be set"}}}
+
+
+def test_dict_setdefault_ondefault_callable():
+    x = easytree.dict()
+
+    assert x.setdefault("foo", ondefault=lambda key: "bar") == "bar"
+    assert x["foo"] == "bar"
+    assert x.setdefault("foo", ondefault=lambda key: "baz") == "bar"
+
+    y = easytree.dict()
+    assert y.a.setdefault("name", ondefault=lambda key: "dave") == "dave"
+    assert y.a.name == "dave"
 
 
 def test_dict_setdefault_on_frozen():
